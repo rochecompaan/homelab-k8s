@@ -36,7 +36,7 @@ spec:
           gitea:
             admin:
               existingSecret: forgejo-admin
-              username: admin
+              username: roche
               email: roche@compaan.cloud
             config:
               APP_NAME: Forgejo

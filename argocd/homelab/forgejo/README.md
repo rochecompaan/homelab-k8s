@@ -12,7 +12,7 @@ just seal-forgejo-admin-secret
 
 Environment variables:
 
-- `FORGEJO_ADMIN_USERNAME` (default: `admin`)
+- `FORGEJO_ADMIN_USERNAME` (default: `roche`)
 - `FORGEJO_ADMIN_PASSWORD` (optional, generated if unset)
 
 The recipe writes:
