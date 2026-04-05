@@ -110,9 +110,9 @@ add-github-deploy-key:
     --title "{{github_deploy_key_title}}" \
     --repo {{github_repo}}
 
-install-argocd version="{{argocd_chart_version}}":
+install-argocd version=argocd_chart_version:
   helm repo add argocd https://argoproj.github.io/argo-helm
-  helm repo update
+  helm repo update argocd
   helm upgrade --install argocd argo-cd \
     --repo https://argoproj.github.io/argo-helm \
     --version {{version}} \
@@ -136,12 +136,13 @@ create-repository-secret:
     --from-literal=type=git \
     --from-literal=url={{github_repo_ssh_url}} \
     --from-literal=project=default \
-    --from-literal=name={{argocd_repo_secret_name}} \
     --from-file=sshPrivateKey="$tmpdir/id_ed25519" \
     --from-literal=depth=1 \
     --dry-run=client -o yaml \
-    | kubectl label --local -f - argocd.argoproj.io/secret-type=repository -o yaml \
-    | kubectl apply -f -
+    | kubectl apply -f -; \
+  kubectl -n argocd label secret {{argocd_repo_secret_name}} \
+    argocd.argoproj.io/secret-type=repository \
+    --overwrite
 
 create-github-webhook-secret:
   : "${ARGOCD_GITHUB_ACCESS_TOKEN:?Set ARGOCD_GITHUB_ACCESS_TOKEN}"; \
@@ -178,7 +179,7 @@ bootstrap-root-app:
     '      - allowEmpty=true' \
     | kubectl apply -f -
 
-bootstrap version="{{argocd_chart_version}}":
+bootstrap version=argocd_chart_version:
   just install-argocd version="{{version}}"
   just generate-github-deploy-key
   just add-github-deploy-key
