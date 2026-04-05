@@ -142,6 +142,11 @@ spec:
               containers:
                 main:
                   env:
+                    MATRIX_ACCESS_TOKEN:
+                      valueFrom:
+                        secretKeyRef:
+                          key: MATRIX_ACCESS_TOKEN
+                          name: openclaw-env-secret
                     PATH: /home/node/.openclaw/bin:/home/node/.openclaw/python/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
                   envFrom:
                     - secretRef:
@@ -153,8 +158,9 @@ spec:
                   {
                     // Environment variables used by model provider integrations
                     "env": {
-                      "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
-                      "OPENCLAW_GATEWAY_TOKEN": "${OPENCLAW_GATEWAY_TOKEN}"
+                      "MATRIX_ACCESS_TOKEN": "${MATRIX_ACCESS_TOKEN}",
+                      "OPENCLAW_GATEWAY_TOKEN": "${OPENCLAW_GATEWAY_TOKEN}",
+                      "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}"
                     },
 
                     // Gateway configuration

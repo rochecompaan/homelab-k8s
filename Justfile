@@ -20,6 +20,13 @@ openziti_controller_url := "https://ctrl.compaan.cloud/edge/management/v1"
 openziti_login_controller := "ctrl.compaan.cloud:443"
 openziti_username := "admin"
 openziti_password_entry := "private/login/zac-ctrl.compaan.cloud-admin"
+matrix_namespace := "matrix"
+matrix_deployment := "matrix"
+matrix_internal_url := "http://localhost:8008"
+matrix_public_url := "https://matrix.compaan"
+openclaw_namespace := "openclaw"
+openclaw_secret_name := "openclaw-env-secret"
+openclaw_secret_path := "argocd/homelab/infra/openclaw-secret.yaml"
 
 default:
   @just --list
@@ -89,6 +96,57 @@ seal-forgejo-admin-secret:
     -o yaml \
     | kubeseal --format=yaml \
     > argocd/homelab/forgejo/bootstrap/admin-secret.yaml
+
+matrix-create-user username password:
+  password="$(printf '%s' {{ quote(password) }} | tr -d '\r')"; \
+  kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" \
+    -n {{matrix_namespace}} \
+    exec deploy/{{matrix_deployment}} -- \
+    register_new_matrix_user \
+      -c /tmp/synapse.yaml \
+      -u {{ quote(username) }} \
+      -p "$password" \
+      --no-admin \
+      --exists-ok \
+      {{matrix_internal_url}}
+
+matrix-create-access-token username password device="openclaw":
+  password="$(printf '%s' {{ quote(password) }} | tr -d '\r')"; \
+  payload="$(jq -nc \
+    --arg user {{ quote(username) }} \
+    --arg password "$password" \
+    --arg device {{ quote(device) }} \
+    '{type: "m.login.password", identifier: {type: "m.id.user", user: $user}, password: $password, initial_device_display_name: $device}')"; \
+  tmpfile="$(mktemp)"; \
+  trap 'rm -f "$tmpfile"' EXIT; \
+  status="$(curl -skS -o "$tmpfile" -w '%{http_code}' {{matrix_public_url}}/_matrix/client/v3/login \
+    -H 'Content-Type: application/json' \
+    --data "$payload")"; \
+  if [[ "$status" != "200" ]]; then \
+    echo "Matrix login failed for {{username}} (HTTP $status)" >&2; \
+    cat "$tmpfile" >&2; \
+    exit 1; \
+  fi; \
+  jq -er '.access_token' < "$tmpfile"
+
+seal-openclaw-secret matrix_access_token:
+  mkdir -p "$(dirname {{quote(openclaw_secret_path)}})"; \
+  matrix_access_token={{ quote(matrix_access_token) }}; \
+  openrouter_api_key="${OPENROUTER_API_KEY:-$(kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n {{openclaw_namespace}} get secret {{openclaw_secret_name}} -o jsonpath='{.data.OPENROUTER_API_KEY}' | base64 -d)}"; \
+  openclaw_gateway_token="${OPENCLAW_GATEWAY_TOKEN:-$(kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n {{openclaw_namespace}} get secret {{openclaw_secret_name}} -o jsonpath='{.data.OPENCLAW_GATEWAY_TOKEN}' | base64 -d)}"; \
+  kubectl create secret generic {{openclaw_secret_name}} \
+    --namespace {{openclaw_namespace}} \
+    --from-literal="OPENROUTER_API_KEY=$openrouter_api_key" \
+    --from-literal="OPENCLAW_GATEWAY_TOKEN=$openclaw_gateway_token" \
+    --from-literal="MATRIX_ACCESS_TOKEN=$matrix_access_token" \
+    --dry-run=client \
+    -o yaml \
+    | kubeseal --format=yaml \
+    > {{openclaw_secret_path}}
+
+seal-openclaw-matrix-token username password device="openclaw":
+  matrix_access_token="$(just --quiet matrix-create-access-token {{ quote(username) }} {{ quote(password) }} device={{ quote(device) }})"; \
+  just seal-openclaw-secret "$matrix_access_token"
 
 generate-github-deploy-key:
   tmpdir="$(mktemp -d)"; \
