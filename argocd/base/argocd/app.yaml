@@ -17,6 +17,13 @@ spec:
         configs:
           cm:
             kustomize.buildOptions: --enable-helm
+            resource.customizations: |
+              networking.k8s.io/Ingress:
+                health.lua: |
+                  hs = {}
+                  hs.status = "Healthy"
+                  hs.message = "Skip health check for Ingress"
+                  return hs
           params:
             controller.repo.server.timeout.seconds: "300"
             server.insecure: true
