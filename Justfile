@@ -132,6 +132,7 @@ matrix-create-access-token username password device="openclaw":
 seal-openclaw-secret matrix_access_token:
   mkdir -p "$(dirname {{quote(openclaw_secret_path)}})"; \
   matrix_access_token={{ quote(matrix_access_token) }}; \
+  [[ -n "$matrix_access_token" ]] || { echo "Refusing to seal empty MATRIX_ACCESS_TOKEN" >&2; exit 1; }; \
   openrouter_api_key="${OPENROUTER_API_KEY:-$(kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n {{openclaw_namespace}} get secret {{openclaw_secret_name}} -o jsonpath='{.data.OPENROUTER_API_KEY}' | base64 -d)}"; \
   openclaw_gateway_token="${OPENCLAW_GATEWAY_TOKEN:-$(kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n {{openclaw_namespace}} get secret {{openclaw_secret_name}} -o jsonpath='{.data.OPENCLAW_GATEWAY_TOKEN}' | base64 -d)}"; \
   kubectl create secret generic {{openclaw_secret_name}} \
