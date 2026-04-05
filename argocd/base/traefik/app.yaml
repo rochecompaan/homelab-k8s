@@ -22,6 +22,10 @@ spec:
           value: '30443'
         - name: deployment.kind
           value: DaemonSet
+        - name: providers.kubernetesIngress.ingressEndpoint.hostname
+          value: traefik.compaan
+        - name: providers.kubernetesIngress.publishedService.enabled
+          value: 'false'
         - name: ports.websecure.transport.respondingTimeouts.idleTimeout
           value: 300s
         - name: ports.websecure.transport.respondingTimeouts.readTimeout
