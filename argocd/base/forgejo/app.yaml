@@ -1,0 +1,64 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: forgejo
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '4'
+spec:
+  project: default
+  sources:
+    - repoURL: code.forgejo.org/forgejo-helm
+      chart: forgejo
+      targetRevision: 16.2.1
+      helm:
+        releaseName: forgejo
+        valuesObject:
+          global:
+            storageClass: longhorn
+          persistence:
+            size: 10Gi
+          ingress:
+            enabled: true
+            className: traefik
+            annotations:
+              cert-manager.io/cluster-issuer: compaan-ca
+            hosts:
+              - host: git.compaan
+                paths:
+                  - path: /
+                    pathType: Prefix
+                    port: http
+            tls:
+              - secretName: git-compaan-tls
+                hosts:
+                  - git.compaan
+          gitea:
+            admin:
+              existingSecret: forgejo-admin
+              username: admin
+              email: roche@compaan.cloud
+            config:
+              APP_NAME: Forgejo
+              service:
+                DISABLE_REGISTRATION: true
+              session:
+                PROVIDER: db
+    - repoURL: git@github.com:rochecompaan/nixdots.git
+      targetRevision: main
+      path: argocd/homelab/forgejo/bootstrap
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: forgejo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+    syncOptions:
+      - CreateNamespace=true
