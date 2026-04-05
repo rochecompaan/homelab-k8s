@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: git@github.com:rochecompaan/nixdots.git
+    repoURL: git@github.com:rochecompaan/homelab-k8s.git
     targetRevision: main
     path: argocd/homelab/infra
   destination:
