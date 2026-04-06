@@ -16,15 +16,20 @@ spec:
     spec:
       initContainers:
         - name: render-config
-          image: busybox:1.36.1
+          image: python:3.13-alpine
           command:
             - sh
             - -ec
             - |
-              secret="$(tr -d '\n' < /etc/coturn-secret/registration_shared_secret)"
-              sed "s|__TURN_SHARED_SECRET__|$secret|g" \
-                /etc/coturn-template/turnserver.conf \
-                > /etc/coturn/turnserver.conf
+              python - <<'PY'
+              from pathlib import Path
+
+              secret = Path('/etc/coturn-secret/registration_shared_secret').read_text().strip()
+              template = Path('/etc/coturn-template/turnserver.conf').read_text()
+              Path('/etc/coturn/turnserver.conf').write_text(
+                  template.replace('__TURN_SHARED_SECRET__', secret)
+              )
+              PY
           volumeMounts:
             - name: config
               mountPath: /etc/coturn
