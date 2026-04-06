@@ -53,6 +53,8 @@ spec:
         element:
           enabled: false
         postgresql:
+          auth:
+            existingSecret: matrix-postgresql
           primary:
             persistence:
               enabled: true

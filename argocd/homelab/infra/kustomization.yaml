@@ -2,6 +2,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 resources:
   - matrix-namespace.yaml
   - openclaw-secret.yaml
+  - matrix-postgresql-secret.yaml
   - matrix-secret.yaml
   - cert-manager-issuer.yaml
   - coredns-configmap.yaml
