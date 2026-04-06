@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: coturn
+spec:
+  type: ClusterIP
+  selector:
+    app: coturn
+  ports:
+    - name: turn-tcp
+      protocol: TCP
+      port: 3478
+      targetPort: 3478

@@ -4,6 +4,7 @@ resources:
   - ../../base/argocd
   - ../../base/cert-manager
   - ../../base/cloudnative-pg
+  - ../../base/coturn
   - ../../base/nextcloud-db
   - ../../base/nextcloud
   - ../../base/webmutt

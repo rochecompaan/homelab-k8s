@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coturn
+data:
+  turnserver.conf: |
+    listening-port=3478
+    realm=turn.matrix.compaan
+    server-name=turn.matrix.compaan
+    fingerprint
+    use-auth-secret
+    static-auth-secret=__TURN_SHARED_SECRET__
+    no-cli
+    no-tls
+    no-dtls
+    no-loopback-peers
+    no-multicast-peers
+    min-port=49160
+    max-port=49200
+    # If calls need to work across a NAT boundary, set external-ip to the
+    # router public IP (or public/private mapping) and open the relay range.

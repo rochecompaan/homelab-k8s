@@ -1,0 +1,13 @@
+apiVersion: ziti.sixfeetup.com/v1alpha1
+kind: ZitiAccessPolicy
+metadata:
+  name: matrix-turn-dial
+  namespace: ziti
+spec:
+  type: Dial
+  identitySelector:
+    matchRoleAttributes:
+      - matrix
+  serviceSelector:
+    matchNames:
+      - matrix-turn

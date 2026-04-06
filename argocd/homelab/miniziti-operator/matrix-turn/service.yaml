@@ -1,0 +1,22 @@
+apiVersion: ziti.sixfeetup.com/v1alpha1
+kind: ZitiService
+metadata:
+  name: matrix-turn
+  namespace: ziti
+spec:
+  name: matrix-turn
+  roleAttributes:
+    - matrix-turn
+  configs:
+    intercept:
+      protocols:
+        - tcp
+      addresses:
+        - turn.matrix.compaan
+      portRanges:
+        - low: 3478
+          high: 3478
+    host:
+      protocol: tcp
+      address: coturn.matrix.svc.cluster.local
+      port: 3478

@@ -23,6 +23,15 @@ spec:
             client_base_url: https://matrix.compaan/
           trusted_key_servers: []
           report_stats: false
+          turn_uris:
+            - turn:turn.matrix.compaan:3478?transport=tcp
+          turn_user_lifetime: 1h
+        extraConfig:
+          - key: turn_shared_secret
+            secret:
+              yaml: false
+              name: matrix
+              key: registration_shared_secret
         secret:
           name: matrix
           generate: false
