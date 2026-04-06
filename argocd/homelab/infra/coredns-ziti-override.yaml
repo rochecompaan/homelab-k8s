@@ -4,15 +4,8 @@ metadata:
   name: coredns-custom
   namespace: kube-system
 data:
-  compaan.server: |
-    compaan:53 {
-        errors
-        cache 30
-        rewrite stop {
-            name regex ^.*\.compaan\.$ traefik.kube-system.svc.cluster.local.
-            answer auto
-        }
-        kubernetes cluster.local {
-            pods insecure
-        }
+  compaan.override: |
+    rewrite stop {
+        name regex ^.*\.compaan\.$ traefik.kube-system.svc.cluster.local.
+        answer auto
     }
