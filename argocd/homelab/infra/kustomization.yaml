@@ -3,7 +3,7 @@ resources:
   - openclaw-secret.yaml
   - matrix-secret.yaml
   - cert-manager-issuer.yaml
-  - coredns-ziti-override.yaml
+  - coredns-configmap.yaml
   - home-assistant.yaml
   - longhorn-sata-storageclass.yaml
   - private-ca.yaml

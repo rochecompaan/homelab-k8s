@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns
+  namespace: kube-system
+data:
+  Corefile: |
+    .:53 {
+        errors
+        health
+        ready
+        kubernetes cluster.local in-addr.arpa ip6.arpa {
+          pods insecure
+          fallthrough in-addr.arpa ip6.arpa
+        }
+        hosts /etc/coredns/NodeHosts {
+          ttl 60
+          reload 15s
+          fallthrough
+        }
+        rewrite stop {
+          name regex ^.*\.compaan\.$ traefik.kube-system.svc.cluster.local.
+          answer auto
+        }
+        prometheus :9153
+        cache 30
+        loop
+        reload
+        loadbalance
+        import /etc/coredns/custom/*.override
+        # forward . /etc/resolv.conf
+        forward . 192.168.1.1
+    }
+    import /etc/coredns/custom/*.server
+  NodeHosts: |
+    192.168.1.100 dauwalter
+    192.168.1.101 kipsang
+    192.168.1.102 fordyce
+    192.168.1.103 walmsley
+    192.168.1.104 selassie
