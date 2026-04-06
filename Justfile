@@ -20,6 +20,9 @@ openziti_controller_url := "https://ctrl.compaan.cloud/edge/management/v1"
 openziti_login_controller := "ctrl.compaan.cloud:443"
 openziti_username := "admin"
 openziti_password_entry := "private/login/zac-ctrl.compaan.cloud-admin"
+openziti_controller_namespace := "openziti"
+openziti_controller_ca_configmap_name := "openziti-controller-ctrl-plane-cas"
+openziti_controller_ca_configmap_key := "ctrl-plane-cas.crt"
 matrix_namespace := "matrix"
 matrix_deployment := "matrix"
 matrix_internal_url := "http://localhost:8008"
@@ -263,16 +266,25 @@ seal-openziti-management-secret: ziti-edge-login
   controller_url="${OPENZITI_CONTROLLER_URL:-{{openziti_controller_url}}}"; \
   username="${OPENZITI_USERNAME:-{{openziti_username}}}"; \
   password="${OPENZITI_PASSWORD:-$(pass show {{openziti_password_entry}} | head -n1 | tr -d '[:space:]')}"; \
-  args=(create secret generic openziti-management \
+  controller_namespace="${OPENZITI_CONTROLLER_NAMESPACE:-{{openziti_controller_namespace}}}"; \
+  controller_ca_configmap_name="${OPENZITI_CONTROLLER_CA_CONFIGMAP_NAME:-{{openziti_controller_ca_configmap_name}}}"; \
+  controller_ca_configmap_key="${OPENZITI_CONTROLLER_CA_CONFIGMAP_KEY:-{{openziti_controller_ca_configmap_key}}}"; \
+  tmpdir="$(mktemp -d)"; \
+  trap 'rm -rf "$tmpdir"' EXIT; \
+  ca_bundle_file="${OPENZITI_CA_BUNDLE_FILE:-}"; \
+  if [[ -z "$ca_bundle_file" ]]; then \
+    ca_bundle_file="$tmpdir/openziti-controller-ca.crt"; \
+    kubectl -n "$controller_namespace" get configmap "$controller_ca_configmap_name" -o json \
+      | jq -er --arg key "$controller_ca_configmap_key" '.data[$key]' \
+      > "$ca_bundle_file"; \
+  fi; \
+  kubectl create secret generic openziti-management \
     --namespace ziti \
     --from-literal="controllerUrl=$controller_url" \
     --from-literal="username=$username" \
     --from-literal="password=$password" \
+    --from-file="caBundle=$ca_bundle_file" \
     --dry-run=client \
-    -o yaml); \
-  if [[ -n "${OPENZITI_CA_BUNDLE_FILE:-}" ]]; then \
-    args+=(--from-file="caBundle=${OPENZITI_CA_BUNDLE_FILE}"); \
-  fi; \
-  kubectl "${args[@]}" \
+    -o yaml \
     | kubeseal --format=yaml \
     > argocd/homelab/miniziti-operator/openziti-management-secret.yaml
