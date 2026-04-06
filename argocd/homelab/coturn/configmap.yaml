@@ -8,6 +8,7 @@ data:
     realm=turn.matrix.compaan
     server-name=turn.matrix.compaan
     fingerprint
+    lt-cred-mech
     use-auth-secret
     static-auth-secret=__TURN_SHARED_SECRET__
     no-cli
