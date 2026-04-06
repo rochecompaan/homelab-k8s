@@ -4,7 +4,7 @@ metadata:
   name: coredns-custom
   namespace: kube-system
 data:
-  ziti.server: |
+  compaan.server: |
     compaan:53 {
         errors
         cache 30
@@ -12,5 +12,7 @@ data:
             name regex ^.*\.compaan\.$ traefik.kube-system.svc.cluster.local.
             answer auto
         }
-        forward . 192.168.1.100:1053 192.168.1.101:1053 192.168.1.102:1053 192.168.1.103:1053
+        kubernetes cluster.local {
+            pods insecure
+        }
     }

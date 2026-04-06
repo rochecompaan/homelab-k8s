@@ -7,7 +7,6 @@ resources:
   - home-assistant.yaml
   - longhorn-sata-storageclass.yaml
   - private-ca.yaml
-  - ziti-dns-forwarder.yaml
   - ziti-router-ingress.yaml
 kind: Kustomization
 patches:
