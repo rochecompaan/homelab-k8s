@@ -39,6 +39,7 @@ Cluster-specific desired state for the homelab cluster.
 
 Examples:
 - `argocd/homelab/apps/` - bootstrap bundle of ArgoCD Applications
+- `argocd/homelab/coturn/` - TURN relay for Matrix voice/video calls
 - `argocd/homelab/infra/` - shared cluster infrastructure manifests
 - `argocd/homelab/forgejo/` - Forgejo bootstrap resources
 - `argocd/homelab/miniziti-operator/` - operator install bundle and secrets
@@ -85,6 +86,7 @@ Operational helpers:
 - `garage`
 - `harbor`
 - `matrix`
+- `coturn`
 - `nextcloud`
 - `miniziti-operator`
 - `ziti-controller` / `ziti-router`
@@ -95,6 +97,32 @@ Operational helpers:
 - keep secrets sealed or generated, never plaintext
 - prefer app-local manifests/values under `argocd/homelab/<app>/`
 - keep ArgoCD source repositories small and focused
+
+## Matrix voice/video calls
+
+Matrix voice/video calls use:
+
+- Synapse in `argocd/base/matrix/app.yaml`
+- coturn in `argocd/homelab/coturn/`
+- OpenZiti service + access policy in `argocd/homelab/miniziti-operator/matrix-turn/`
+
+Current TURN setup:
+
+- advertised URI: `turn:turn.matrix.compaan:3478?transport=tcp`
+- TURN hostname: `turn.matrix.compaan`
+- transport: TCP over OpenZiti
+- auth secret source: `matrix` Secret key `registration_shared_secret`
+
+Operational notes:
+
+- coturn is fronted through OpenZiti, so it runs as a normal `Deployment` plus `ClusterIP` `Service`
+- the miniziti management secret sealing flow automatically extracts the controller CA bundle from the OpenZiti controller namespace unless `OPENZITI_CA_BUNDLE_FILE` is provided
+- the self-hosted Element web client is disabled; use a Matrix client that can reach both `matrix.compaan:443` and `turn.matrix.compaan:3478`
+
+See also:
+
+- `argocd/homelab/coturn/README.md`
+- `argocd/homelab/miniziti-operator/README.md`
 
 ## Current focus
 

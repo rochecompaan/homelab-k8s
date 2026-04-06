@@ -27,6 +27,13 @@ The recipe accepts these environment variables:
 - `OPENZITI_USERNAME` (default: `admin`)
 - `OPENZITI_PASSWORD` (default: `pass show private/login/zac-ctrl.compaan.cloud-admin | head -n1`)
 - `OPENZITI_CA_BUNDLE_FILE` (optional path to a PEM CA bundle)
+- `OPENZITI_CONTROLLER_NAMESPACE` (default: `openziti`)
+- `OPENZITI_CONTROLLER_CA_CONFIGMAP_NAME` (default: `openziti-controller-ctrl-plane-cas`)
+- `OPENZITI_CONTROLLER_CA_CONFIGMAP_KEY` (default: `ctrl-plane-cas.crt`)
+
+If `OPENZITI_CA_BUNDLE_FILE` is unset, the recipe automatically extracts the
+controller CA bundle from the OpenZiti controller namespace before sealing the
+secret.
 
 The sealed secret is written to:
 
@@ -37,3 +44,16 @@ The sealed secret is written to:
 Add `ZitiIdentity`, `ZitiService`, and `ZitiAccessPolicy` manifests anywhere in
 this directory tree. The ArgoCD Application is configured with
 `directory.recurse: true`, so subdirectories are applied automatically.
+
+## Matrix TURN service
+
+Matrix voice/video calls use the declarative OpenZiti resources in:
+
+- `argocd/homelab/miniziti-operator/matrix-turn/service.yaml`
+- `argocd/homelab/miniziti-operator/matrix-turn/access-policy.yaml`
+
+That service:
+
+- intercepts `turn.matrix.compaan:3478/tcp`
+- forwards to `coturn.matrix.svc.cluster.local:3478`
+- allows dial access for identities with the `matrix` role attribute

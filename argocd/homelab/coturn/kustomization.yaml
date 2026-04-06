@@ -4,4 +4,4 @@ namespace: matrix
 resources:
   - configmap.yaml
   - service.yaml
-  - daemonset.yaml
+  - deployment.yaml
