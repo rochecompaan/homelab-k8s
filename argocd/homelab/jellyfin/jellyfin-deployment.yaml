@@ -43,7 +43,7 @@ spec:
             limits:
               memory: 8Gi
         - name: copyparty
-          image: copyparty/dj:1.20.13
+          image: copyparty/ac:1.20.13
           ports:
             - containerPort: 3923
               name: web
