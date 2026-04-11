@@ -6,6 +6,7 @@ resources:
   - matrix-secret.yaml
   - cert-manager-issuer.yaml
   - coredns-configmap.yaml
+  - home-assistant-namespace.yaml
   - home-assistant.yaml
   - home-assistant-ingress.yaml
   - longhorn-sata-storageclass.yaml
