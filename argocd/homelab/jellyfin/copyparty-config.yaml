@@ -14,7 +14,11 @@ data:
       ansi   # enable colors in log messages
       ver    # show version
 
+    [accounts]
+      roche: brightred
+
     [/]            # volume at webroot
       /w           # share /w (the container data volume)
       accs:
         rw: *
+        rwmda: roche
