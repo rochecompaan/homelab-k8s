@@ -79,6 +79,6 @@
 
 - The agent's session history may not reflect the latest remote state.
 - If a file's content differs from what the session history shows, this is likely
-  because the user committed changes directly (e.g., `git push` from another terminal).
-- **Never** revert or overwrite remote changes to match the session history.
-- When in doubt, fetch the latest remote state before making changes.
+  because the user made changes locally and saved or committed the changes.
+- **Never** revert or overwrite saved or committed changes to match the session history.
+- When in doubt, ask the user.
