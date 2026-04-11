@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jellyfin
+  namespace: jellyfin
+  annotations:
+    cert-manager.io/cluster-issuer: compaan-ca
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - jellyfin.compaan
+      secretName: jellyfin-compaan-tls
+  rules:
+    - host: jellyfin.compaan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jellyfin
+                port:
+                  number: 8096
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: jellyfin-compaan
+  namespace: jellyfin
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  secretName: jellyfin-compaan-tls
+  issuerRef:
+    name: compaan-ca
+    kind: ClusterIssuer
+  commonName: jellyfin.compaan
+  dnsNames:
+    - jellyfin.compaan

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: copyparty
+  namespace: jellyfin
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: copyparty
+  template:
+    metadata:
+      labels:
+        app: copyparty
+    spec:
+      containers:
+        - name: copyparty
+          image: copyparty/dj:1.20.13
+          ports:
+            - containerPort: 3923
+              name: web
+          args:
+            - "-p3923"
+            - "-v"
+            - "/media:/media"
+          volumeMounts:
+            - mountPath: /media
+              name: media-pvc
+              subPath: media
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 512Mi
+      volumes:
+        - name: media-pvc
+          persistentVolumeClaim:
+            claimName: media-pvc

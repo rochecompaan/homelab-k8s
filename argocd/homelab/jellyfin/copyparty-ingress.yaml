@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: copyparty
+  namespace: jellyfin
+  annotations:
+    cert-manager.io/cluster-issuer: compaan-ca
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - copyparty.compaan
+      secretName: copyparty-compaan-tls
+  rules:
+    - host: copyparty.compaan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: copyparty
+                port:
+                  number: 3923
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: copyparty-compaan
+  namespace: jellyfin
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  secretName: copyparty-compaan-tls
+  issuerRef:
+    name: compaan-ca
+    kind: ClusterIssuer
+  commonName: copyparty.compaan
+  dnsNames:
+    - copyparty.compaan

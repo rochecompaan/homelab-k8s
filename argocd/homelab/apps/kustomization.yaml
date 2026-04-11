@@ -16,6 +16,7 @@ resources:
   - ../../base/forgejo
   - ../../base/ftp
   - ../../base/infra
+  - ../../base/jellyfin
   - ../../base/kube-prometheus-stack
   - ../../base/local-path-provisioner
   - ../../base/mosquitto
