@@ -23,19 +23,3 @@ spec:
                 name: copyparty
                 port:
                   number: 3923
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: copyparty-compaan
-  namespace: jellyfin
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
-spec:
-  secretName: copyparty-compaan-tls
-  issuerRef:
-    name: compaan-ca
-    kind: ClusterIssuer
-  commonName: copyparty.compaan
-  dnsNames:
-    - copyparty.compaan

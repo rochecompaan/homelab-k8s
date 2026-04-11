@@ -23,19 +23,3 @@ spec:
                 name: jellyfin
                 port:
                   number: 8096
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: jellyfin-compaan
-  namespace: jellyfin
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
-spec:
-  secretName: jellyfin-compaan-tls
-  issuerRef:
-    name: compaan-ca
-    kind: ClusterIssuer
-  commonName: jellyfin.compaan
-  dnsNames:
-    - jellyfin.compaan
