@@ -43,15 +43,15 @@ spec:
             limits:
               memory: 8Gi
         - name: copyparty
-          image: copyparty/dj:1.20.13
+          image: copyparty/ac:1.20.13
           ports:
             - containerPort: 3923
               name: web
           args:
-            - "-p3923"
-            - "-v/media"
+            - -p
+            - 3923
           volumeMounts:
-            - mountPath: /media
+            - mountPath: /w
               name: media-pvc
               subPath: media
           resources:
