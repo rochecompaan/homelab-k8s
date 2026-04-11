@@ -13,27 +13,34 @@ spec:
     targetRevision: 37.4.0
     helm:
       releaseName: traefik
-      parameters:
-        - name: service.type
-          value: NodePort
-        - name: ports.web.nodePort
-          value: '30080'
-        - name: ports.websecure.nodePort
-          value: '30443'
-        - name: ports.mqtt.nodePort
-          value: '31883'
-        - name: deployment.kind
-          value: DaemonSet
-        - name: providers.kubernetesIngress.ingressEndpoint.hostname
-          value: traefik.compaan
-        - name: providers.kubernetesIngress.publishedService.enabled
-          value: 'false'
-        - name: ports.websecure.transport.respondingTimeouts.idleTimeout
-          value: 300s
-        - name: ports.websecure.transport.respondingTimeouts.readTimeout
-          value: 300s
-        - name: ports.websecure.transport.respondingTimeouts.writeTimeout
-          value: 300s
+      valuesObject:
+        service:
+          type: NodePort
+        ports:
+          web:
+            nodePort: 30080
+          websecure:
+            nodePort: 30443
+            transport:
+              respondingTimeouts:
+                idleTimeout: 300s
+                readTimeout: 300s
+                writeTimeout: 300s
+          mqtt:
+            port: 1883
+            expose:
+              default: true
+            exposedPort: 1883
+            protocol: TCP
+            nodePort: 31883
+        deployment:
+          kind: DaemonSet
+        providers:
+          kubernetesIngress:
+            ingressEndpoint:
+              hostname: traefik.compaan
+            publishedService:
+              enabled: false
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system
