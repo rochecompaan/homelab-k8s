@@ -9,5 +9,5 @@ spec:
       targetPort: 3923
       name: web
   selector:
-    app: copyparty
+    app: jellyfin
   type: ClusterIP

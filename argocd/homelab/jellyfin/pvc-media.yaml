@@ -9,4 +9,4 @@ spec:
   resources:
     requests:
       storage: 2Ti
-  storageClassName: longhorn
+  storageClassName: sata-local-path
