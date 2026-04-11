@@ -74,3 +74,11 @@
 
 - Manage secrets with sops-nix; keep Age keys off-repo. Update items under `secrets/**` only via `sops`.
 - Avoid leaking hostnames/paths in public diffs; prefer variables and options where possible.
+
+## IMPORTANT: Session State vs Remote State
+
+- The agent's session history may not reflect the latest remote state.
+- If a file's content differs from what the session history shows, this is likely
+  because the user committed changes directly (e.g., `git push` from another terminal).
+- **Never** revert or overwrite remote changes to match the session history.
+- When in doubt, fetch the latest remote state before making changes.
