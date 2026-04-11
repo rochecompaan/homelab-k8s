@@ -13,6 +13,7 @@ data:
       e2ts   # enable multimedia indexing
       ansi   # enable colors in log messages
       ver    # show version
+      xff-src: 10.42.0.0/16
 
     [accounts]
       roche: brightred
