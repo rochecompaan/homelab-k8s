@@ -50,7 +50,7 @@ spec:
           args:
             - "-p3923"
             - "-v"
-            - "/media:/media"
+            - "/media"
           volumeMounts:
             - mountPath: /media
               name: media-pvc
