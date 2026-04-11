@@ -20,6 +20,8 @@ spec:
           value: '30080'
         - name: ports.websecure.nodePort
           value: '30443'
+        - name: ports.mqtt.nodePort
+          value: '31883'
         - name: deployment.kind
           value: DaemonSet
         - name: providers.kubernetesIngress.ingressEndpoint.hostname
