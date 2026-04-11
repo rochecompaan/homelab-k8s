@@ -13,11 +13,21 @@ spec:
     targetRevision: 1.10.1
     helm:
       releaseName: longhorn
-      parameters:
-        - name: preUpgradeChecker.jobEnabled
-          value: 'false'
-        - name: persistence.defaultClass
-          value: 'false'
+      valuesObject:
+        preUpgradeChecker:
+          jobEnabled: false
+        persistence:
+          defaultClass: false
+        ingress:
+          enabled: true
+          ingressClassName: traefik
+          annotations:
+            cert-manager.io/cluster-issuer: compaan-ca
+          host: longhorn.compaan
+          tls:
+            - secretName: longhorn-compaan-tls
+              hosts:
+                - longhorn.compaan
   destination:
     server: https://kubernetes.default.svc
     namespace: longhorn-system
