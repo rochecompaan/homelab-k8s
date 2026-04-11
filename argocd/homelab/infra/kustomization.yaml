@@ -7,6 +7,7 @@ resources:
   - cert-manager-issuer.yaml
   - coredns-configmap.yaml
   - home-assistant.yaml
+  - home-assistant-ingress.yaml
   - longhorn-sata-storageclass.yaml
   - private-ca.yaml
   - ziti-router-ingress.yaml
