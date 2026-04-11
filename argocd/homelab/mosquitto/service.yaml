@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: mosquitto
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: mosquitto
   ports:
