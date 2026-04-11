@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: jellyfin
 resources:
   - namespace.yaml
+  - copyparty-config.yaml
   - pvc-media.yaml
   - jellyfin-deployment.yaml
   - jellyfin-service.yaml

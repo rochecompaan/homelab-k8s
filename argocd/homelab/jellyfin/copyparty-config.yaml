@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: copyparty-config
+  namespace: jellyfin
+data:
+  copyparty.conf: |
+    # -*- mode: yaml -*-
+    # vim: ft=yaml:
+
+    [global]
+      e2dsa  # enable file indexing and filesystem scanning
+      e2ts   # enable multimedia indexing
+      ansi   # enable colors in log messages
+
+    [/]            # volume at webroot
+      /w           # share /w (the container data volume)
+      flags:
+        rw        # read-write for all
+        e2ds      # enable filesystem-scanning
