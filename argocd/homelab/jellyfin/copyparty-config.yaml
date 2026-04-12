@@ -17,9 +17,11 @@ data:
 
     [accounts]
       roche: brightred
+      juan:fudgie
 
     [/]            # volume at webroot
       /w           # share /w (the container data volume)
       accs:
         rw: *
         rwmda: roche
+        rwmda: juan
