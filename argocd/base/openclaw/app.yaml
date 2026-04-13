@@ -356,7 +356,7 @@ spec:
               existingClaim: openclaw-maildir
               globalMounts:
                 - path: /home/node/.openclaw/workspace/mail
-                  readOnly: true
+                  readOnly: false
           ingress:
             main:
               enabled: true
