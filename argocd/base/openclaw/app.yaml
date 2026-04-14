@@ -255,7 +255,7 @@ spec:
                         "workspace": "/home/node/.openclaw/workspace",
                         "model": {
                           // Uses OPENROUTER_API_KEY from environment
-                          "primary": "openrouter/openai/gpt-5.3-codex"
+                          "primary": "openrouter/openai/gpt-5.4"
                         },
                         "userTimezone": "UTC",
                         "timeoutSeconds": 600,
