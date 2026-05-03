@@ -70,6 +70,7 @@ spec:
                       python_dir="${openclaw_home}/python"
                       workspace_dir="${openclaw_home}/workspace"
                       skills_dir="${workspace_dir}/skills"
+                      codex_home="${openclaw_home}/agents/main/agent/codex-home"
 
                       install -d -m 0755 -o 1000 -g 1000 \
                         "${openclaw_home}" \
@@ -78,7 +79,8 @@ spec:
                         "${runtime_bin_dir}" \
                         "${python_dir}" \
                         "${workspace_dir}" \
-                        "${skills_dir}"
+                        "${skills_dir}" \
+                        "${codex_home}"
 
                       export DEBIAN_FRONTEND=noninteractive
                       apt-get update
@@ -164,6 +166,7 @@ spec:
               containers:
                 main:
                   env:
+                    CODEX_HOME: /home/node/.openclaw/agents/main/agent/codex-home
                     CURL_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
                     MATRIX_ACCESS_TOKEN:
                       valueFrom:
