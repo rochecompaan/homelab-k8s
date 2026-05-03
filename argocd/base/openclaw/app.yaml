@@ -333,6 +333,7 @@ spec:
           persistence:
             data:
               storageClass: longhorn
+              size: 10Gi
               advancedMounts:
                 main:
                   init-runtime-deps:
