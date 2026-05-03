@@ -21,7 +21,7 @@ spec:
       releaseName: openclaw
       valuesObject:
         app-template:
-          openclawVersion: "2026.4.29"
+          openclawVersion: "2026.5.2-slim"
           configMode: merge
           controllers:
             main:
@@ -38,7 +38,7 @@ spec:
                       cat /ca-src/compaan-ca.crt >> /ca-store/ca-certificates.crt
                   image:
                     repository: ghcr.io/openclaw/openclaw
-                    tag: "2026.4.29"
+                    tag: "2026.5.2-slim"
                   securityContext:
                     allowPrivilegeEscalation: false
                     capabilities:
@@ -70,7 +70,6 @@ spec:
                       python_dir="${openclaw_home}/python"
                       workspace_dir="${openclaw_home}/workspace"
                       skills_dir="${workspace_dir}/skills"
-                      codex_home="${openclaw_home}/agents/main/agent/codex-home"
 
                       install -d -m 0755 -o 1000 -g 1000 \
                         "${openclaw_home}" \
@@ -79,8 +78,7 @@ spec:
                         "${runtime_bin_dir}" \
                         "${python_dir}" \
                         "${workspace_dir}" \
-                        "${skills_dir}" \
-                        "${codex_home}"
+                        "${skills_dir}"
 
                       export DEBIAN_FRONTEND=noninteractive
                       apt-get update
@@ -166,7 +164,6 @@ spec:
               containers:
                 main:
                   env:
-                    CODEX_HOME: /home/node/.openclaw/agents/main/agent/codex-home
                     CURL_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
                     MATRIX_ACCESS_TOKEN:
                       valueFrom:
@@ -227,7 +224,7 @@ spec:
                     // Plugin configuration
                     "plugins": {
                       "entries": {
-                        "codex": {
+                        "openai": {
                           "enabled": true
                         }
                       }
@@ -266,11 +263,11 @@ spec:
                       "defaults": {
                         "workspace": "/home/node/.openclaw/workspace",
                         "model": {
-                          // Uses OpenAI Codex OAuth from the persisted auth profile
-                          "primary": "openai/gpt-5.5"
+                          // Uses ChatGPT/Codex subscription auth via the PI runtime
+                          "primary": "openai-codex/gpt-5.5"
                         },
                         "agentRuntime": {
-                          "id": "codex",
+                          "id": "pi",
                           "fallback": "none"
                         },
                         "userTimezone": "UTC",
