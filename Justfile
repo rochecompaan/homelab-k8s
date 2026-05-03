@@ -30,9 +30,50 @@ matrix_public_url := "https://matrix.compaan"
 openclaw_namespace := "openclaw"
 openclaw_secret_name := "openclaw-env-secret"
 openclaw_secret_path := "argocd/homelab/infra/openclaw-secret.yaml"
+garage_namespace := "garage"
+garage_pod := "garage-0"
+garage_container := "garage"
+garage_binary := "/garage"
 
 default:
   @just --list
+
+garage-exec +args:
+  @kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" \
+    -n {{garage_namespace}} \
+    exec {{garage_pod}} \
+    -c {{garage_container}} -- \
+    {{garage_binary}} {{args}}
+
+garage-bucket-list:
+  @just garage-exec bucket list
+
+garage-bucket-create-key bucket key:
+  @bucket={{ quote(bucket) }}; \
+  key={{ quote(key) }}; \
+  tmpfile="$(mktemp)"; \
+  trap 'rm -f "$tmpfile"' EXIT; \
+  just garage-exec key create "$key" | tee "$tmpfile"; \
+  access_key_id="$(awk -F': *' 'tolower($1) ~ /key id/ { gsub(/^[[:space:]]+|[[:space:]]+$/, "", $2); print $2; exit }' "$tmpfile")"; \
+  secret_access_key="$(awk -F': *' 'tolower($1) ~ /secret key/ { gsub(/^[[:space:]]+|[[:space:]]+$/, "", $2); print $2; exit }' "$tmpfile")"; \
+  if [[ -z "$access_key_id" || -z "$secret_access_key" ]]; then \
+    echo "Unable to parse Garage access key or secret from key create output" >&2; \
+    exit 1; \
+  fi; \
+  just garage-exec bucket allow --read --write --owner "$bucket" --key "$key"; \
+  printf 'AWS_ACCESS_KEY_ID=%s\nAWS_SECRET_ACCESS_KEY=%s\n' "$access_key_id" "$secret_access_key" \
+    | pass insert --force --multiline "garage/$bucket"
+
+garage-bucket-create-private bucket key:
+  @bucket={{ quote(bucket) }}; \
+  just garage-exec bucket create "$bucket"; \
+  just garage-bucket-create-key "$bucket" {{ quote(key) }}
+
+garage-bucket-create-public bucket key:
+  @bucket={{ quote(bucket) }}; \
+  just garage-exec bucket create "$bucket"; \
+  just garage-bucket-create-key "$bucket" {{ quote(key) }}; \
+  just garage-exec bucket website --allow "$bucket"
 
 mail-secrets: seal-webmutt-secret seal-openclaw-mail-secret
 
