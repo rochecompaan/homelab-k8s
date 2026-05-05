@@ -20,6 +20,7 @@ spec:
           config:
             create: true
             existingInitSecret: forgejo-runner-init
+            instance: http://forgejo-http.forgejo.svc.cluster.local:3000
             file:
               runner:
                 capacity: 1

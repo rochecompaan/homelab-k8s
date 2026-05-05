@@ -153,7 +153,7 @@ seal-forgejo-action-runner-secret:
   kubectl create secret generic forgejo-runner-init \
     --namespace forgejo \
     --from-literal="CONFIG_NAME=homelab-runner-1" \
-    --from-literal="CONFIG_INSTANCE=https://git.compaan.cloud" \
+    --from-literal="CONFIG_INSTANCE=http://forgejo-http.forgejo.svc.cluster.local:3000" \
     --from-literal="CONFIG_TOKEN=$token" \
     --dry-run=client \
     -o yaml \
