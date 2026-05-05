@@ -22,17 +22,17 @@ spec:
             enabled: true
             className: traefik
             annotations:
-              cert-manager.io/cluster-issuer: compaan-ca
+              cert-manager.io/cluster-issuer: letsencrypt-prod
             hosts:
-              - host: git.compaan
+              - host: git.compaan.cloud
                 paths:
                   - path: /
                     pathType: Prefix
                     port: http
             tls:
-              - secretName: git-compaan-tls
+              - secretName: git-compaan-cloud-tls
                 hosts:
-                  - git.compaan
+                  - git.compaan.cloud
           gitea:
             admin:
               existingSecret: forgejo-admin

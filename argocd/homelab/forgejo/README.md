@@ -28,4 +28,4 @@ This app also bootstraps an ArgoCD OCI Helm repository secret for:
 
 Forgejo is exposed at:
 
-- `https://git.compaan`
+- `https://git.compaan.cloud`
