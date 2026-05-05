@@ -20,9 +20,27 @@ The recipe writes:
 - `argocd/homelab/forgejo/bootstrap/admin-secret.yaml`
 - `argocd/homelab/forgejo/bootstrap/kustomization.yaml`
 
-This app also bootstraps an ArgoCD OCI Helm repository secret for:
+## Forgejo Actions runner
+
+Forgejo Actions are enabled in the Forgejo Helm values. Generate the sealed
+runner registration Secret with:
+
+```sh
+just seal-forgejo-action-runner-secret
+```
+
+The recipe reads the registration token from:
+
+- `pass show FORGEJO_ACTION_RUNNER_TOKEN`
+
+The recipe writes:
+
+- `argocd/homelab/forgejo/bootstrap/runner-init-secret.yaml`
+
+This app also bootstraps ArgoCD OCI Helm repository secrets for:
 
 - `code.forgejo.org/forgejo-helm`
+- `codeberg.org/wrenix/helm-charts`
 
 ## Hostname
 

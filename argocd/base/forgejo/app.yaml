@@ -40,6 +40,8 @@ spec:
               email: roche@compaan.cloud
             config:
               APP_NAME: Forgejo
+              actions:
+                ENABLED: true
               service:
                 DISABLE_REGISTRATION: true
               session:

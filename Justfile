@@ -16,6 +16,7 @@ github_deploy_key_title := "homelab-k8s ArgoCD GitHub Deploy Key"
 argocd_github_deploy_key_entry := "private/git/homelab-k8s-argocd-deploy-key"
 forgejo_admin_username := "roche"
 forgejo_admin_password_entry := "private/login/git.compaan-admin"
+forgejo_action_runner_token_entry := "FORGEJO_ACTION_RUNNER_TOKEN"
 openziti_controller_url := "https://ctrl.compaan.cloud/edge/management/v1"
 openziti_login_controller := "ctrl.compaan.cloud:443"
 openziti_username := "admin"
@@ -131,6 +132,8 @@ seal-forgejo-admin-secret:
     'resources:' \
     '  - oci-repository.yaml' \
     '  - admin-secret.yaml' \
+    '  - runner-init-secret.yaml' \
+    '  - runner-oci-repository.yaml' \
     > argocd/homelab/forgejo/bootstrap/kustomization.yaml; \
   kubectl create secret generic forgejo-admin \
     --namespace forgejo \
@@ -140,6 +143,23 @@ seal-forgejo-admin-secret:
     -o yaml \
     | kubeseal --format=yaml \
     > argocd/homelab/forgejo/bootstrap/admin-secret.yaml
+
+seal-forgejo-action-runner-secret:
+  mkdir -p argocd/homelab/forgejo/bootstrap; \
+  tmpfile="$(mktemp)"; \
+  trap 'rm -f "$tmpfile"' EXIT; \
+  token="$(pass show {{forgejo_action_runner_token_entry}} | head -n1 | tr -d '[:space:]')"; \
+  [[ -n "$token" ]] || { echo "Refusing to seal empty Forgejo action runner token" >&2; exit 1; }; \
+  kubectl create secret generic forgejo-runner-init \
+    --namespace forgejo \
+    --from-literal="CONFIG_NAME=homelab-runner-1" \
+    --from-literal="CONFIG_INSTANCE=https://git.compaan.cloud" \
+    --from-literal="CONFIG_TOKEN=$token" \
+    --dry-run=client \
+    -o yaml \
+    | kubeseal --kubeconfig "${KUBECONFIG:-./.kubeconfig}" --format=yaml \
+    > "$tmpfile"; \
+  mv "$tmpfile" argocd/homelab/forgejo/bootstrap/runner-init-secret.yaml
 
 matrix-create-user username password:
   password="$(printf '%s' {{ quote(password) }} | tr -d '\r')"; \

@@ -66,6 +66,7 @@ secrets in-place.
 
 Available recipes include:
 - `just seal-forgejo-admin-secret`
+- `just seal-forgejo-action-runner-secret`
 - `just seal-openziti-management-secret`
 - `just seal-webmutt-secret`
 - `just seal-openclaw-mail-secret`
@@ -83,6 +84,7 @@ Operational helpers:
 - `longhorn`
 - `cloudnative-pg`
 - `forgejo`
+- `forgejo-runner`
 - `garage`
 - `harbor`
 - `matrix`

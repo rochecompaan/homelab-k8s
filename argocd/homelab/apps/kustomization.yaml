@@ -14,6 +14,7 @@ resources:
   - ../../base/miniziti-operator
   - ../../base/garage
   - ../../base/forgejo
+  - ../../base/forgejo-runner
   - ../../base/ftp
   - ../../base/infra
   - ../../base/jellyfin

@@ -3,3 +3,5 @@ kind: Kustomization
 resources:
   - oci-repository.yaml
   - admin-secret.yaml
+  - runner-init-secret.yaml
+  - runner-oci-repository.yaml
