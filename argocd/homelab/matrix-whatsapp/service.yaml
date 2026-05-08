@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: matrix-whatsapp
+  labels:
+    app.kubernetes.io/name: matrix-whatsapp
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 29318
+      targetPort: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: matrix-whatsapp

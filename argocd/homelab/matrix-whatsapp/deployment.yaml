@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matrix-whatsapp
+  labels:
+    app.kubernetes.io/name: matrix-whatsapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: matrix-whatsapp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: matrix-whatsapp
+    spec:
+      initContainers:
+        - name: render-config
+          image: python:3.13-alpine
+          imagePullPolicy: IfNotPresent
+          command:
+            - python
+            - -c
+            - |
+              import os
+              from pathlib import Path
+              from urllib.parse import quote
+
+              template = Path('/config-template/config.yaml.tpl').read_text()
+              database_uri = (
+                  'postgres://'
+                  + quote(os.environ['POSTGRES_USER'], safe='')
+                  + ':'
+                  + quote(os.environ['POSTGRES_PASSWORD'], safe='')
+                  + '@matrix-whatsapp-postgres-rw.matrix.svc.cluster.local:5432/'
+                  + quote(os.environ['POSTGRES_DB'], safe='')
+                  + '?sslmode=disable'
+              )
+              replacements = {
+                  'DATABASE_URI': database_uri,
+                  'AS_TOKEN': os.environ['AS_TOKEN'],
+                  'HS_TOKEN': os.environ['HS_TOKEN'],
+                  'PICKLE_KEY': os.environ['PICKLE_KEY'],
+              }
+              for key, value in replacements.items():
+                  template = template.replace('${' + key + '}', value)
+              Path('/config/config.yaml').write_text(template)
+          env:
+            - name: POSTGRES_USER
+              value: mautrix_whatsapp
+            - name: POSTGRES_DB
+              value: mautrix_whatsapp
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: matrix-whatsapp-postgres-app
+                  key: password
+            - name: AS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: matrix-whatsapp-appservice
+                  key: as_token
+            - name: HS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: matrix-whatsapp-appservice
+                  key: hs_token
+            - name: PICKLE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: matrix-whatsapp-appservice
+                  key: pickle_key
+          volumeMounts:
+            - name: config-template
+              mountPath: /config-template
+              readOnly: true
+            - name: rendered-config
+              mountPath: /config
+      containers:
+        - name: matrix-whatsapp
+          image: dock.mau.dev/mautrix/whatsapp@sha256:50dbe8722a09775768c2d0fadc2250c585ff0250f7b5643c44bea1235931d970
+          imagePullPolicy: IfNotPresent
+          command:
+            - /usr/bin/mautrix-whatsapp
+          args:
+            - --config
+            - /config/config.yaml
+            - --no-update
+          ports:
+            - name: http
+              containerPort: 29318
+              protocol: TCP
+          volumeMounts:
+            - name: rendered-config
+              mountPath: /config
+              readOnly: true
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+      volumes:
+        - name: config-template
+          configMap:
+            name: matrix-whatsapp-config
+        - name: rendered-config
+          emptyDir: {}
