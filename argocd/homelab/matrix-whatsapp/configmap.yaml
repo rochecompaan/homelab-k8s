@@ -61,7 +61,6 @@ data:
       bot:
         username: whatsappbot
         displayname: WhatsApp bridge bot
-        avatar: mxc://maunium.net/NeXNQarUbrlYBiPCpprYsRqr
       ephemeral_events: true
       async_transactions: false
       as_token: ${AS_TOKEN}
