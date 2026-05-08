@@ -11,7 +11,7 @@ data:
       call_start_notices: true
       identity_change_notices: false
       send_presence_on_typing: false
-      enable_status_broadcast: true
+      enable_status_broadcast: false
       disable_status_broadcast_send: true
       mute_status_broadcast: true
       initial_auto_reconnect: true
