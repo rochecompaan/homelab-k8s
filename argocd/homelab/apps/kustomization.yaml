@@ -11,6 +11,7 @@ resources:
   - ../../base/openclaw-mail-sync
   - ../../base/openclaw
   - ../../base/matrix
+  - ../../base/matrix-whatsapp
   - ../../base/miniziti-operator
   - ../../base/garage
   - ../../base/forgejo
