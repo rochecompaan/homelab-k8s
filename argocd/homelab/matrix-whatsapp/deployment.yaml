@@ -24,20 +24,10 @@ spec:
             - |
               import os
               from pathlib import Path
-              from urllib.parse import quote
 
               template = Path('/config-template/config.yaml.tpl').read_text()
-              database_uri = (
-                  'postgres://'
-                  + quote(os.environ['POSTGRES_USER'], safe='')
-                  + ':'
-                  + quote(os.environ['POSTGRES_PASSWORD'], safe='')
-                  + '@matrix-whatsapp-postgres-rw.matrix.svc.cluster.local:5432/'
-                  + quote(os.environ['POSTGRES_DB'], safe='')
-                  + '?sslmode=disable'
-              )
               replacements = {
-                  'DATABASE_URI': database_uri,
+                  'DATABASE_URI': os.environ['DATABASE_URI'],
                   'AS_TOKEN': os.environ['AS_TOKEN'],
                   'HS_TOKEN': os.environ['HS_TOKEN'],
                   'PICKLE_KEY': os.environ['PICKLE_KEY'],
@@ -46,15 +36,11 @@ spec:
                   template = template.replace('${' + key + '}', value)
               Path('/config/config.yaml').write_text(template)
           env:
-            - name: POSTGRES_USER
-              value: mautrix_whatsapp
-            - name: POSTGRES_DB
-              value: mautrix_whatsapp
-            - name: POSTGRES_PASSWORD
+            - name: DATABASE_URI
               valueFrom:
                 secretKeyRef:
                   name: matrix-whatsapp-postgres-app
-                  key: password
+                  key: uri
             - name: AS_TOKEN
               valueFrom:
                 secretKeyRef:
