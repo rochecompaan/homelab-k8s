@@ -28,6 +28,9 @@ matrix_namespace := "matrix"
 matrix_deployment := "matrix"
 matrix_internal_url := "http://localhost:8008"
 matrix_public_url := "https://matrix.compaan"
+matrix_whatsapp_secret_name := "matrix-whatsapp-appservice"
+matrix_whatsapp_secret_path := "argocd/homelab/infra/matrix-whatsapp-secret.yaml"
+matrix_whatsapp_registration_template := "argocd/homelab/infra/matrix-whatsapp-registration.yaml.tpl"
 openclaw_namespace := "openclaw"
 openclaw_secret_name := "openclaw-env-secret"
 openclaw_secret_path := "argocd/homelab/infra/openclaw-secret.yaml"
@@ -118,6 +121,35 @@ seal-matrix-secret:
     -o yaml \
     | kubeseal --format=yaml \
     > argocd/homelab/infra/matrix-secret.yaml
+
+seal-matrix-whatsapp-secret:
+  mkdir -p "$(dirname {{quote(matrix_whatsapp_secret_path)}})"; \
+  tmpdir="$(mktemp -d)"; \
+  trap 'rm -rf "$tmpdir"' EXIT; \
+  as_token="$(openssl rand -hex 64)"; \
+  hs_token="$(openssl rand -hex 64)"; \
+  sender_localpart="$(openssl rand -hex 16)"; \
+  pickle_key="$(openssl rand -hex 64)"; \
+  sed \
+    -e "s|\${AS_TOKEN}|$as_token|g" \
+    -e "s|\${HS_TOKEN}|$hs_token|g" \
+    -e "s|\${SENDER_LOCALPART}|$sender_localpart|g" \
+    {{matrix_whatsapp_registration_template}} \
+    > "$tmpdir/registration.yaml"; \
+  [[ -n "$as_token" ]] || { echo "Refusing to seal empty mautrix WhatsApp as_token" >&2; exit 1; }; \
+  [[ -n "$hs_token" ]] || { echo "Refusing to seal empty mautrix WhatsApp hs_token" >&2; exit 1; }; \
+  [[ -n "$sender_localpart" ]] || { echo "Refusing to seal empty mautrix WhatsApp sender_localpart" >&2; exit 1; }; \
+  [[ -n "$pickle_key" ]] || { echo "Refusing to seal empty mautrix WhatsApp pickle_key" >&2; exit 1; }; \
+  kubectl create secret generic {{matrix_whatsapp_secret_name}} \
+    --namespace {{matrix_namespace}} \
+    --from-literal="as_token=$as_token" \
+    --from-literal="hs_token=$hs_token" \
+    --from-literal="pickle_key=$pickle_key" \
+    --from-file=registration.yaml="$tmpdir/registration.yaml" \
+    --dry-run=client \
+    -o yaml \
+    | kubeseal --kubeconfig "${KUBECONFIG:-./.kubeconfig}" --format=yaml \
+    > {{matrix_whatsapp_secret_path}}
 
 seal-forgejo-admin-secret:
   mkdir -p argocd/homelab/forgejo/bootstrap; \
