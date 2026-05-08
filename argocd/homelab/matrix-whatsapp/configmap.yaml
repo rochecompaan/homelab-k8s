@@ -46,7 +46,7 @@ data:
       max_conn_lifetime: null
 
     homeserver:
-      address: http://matrix:8008
+      address: http://matrix
       domain: matrix.compaan
       software: standard
       async_media: false
