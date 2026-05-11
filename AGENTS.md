@@ -82,3 +82,7 @@
   because the user made changes locally and saved or committed the changes.
 - **Never** revert or overwrite saved or committed changes to match the session history.
 - When in doubt, ask the user.
+
+## Time tracking
+
+No time tracking required in this project
