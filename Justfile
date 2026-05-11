@@ -42,6 +42,32 @@ garage_binary := "/garage"
 default:
   @just --list
 
+# Show a read-only cluster health summary: pod counts plus pods needing attention.
+cluster-status:
+  @kubeconfig="${KUBECONFIG:-./.kubeconfig}"; \
+  tmpfile="$(mktemp)"; \
+  trap 'rm -f "$tmpfile"' EXIT; \
+  kubectl --kubeconfig "$kubeconfig" get pods -A -o json > "$tmpfile"; \
+  printf '## Pod summary\n'; \
+  jq -r '"total pods: " + ((.items | length) | tostring)' "$tmpfile"; \
+  jq -r '"running phase: " + ((.items | map(select((.status.phase // "Unknown") == "Running")) | length) | tostring)' "$tmpfile"; \
+  jq -r '"running and ready: " + ((.items | map(select((.status.phase // "Unknown") == "Running") | select(((.status.containerStatuses // []) | length) > 0) | select(all(.status.containerStatuses[]; .ready == true))) | length) | tostring)' "$tmpfile"; \
+  printf '\n## Phase counts\n'; \
+  jq -r '.items | group_by(.status.phase // "Unknown")[] | [.[0].status.phase // "Unknown", (length | tostring)] | @tsv' "$tmpfile" \
+    | sort \
+    | column -t -s "$(printf '\t')"; \
+  printf '\n## Pods needing attention\n'; \
+  jq -r '\
+    def ready: ((.status.containerStatuses // []) | map(select(.ready == true)) | length) as $ready | ((.status.containerStatuses // []) | length) as $total | "\($ready)/\($total)"; \
+    def container_reasons: [((.status.initContainerStatuses // [])[]? | "init/" + .name + ":" + (.state.waiting.reason // .state.terminated.reason // "running")), ((.status.containerStatuses // [])[]? | .name + ":" + (.ready | tostring) + ":" + (.state.waiting.reason // .state.terminated.reason // "running"))] | join(","); \
+    .items[] \
+    | select((.status.phase // "Unknown") != "Succeeded") \
+    | select((.status.phase // "Unknown") != "Running" or ((.status.containerStatuses // []) | any(.ready != true))) \
+    | [.metadata.namespace, .metadata.name, (.spec.nodeName // "<none>"), (.status.phase // "Unknown"), ready, container_reasons] \
+    | @tsv' "$tmpfile" \
+    | sort \
+    | column -t -s "$(printf '\t')"
+
 garage-exec +args:
   @kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" \
     -n {{garage_namespace}} \
@@ -224,6 +250,26 @@ matrix-create-access-token username password device="openclaw":
     exit 1; \
   fi; \
   jq -er '.access_token' < "$tmpfile"
+
+matrix-accept-invite room token:
+  @room={{ quote(room) }}; \
+  token={{ quote(token) }}; \
+  [[ -n "$room" ]] || { echo "Refusing to join empty Matrix room" >&2; exit 1; }; \
+  [[ -n "$token" ]] || { echo "Refusing to use empty Matrix access token" >&2; exit 1; }; \
+  encoded_room="$(python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$room")"; \
+  tmpfile="$(mktemp)"; \
+  trap 'rm -f "$tmpfile"' EXIT; \
+  status="$(curl -skS -o "$tmpfile" -w '%{http_code}' \
+    -X POST {{matrix_public_url}}/_matrix/client/v3/join/"$encoded_room" \
+    -H "Authorization: Bearer $token" \
+    -H 'Content-Type: application/json' \
+    --data '{}')"; \
+  if [[ "$status" != "200" ]]; then \
+    echo "Matrix join failed for $room (HTTP $status)" >&2; \
+    cat "$tmpfile" >&2; \
+    exit 1; \
+  fi; \
+  jq -er '.room_id' < "$tmpfile"
 
 seal-openclaw-secret matrix_access_token:
   mkdir -p "$(dirname {{quote(openclaw_secret_path)}})"; \
