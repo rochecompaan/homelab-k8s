@@ -64,7 +64,7 @@ spec:
               mountPath: /config
       containers:
         - name: matrix-whatsapp
-          image: dock.mau.dev/mautrix/whatsapp@sha256:50dbe8722a09775768c2d0fadc2250c585ff0250f7b5643c44bea1235931d970
+          image: dock.mau.dev/mautrix/whatsapp:v0.2605.0
           imagePullPolicy: IfNotPresent
           command:
             - /usr/bin/mautrix-whatsapp
