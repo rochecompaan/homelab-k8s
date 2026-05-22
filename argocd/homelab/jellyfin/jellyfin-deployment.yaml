@@ -42,27 +42,7 @@ spec:
               memory: 256Mi
             limits:
               memory: 8Gi
-        - name: copyparty
-          image: copyparty/ac:1.20.13
-          ports:
-            - containerPort: 3923
-              name: web
-          volumeMounts:
-            - mountPath: /w
-              name: media-pvc
-              subPath: media
-            - mountPath: /cfg
-              name: copyparty-config
-          resources:
-            requests:
-              cpu: 50m
-              memory: 64Mi
-            limits:
-              memory: 512Mi
       volumes:
         - name: media-pvc
           persistentVolumeClaim:
             claimName: media-pvc
-        - name: copyparty-config
-          configMap:
-            name: copyparty-config

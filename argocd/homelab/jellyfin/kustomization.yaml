@@ -6,6 +6,7 @@ resources:
   - copyparty-config.yaml
   - pvc-media.yaml
   - jellyfin-deployment.yaml
+  - copyparty-deployment.yaml
   - jellyfin-service.yaml
   - copyparty-service.yaml
   - jellyfin-ingress.yaml
