@@ -70,6 +70,7 @@ Available recipes include:
 - `just seal-openziti-management-secret`
 - `just seal-webmutt-secret`
 - `just seal-openclaw-mail-secret`
+- `just seal-openclaw-jellyfin-secret`
 - `just seal-matrix-secret`
 
 Operational helpers:

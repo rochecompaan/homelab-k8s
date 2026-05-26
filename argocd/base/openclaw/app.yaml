@@ -171,7 +171,13 @@ spec:
                           key: MATRIX_ACCESS_TOKEN
                           name: openclaw-env-secret
                     NODE_EXTRA_CA_CERTS: /etc/ssl/certs/compaan-ca.crt
-                    PATH: /home/node/.openclaw/bin:/home/node/.openclaw/python/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+                    OPENCLAW_JELLYFIN_PASSWORD:
+                      valueFrom:
+                        secretKeyRef:
+                          key: OPENCLAW_JELLYFIN_PASSWORD
+                          name: openclaw-env-secret
+                    OPENCLAW_JELLYFIN_USERNAME: openclaw
+                    PATH: /home/node/.openclaw/bin:/home/node/.openclaw/python/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin
                     REQUESTS_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
                     SSL_CERT_FILE: /etc/ssl/certs/ca-certificates.crt
                   envFrom:
@@ -218,6 +224,8 @@ spec:
                     "env": {
                       "MATRIX_ACCESS_TOKEN": "${MATRIX_ACCESS_TOKEN}",
                       "OPENCLAW_GATEWAY_TOKEN": "${OPENCLAW_GATEWAY_TOKEN}",
+                      "OPENCLAW_JELLYFIN_PASSWORD": "${OPENCLAW_JELLYFIN_PASSWORD}",
+                      "OPENCLAW_JELLYFIN_USERNAME": "${OPENCLAW_JELLYFIN_USERNAME}",
                       "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}"
                     },
 

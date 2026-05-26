@@ -7,6 +7,8 @@ argocd_server := "argocd.compaan"
 argocd_username := "admin"
 argocd_password_entry := "private/login/argocd.compaan-login-admin"
 argocd_chart_version := "9.1.6"
+sealed_secrets_controller_name := "sealed-secrets-controller"
+sealed_secrets_controller_namespace := "kube-system"
 argocd_root_app_name := "root"
 argocd_root_app_path := "argocd/homelab/apps"
 argocd_repo_secret_name := "github-repo-secret"
@@ -34,6 +36,7 @@ matrix_whatsapp_registration_template := "argocd/homelab/infra/matrix-whatsapp-r
 openclaw_namespace := "openclaw"
 openclaw_secret_name := "openclaw-env-secret"
 openclaw_secret_path := "argocd/homelab/infra/openclaw-secret.yaml"
+openclaw_jellyfin_password_entry := "OPENCLAW_JELLYFIN_ACCOUNT"
 garage_namespace := "garage"
 garage_pod := "garage-0"
 garage_container := "garage"
@@ -272,20 +275,31 @@ matrix-accept-invite room token:
   jq -er '.room_id' < "$tmpfile"
 
 seal-openclaw-secret matrix_access_token:
-  mkdir -p "$(dirname {{quote(openclaw_secret_path)}})"; \
+  @mkdir -p "$(dirname {{quote(openclaw_secret_path)}})"; \
   matrix_access_token={{ quote(matrix_access_token) }}; \
   [[ -n "$matrix_access_token" ]] || { echo "Refusing to seal empty MATRIX_ACCESS_TOKEN" >&2; exit 1; }; \
   openrouter_api_key="${OPENROUTER_API_KEY:-$(kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n {{openclaw_namespace}} get secret {{openclaw_secret_name}} -o jsonpath='{.data.OPENROUTER_API_KEY}' | base64 -d)}"; \
   openclaw_gateway_token="${OPENCLAW_GATEWAY_TOKEN:-$(kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n {{openclaw_namespace}} get secret {{openclaw_secret_name}} -o jsonpath='{.data.OPENCLAW_GATEWAY_TOKEN}' | base64 -d)}"; \
+  openclaw_jellyfin_password="${OPENCLAW_JELLYFIN_PASSWORD:-$(pass show {{openclaw_jellyfin_password_entry}})}"; \
+  [[ -n "$openclaw_jellyfin_password" ]] || { echo "Refusing to seal empty OPENCLAW_JELLYFIN_PASSWORD" >&2; exit 1; }; \
   kubectl create secret generic {{openclaw_secret_name}} \
     --namespace {{openclaw_namespace}} \
     --from-literal="OPENROUTER_API_KEY=$openrouter_api_key" \
     --from-literal="OPENCLAW_GATEWAY_TOKEN=$openclaw_gateway_token" \
+    --from-literal="OPENCLAW_JELLYFIN_PASSWORD=$openclaw_jellyfin_password" \
     --from-literal="MATRIX_ACCESS_TOKEN=$matrix_access_token" \
     --dry-run=client \
     -o yaml \
-    | kubeseal --format=yaml \
+    | kubeseal \
+      --kubeconfig "${KUBECONFIG:-./.kubeconfig}" \
+      --controller-name {{sealed_secrets_controller_name}} \
+      --controller-namespace {{sealed_secrets_controller_namespace}} \
+      --format=yaml \
     > {{openclaw_secret_path}}
+
+seal-openclaw-jellyfin-secret:
+  @matrix_access_token="${MATRIX_ACCESS_TOKEN:-$(kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n {{openclaw_namespace}} get secret {{openclaw_secret_name}} -o jsonpath='{.data.MATRIX_ACCESS_TOKEN}' | base64 -d)}"; \
+  just seal-openclaw-secret "$matrix_access_token"
 
 seal-openclaw-matrix-token username password device="openclaw":
   matrix_access_token="$(just --quiet matrix-create-access-token {{ quote(username) }} {{ quote(password) }} device={{ quote(device) }})"; \
