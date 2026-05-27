@@ -68,6 +68,7 @@ Available recipes include:
 - `just seal-forgejo-admin-secret`
 - `just seal-forgejo-action-runner-secret`
 - `just seal-openziti-management-secret`
+- `just seal-copyparty-config`
 - `just seal-webmutt-secret`
 - `just seal-openclaw-mail-secret`
 - `just seal-openclaw-jellyfin-secret`

@@ -37,6 +37,10 @@ openclaw_namespace := "openclaw"
 openclaw_secret_name := "openclaw-env-secret"
 openclaw_secret_path := "argocd/homelab/infra/openclaw-secret.yaml"
 openclaw_jellyfin_password_entry := "OPENCLAW_JELLYFIN_ACCOUNT"
+copyparty_namespace := "jellyfin"
+copyparty_config_secret_name := "copyparty-config"
+copyparty_config_secret_path := "argocd/homelab/jellyfin/copyparty-config.yaml"
+copyparty_config_entry := "COPYPARTY_CONFIG"
 garage_namespace := "garage"
 garage_pod := "garage-0"
 garage_container := "garage"
@@ -129,6 +133,24 @@ seal-openclaw-mail-secret:
     -o yaml \
     | kubeseal --format=yaml \
     > argocd/homelab/openclaw-mail-sync/secret.yaml
+
+seal-copyparty-config:
+  @mkdir -p "$(dirname {{quote(copyparty_config_secret_path)}})"; \
+  tmpfile="$(mktemp)"; \
+  trap 'rm -f "$tmpfile"' EXIT; \
+  pass show {{copyparty_config_entry}} > "$tmpfile"; \
+  [[ -s "$tmpfile" ]] || { echo "Refusing to seal empty copyparty.conf" >&2; exit 1; }; \
+  kubectl create secret generic {{copyparty_config_secret_name}} \
+    --namespace {{copyparty_namespace}} \
+    --from-file=copyparty.conf="$tmpfile" \
+    --dry-run=client \
+    -o yaml \
+    | kubeseal \
+      --kubeconfig "${KUBECONFIG:-./.kubeconfig}" \
+      --controller-name {{sealed_secrets_controller_name}} \
+      --controller-namespace {{sealed_secrets_controller_namespace}} \
+      --format=yaml \
+    > {{copyparty_config_secret_path}}
 
 seal-matrix-secret:
   mkdir -p argocd/homelab/infra; \

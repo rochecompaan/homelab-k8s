@@ -1,27 +1,13 @@
-apiVersion: v1
-kind: ConfigMap
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
 metadata:
   name: copyparty-config
   namespace: jellyfin
-data:
-  copyparty.conf: |
-    # -*- mode: yaml -*-
-    # vim: ft=yaml:
-
-    [global]
-      e2dsa  # enable file indexing and filesystem scanning
-      e2ts   # enable multimedia indexing
-      ansi   # enable colors in log messages
-      ver    # show version
-      xff-src: 10.42.0.0/16
-
-    [accounts]
-      roche: brightred
-      juan:fudgie
-
-    [/]            # volume at webroot
-      /w           # share /w (the container data volume)
-      accs:
-        rw: *
-        rwmda: roche
-        rwmda: juan
+spec:
+  encryptedData:
+    copyparty.conf: AgDDnTKaZ68AeaHwwEGxrKIvwkqUSyYa1KACUMCfgu3tdjzn0l1CZP1PGU4fh88dBR8jIHyQs47HvPYrrHFKhGPfXsFATs6CT/UQvwMDr4IymfA8CdubbNy4tahqG1QR1poOqKjwLGCLN0N+pgBXGuGcJIQxH6aPBZuvp9pZLSe2Z6vcH8EJou0cM16MOp4wfVHIiInGIMUHz5AUzc0QyvfoFZ7HzgZHo2hMfYhwBTD6LJUIiOOICdjxMwkpECkubxaw2TTgB+0PFHJwx1Zn4IGlPo5PBmifN9XYpQQZINGDHCeSZBqh170ZD3W2zDRjcxaYTxaPUErrl600KqKU+KI7ItyJaEE3yGRlmmTbvU8kZWBKBJvTNiKu06YOSbx6RtBtmO6tPNxbN/q6iwcWMssjZ0s0khe4b3CffFn1ivKMQXGoQSTjrgd5Ax02NcBSS5tCsSqb03helHDPrLq3zgjn+pTokMpMLHlPbOU2G0s+qTwBwECfSr99jkVYD+45GLnJlKfSeHF3390Sx8hgVp6y1kUuVtbq79Z/SLD8/PfFoouaNGhAm2tHLEHJv2Pw3Lf/1clIW+E2V4kP/uUEwz28qcngodedCpNpXPqoKf7ZCMh+L4RK2dvkVGUCKhwrbIU5Wnfq8ELPsDrJPHaE1o3jPBDHWHNzUi51msYj6Zc/N8s1h4erVGEHnVSfNj4wkSNgXt+H/mXVVRddeaHrD8R87nhq9O8rZ+WLAzPgG7E/ViRLCIzWRbgq5GFatBIdjpTsldRAA632rxxcwI7iy7lBrCcGgg7+Af7KXAArJagHaXEmBuJParennq89OtiPSajemsqgQMva48MhkwKx7M8K9OkpGD2sFbtoOl/CZ9a+8/ycx68MtYVTZ7nL6uZOgZeOKC3iCOQTa1rG8xPZAdGB8It/aZZE+Sl2gOAhw4GFhPW0A1WLg4GKCt2sQUc4G8ro/Q86vwLJXH2Jc3am7Xvcn7IxSyjNWsboJcyu7ZwSEGSpa64vKKr5/7/uApdR2534L1tg7220MNO1vY6U1OUvrFWI/o9f7xpqa4ojMMl+TP8GR711HExY9DWaU3K6hn5fSXjanmGesTQCSXUVR7pAp+Sgb3FQCzZnHYyKfup4C6NBGEg1waGdQS2nFkxShu6lY+C8HV0URsJIAkP6L5YdMWVquE8b+v3qZZ4TYFjJarJwXvU9Z07WOUTx9SHC3d9YGH20AUpm3njR9vFOU649217Z2vOBa6CdJkyyY5WVHK6Lsgh6nVYqdQ2NR8NKLmWPE/ttoZZopBA+u2/Bhw==
+  template:
+    metadata:
+      name: copyparty-config
+      namespace: jellyfin

@@ -38,5 +38,5 @@ spec:
           persistentVolumeClaim:
             claimName: media-pvc
         - name: copyparty-config
-          configMap:
-            name: copyparty-config
+          secret:
+            secretName: copyparty-config
