@@ -303,11 +303,14 @@ seal-openclaw-secret matrix_access_token:
   openrouter_api_key="${OPENROUTER_API_KEY:-$(kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n {{openclaw_namespace}} get secret {{openclaw_secret_name}} -o jsonpath='{.data.OPENROUTER_API_KEY}' | base64 -d)}"; \
   openclaw_gateway_token="${OPENCLAW_GATEWAY_TOKEN:-$(kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n {{openclaw_namespace}} get secret {{openclaw_secret_name}} -o jsonpath='{.data.OPENCLAW_GATEWAY_TOKEN}' | base64 -d)}"; \
   openclaw_jellyfin_password="${OPENCLAW_JELLYFIN_PASSWORD:-$(pass show {{openclaw_jellyfin_password_entry}})}"; \
+  openclaw_copyparty_password="${OPENCLAW_COPYPARTY_PASSWORD:-$(pass show {{copyparty_config_entry}} | grep -E '^[[:space:]]*openclaw[[:space:]]*:' | head -n1 | sed -E 's/^[[:space:]]*openclaw[[:space:]]*:[[:space:]]*//')}"; \
   [[ -n "$openclaw_jellyfin_password" ]] || { echo "Refusing to seal empty OPENCLAW_JELLYFIN_PASSWORD" >&2; exit 1; }; \
+  [[ -n "$openclaw_copyparty_password" ]] || { echo "Refusing to seal empty OPENCLAW_COPYPARTY_PASSWORD" >&2; exit 1; }; \
   kubectl create secret generic {{openclaw_secret_name}} \
     --namespace {{openclaw_namespace}} \
     --from-literal="OPENROUTER_API_KEY=$openrouter_api_key" \
     --from-literal="OPENCLAW_GATEWAY_TOKEN=$openclaw_gateway_token" \
+    --from-literal="OPENCLAW_COPYPARTY_PASSWORD=$openclaw_copyparty_password" \
     --from-literal="OPENCLAW_JELLYFIN_PASSWORD=$openclaw_jellyfin_password" \
     --from-literal="MATRIX_ACCESS_TOKEN=$matrix_access_token" \
     --dry-run=client \
@@ -320,6 +323,10 @@ seal-openclaw-secret matrix_access_token:
     > {{openclaw_secret_path}}
 
 seal-openclaw-jellyfin-secret:
+  @matrix_access_token="${MATRIX_ACCESS_TOKEN:-$(kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n {{openclaw_namespace}} get secret {{openclaw_secret_name}} -o jsonpath='{.data.MATRIX_ACCESS_TOKEN}' | base64 -d)}"; \
+  just seal-openclaw-secret "$matrix_access_token"
+
+seal-openclaw-copyparty-secret:
   @matrix_access_token="${MATRIX_ACCESS_TOKEN:-$(kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n {{openclaw_namespace}} get secret {{openclaw_secret_name}} -o jsonpath='{.data.MATRIX_ACCESS_TOKEN}' | base64 -d)}"; \
   just seal-openclaw-secret "$matrix_access_token"
 

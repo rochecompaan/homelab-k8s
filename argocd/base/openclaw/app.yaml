@@ -171,6 +171,11 @@ spec:
                           key: MATRIX_ACCESS_TOKEN
                           name: openclaw-env-secret
                     NODE_EXTRA_CA_CERTS: /etc/ssl/certs/compaan-ca.crt
+                    OPENCLAW_COPYPARTY_PASSWORD:
+                      valueFrom:
+                        secretKeyRef:
+                          key: OPENCLAW_COPYPARTY_PASSWORD
+                          name: openclaw-env-secret
                     OPENCLAW_JELLYFIN_PASSWORD:
                       valueFrom:
                         secretKeyRef:
@@ -223,6 +228,7 @@ spec:
                     // Environment variables used by model provider integrations
                     "env": {
                       "MATRIX_ACCESS_TOKEN": "${MATRIX_ACCESS_TOKEN}",
+                      "OPENCLAW_COPYPARTY_PASSWORD": "${OPENCLAW_COPYPARTY_PASSWORD}",
                       "OPENCLAW_GATEWAY_TOKEN": "${OPENCLAW_GATEWAY_TOKEN}",
                       "OPENCLAW_JELLYFIN_PASSWORD": "${OPENCLAW_JELLYFIN_PASSWORD}",
                       "OPENCLAW_JELLYFIN_USERNAME": "${OPENCLAW_JELLYFIN_USERNAME}",

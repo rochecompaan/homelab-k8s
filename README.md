@@ -71,6 +71,7 @@ Available recipes include:
 - `just seal-copyparty-config`
 - `just seal-webmutt-secret`
 - `just seal-openclaw-mail-secret`
+- `just seal-openclaw-copyparty-secret`
 - `just seal-openclaw-jellyfin-secret`
 - `just seal-matrix-secret`
 
