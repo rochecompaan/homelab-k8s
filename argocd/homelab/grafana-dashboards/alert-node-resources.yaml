@@ -1,0 +1,797 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alert-node-resources
+  namespace: monitoring
+  labels:
+    grafana_alert: "1"
+data:
+  node-resources.yml: |
+    apiVersion: 1
+    groups:
+    - orgId: 1
+      name: Node Resources - homelab
+      folder: Homelab Alerts
+      interval: 1m
+      rules:
+      - uid: homelab_node_filesystem_usage_warning
+        title: homelab node filesystem usage above 80%
+        condition: C
+        for: 10m
+        annotations:
+          summary: Filesystem usage above 80% on homelab node {{ $labels.instance }} mount {{ $labels.mountpoint }}
+          description: 'Cluster homelab node {{ $labels.instance }} mount {{ $labels.mountpoint }} on device {{ $labels.device }} is above 80% filesystem usage (current value: {{ $value }}).'
+        labels:
+          severity: warning
+          team: sre
+          cluster: homelab
+        data:
+        - refId: A
+          queryType: query
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: prometheus
+          model:
+            expr: 100 * (1 - node_filesystem_avail_bytes{fstype!~"tmpfs|devtmpfs|overlay|squashfs|proc|sysfs|cgroup2?",mountpoint!~"/run($|/.*)|/var/lib/kubelet/pods/.+|/var/lib/docker/.+|/var/lib/containerd/.+"} / node_filesystem_size_bytes{fstype!~"tmpfs|devtmpfs|overlay|squashfs|proc|sysfs|cgroup2?",mountpoint!~"/run($|/.*)|/var/lib/kubelet/pods/.+|/var/lib/docker/.+|/var/lib/containerd/.+"})
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: A
+        - refId: B
+          queryType: reduce
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: A
+            intervalMs: 1000
+            maxDataPoints: 43200
+            reducer: last
+            refId: B
+            type: reduce
+        - refId: C
+          queryType: threshold
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            conditions:
+            - evaluator:
+                params:
+                - 80
+                type: gt
+              operator:
+                type: and
+              query:
+                params:
+                - C
+              reducer:
+                params: []
+                type: last
+              type: query
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: B
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: C
+            type: threshold
+        noDataState: OK
+        execErrState: Error
+        isPaused: false
+      - uid: homelab_node_filesystem_usage_critical
+        title: homelab node filesystem usage above 90%
+        condition: C
+        for: 10m
+        annotations:
+          summary: Filesystem usage above 90% on homelab node {{ $labels.instance }} mount {{ $labels.mountpoint }}
+          description: 'Cluster homelab node {{ $labels.instance }} mount {{ $labels.mountpoint }} on device {{ $labels.device }} is above 90% filesystem usage (current value: {{ $value }}).'
+        labels:
+          severity: critical
+          team: sre
+          cluster: homelab
+        data:
+        - refId: A
+          queryType: query
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: prometheus
+          model:
+            expr: 100 * (1 - node_filesystem_avail_bytes{fstype!~"tmpfs|devtmpfs|overlay|squashfs|proc|sysfs|cgroup2?",mountpoint!~"/run($|/.*)|/var/lib/kubelet/pods/.+|/var/lib/docker/.+|/var/lib/containerd/.+"} / node_filesystem_size_bytes{fstype!~"tmpfs|devtmpfs|overlay|squashfs|proc|sysfs|cgroup2?",mountpoint!~"/run($|/.*)|/var/lib/kubelet/pods/.+|/var/lib/docker/.+|/var/lib/containerd/.+"})
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: A
+        - refId: B
+          queryType: reduce
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: A
+            intervalMs: 1000
+            maxDataPoints: 43200
+            reducer: last
+            refId: B
+            type: reduce
+        - refId: C
+          queryType: threshold
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            conditions:
+            - evaluator:
+                params:
+                - 90
+                type: gt
+              operator:
+                type: and
+              query:
+                params:
+                - C
+              reducer:
+                params: []
+                type: last
+              type: query
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: B
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: C
+            type: threshold
+        noDataState: OK
+        execErrState: Error
+        isPaused: false
+      - uid: homelab_node_memory_usage_warning
+        title: homelab node memory usage above 80%
+        condition: C
+        for: 10m
+        annotations:
+          summary: Memory usage above 80% on homelab node {{ $labels.instance }}
+          description: 'Cluster homelab node {{ $labels.instance }} memory usage is above 80% (current value: {{ $value }}).'
+        labels:
+          severity: warning
+          team: sre
+          cluster: homelab
+        data:
+        - refId: A
+          queryType: query
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: prometheus
+          model:
+            expr: 100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: A
+        - refId: B
+          queryType: reduce
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: A
+            intervalMs: 1000
+            maxDataPoints: 43200
+            reducer: last
+            refId: B
+            type: reduce
+        - refId: C
+          queryType: threshold
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            conditions:
+            - evaluator:
+                params:
+                - 80
+                type: gt
+              operator:
+                type: and
+              query:
+                params:
+                - C
+              reducer:
+                params: []
+                type: last
+              type: query
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: B
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: C
+            type: threshold
+        noDataState: OK
+        execErrState: Error
+        isPaused: false
+      - uid: homelab_node_memory_usage_critical
+        title: homelab node memory usage above 90%
+        condition: C
+        for: 10m
+        annotations:
+          summary: Memory usage above 90% on homelab node {{ $labels.instance }}
+          description: 'Cluster homelab node {{ $labels.instance }} memory usage is above 90% (current value: {{ $value }}).'
+        labels:
+          severity: critical
+          team: sre
+          cluster: homelab
+        data:
+        - refId: A
+          queryType: query
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: prometheus
+          model:
+            expr: 100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: A
+        - refId: B
+          queryType: reduce
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: A
+            intervalMs: 1000
+            maxDataPoints: 43200
+            reducer: last
+            refId: B
+            type: reduce
+        - refId: C
+          queryType: threshold
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            conditions:
+            - evaluator:
+                params:
+                - 90
+                type: gt
+              operator:
+                type: and
+              query:
+                params:
+                - C
+              reducer:
+                params: []
+                type: last
+              type: query
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: B
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: C
+            type: threshold
+        noDataState: OK
+        execErrState: Error
+        isPaused: false
+      - uid: homelab_node_cpu_usage_warning
+        title: homelab node CPU usage above 80%
+        condition: C
+        for: 10m
+        annotations:
+          summary: CPU usage above 80% on homelab node {{ $labels.instance }}
+          description: 'Cluster homelab node {{ $labels.instance }} CPU usage is above 80% (current value: {{ $value }}).'
+        labels:
+          severity: warning
+          team: sre
+          cluster: homelab
+        data:
+        - refId: A
+          queryType: query
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: prometheus
+          model:
+            expr: 100 * (1 - avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])))
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: A
+        - refId: B
+          queryType: reduce
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: A
+            intervalMs: 1000
+            maxDataPoints: 43200
+            reducer: last
+            refId: B
+            type: reduce
+        - refId: C
+          queryType: threshold
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            conditions:
+            - evaluator:
+                params:
+                - 80
+                type: gt
+              operator:
+                type: and
+              query:
+                params:
+                - C
+              reducer:
+                params: []
+                type: last
+              type: query
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: B
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: C
+            type: threshold
+        noDataState: OK
+        execErrState: Error
+        isPaused: false
+      - uid: homelab_node_cpu_usage_critical
+        title: homelab node CPU usage above 90%
+        condition: C
+        for: 10m
+        annotations:
+          summary: CPU usage above 90% on homelab node {{ $labels.instance }}
+          description: 'Cluster homelab node {{ $labels.instance }} CPU usage is above 90% (current value: {{ $value }}).'
+        labels:
+          severity: critical
+          team: sre
+          cluster: homelab
+        data:
+        - refId: A
+          queryType: query
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: prometheus
+          model:
+            expr: 100 * (1 - avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])))
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: A
+        - refId: B
+          queryType: reduce
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: A
+            intervalMs: 1000
+            maxDataPoints: 43200
+            reducer: last
+            refId: B
+            type: reduce
+        - refId: C
+          queryType: threshold
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            conditions:
+            - evaluator:
+                params:
+                - 90
+                type: gt
+              operator:
+                type: and
+              query:
+                params:
+                - C
+              reducer:
+                params: []
+                type: last
+              type: query
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: B
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: C
+            type: threshold
+        noDataState: OK
+        execErrState: Error
+        isPaused: false
+      - uid: homelab_node_load15_per_core_warning
+        title: homelab node load15 above CPU cores
+        condition: C
+        for: 15m
+        annotations:
+          summary: Load15 above CPU cores on homelab node {{ $labels.instance }}
+          description: 'Cluster homelab node {{ $labels.instance }} load15 per core is above 1.0 (current value: {{ $value }}).'
+        labels:
+          severity: warning
+          team: sre
+          cluster: homelab
+        data:
+        - refId: A
+          queryType: query
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: prometheus
+          model:
+            expr: avg by(instance) (node_load15) / count by(instance) (node_cpu_seconds_total{mode="idle"})
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: A
+        - refId: B
+          queryType: reduce
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: A
+            intervalMs: 1000
+            maxDataPoints: 43200
+            reducer: last
+            refId: B
+            type: reduce
+        - refId: C
+          queryType: threshold
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            conditions:
+            - evaluator:
+                params:
+                - 1.0
+                type: gt
+              operator:
+                type: and
+              query:
+                params:
+                - C
+              reducer:
+                params: []
+                type: last
+              type: query
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: B
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: C
+            type: threshold
+        noDataState: OK
+        execErrState: Error
+        isPaused: false
+      - uid: homelab_node_load15_per_core_critical
+        title: homelab node load15 above 1.5x CPU cores
+        condition: C
+        for: 15m
+        annotations:
+          summary: Load15 above 1.5x CPU cores on homelab node {{ $labels.instance }}
+          description: 'Cluster homelab node {{ $labels.instance }} load15 per core is above 1.5 (current value: {{ $value }}).'
+        labels:
+          severity: critical
+          team: sre
+          cluster: homelab
+        data:
+        - refId: A
+          queryType: query
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: prometheus
+          model:
+            expr: avg by(instance) (node_load15) / count by(instance) (node_cpu_seconds_total{mode="idle"})
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: A
+        - refId: B
+          queryType: reduce
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: A
+            intervalMs: 1000
+            maxDataPoints: 43200
+            reducer: last
+            refId: B
+            type: reduce
+        - refId: C
+          queryType: threshold
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            conditions:
+            - evaluator:
+                params:
+                - 1.5
+                type: gt
+              operator:
+                type: and
+              query:
+                params:
+                - C
+              reducer:
+                params: []
+                type: last
+              type: query
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: B
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: C
+            type: threshold
+        noDataState: OK
+        execErrState: Error
+        isPaused: false
+      - uid: homelab_node_exporter_down
+        title: homelab node-exporter target down
+        condition: C
+        for: 5m
+        annotations:
+          summary: node-exporter target down on homelab node {{ $labels.instance }}
+          description: Cluster homelab node-exporter target for {{ $labels.instance }} has been below 1 for 5 minutes or telemetry is missing.
+        labels:
+          severity: critical
+          team: sre
+          cluster: homelab
+        data:
+        - refId: A
+          queryType: query
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: prometheus
+          model:
+            expr: up{job="node-exporter"}
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: A
+        - refId: B
+          queryType: reduce
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: A
+            intervalMs: 1000
+            maxDataPoints: 43200
+            reducer: last
+            refId: B
+            type: reduce
+        - refId: C
+          queryType: threshold
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            conditions:
+            - evaluator:
+                params:
+                - 1
+                type: lt
+              operator:
+                type: and
+              query:
+                params:
+                - C
+              reducer:
+                params: []
+                type: last
+              type: query
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: B
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: C
+            type: threshold
+        noDataState: Alerting
+        execErrState: Error
+        isPaused: false
+      - uid: homelab_pvc_usage_warning
+        title: homelab PVC usage above 80%
+        condition: C
+        for: 10m
+        annotations:
+          summary: PVC {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} usage is above 80% on homelab
+          description: 'PVC {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} usage is above 80%. Current value: {{ $value }}.'
+        labels:
+          severity: warning
+          team: sre
+          cluster: homelab
+        data:
+        - refId: A
+          queryType: query
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: prometheus
+          model:
+            expr: 100 * kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: A
+        - refId: B
+          queryType: reduce
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: A
+            intervalMs: 1000
+            maxDataPoints: 43200
+            reducer: last
+            refId: B
+            type: reduce
+        - refId: C
+          queryType: threshold
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            conditions:
+            - evaluator:
+                params:
+                - 80
+                type: gt
+              operator:
+                type: and
+              query:
+                params:
+                - C
+              reducer:
+                params: []
+                type: last
+              type: query
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: B
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: C
+            type: threshold
+        noDataState: OK
+        execErrState: Error
+        isPaused: false
+      - uid: homelab_pvc_usage_critical
+        title: homelab PVC usage above 90%
+        condition: C
+        for: 10m
+        annotations:
+          summary: PVC {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} usage is above 90% on homelab
+          description: 'PVC {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} usage is above 90%. Current value: {{ $value }}.'
+        labels:
+          severity: critical
+          team: sre
+          cluster: homelab
+        data:
+        - refId: A
+          queryType: query
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: prometheus
+          model:
+            expr: 100 * kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: A
+        - refId: B
+          queryType: reduce
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: A
+            intervalMs: 1000
+            maxDataPoints: 43200
+            reducer: last
+            refId: B
+            type: reduce
+        - refId: C
+          queryType: threshold
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            conditions:
+            - evaluator:
+                params:
+                - 90
+                type: gt
+              operator:
+                type: and
+              query:
+                params:
+                - C
+              reducer:
+                params: []
+                type: last
+              type: query
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: B
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: C
+            type: threshold
+        noDataState: OK
+        execErrState: Error
+        isPaused: false

@@ -4,12 +4,12 @@ metadata:
   name: grafana-dashboards
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: '2' # deploy after monitoring stack
+    argocd.argoproj.io/sync-wave: '4' # deploy after monitoring stack
 spec:
   project: default
   source:
     repoURL: git@github.com:rochecompaan/homelab-k8s.git
-    path: argocd/grafana-dashboards
+    path: argocd/homelab/grafana-dashboards
     targetRevision: HEAD
   destination:
     server: 'https://kubernetes.default.svc'

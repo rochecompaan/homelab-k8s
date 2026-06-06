@@ -30,6 +30,13 @@ matrix_namespace := "matrix"
 matrix_deployment := "matrix"
 matrix_internal_url := "http://localhost:8008"
 matrix_public_url := "https://matrix.compaan"
+grafana_matrix_alert_username := "grafana-alerts"
+grafana_matrix_alert_device := "grafana-alerts"
+grafana_matrix_alert_room_name := "Homelab Alerts"
+grafana_matrix_alert_room_topic := "Grafana alerts for the homelab Kubernetes cluster"
+grafana_matrix_alert_invite_user := "@roche:matrix.compaan"
+grafana_matrix_webhook_secret_name := "grafana-matrix-webhook"
+grafana_matrix_webhook_secret_path := "argocd/homelab/grafana-dashboards/grafana-matrix-webhook-secret.yaml"
 matrix_whatsapp_secret_name := "matrix-whatsapp-appservice"
 matrix_whatsapp_secret_path := "argocd/homelab/infra/matrix-whatsapp-secret.yaml"
 matrix_whatsapp_registration_template := "argocd/homelab/infra/matrix-whatsapp-registration.yaml.tpl"
@@ -245,7 +252,7 @@ seal-forgejo-action-runner-secret:
   mv "$tmpfile" argocd/homelab/forgejo/bootstrap/runner-init-secret.yaml
 
 matrix-create-user username password:
-  password="$(printf '%s' {{ quote(password) }} | tr -d '\r')"; \
+  @password="$(printf '%s' {{ quote(password) }} | tr -d '\r')"; \
   kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" \
     -n {{matrix_namespace}} \
     exec deploy/{{matrix_deployment}} -- \
@@ -258,7 +265,7 @@ matrix-create-user username password:
       {{matrix_internal_url}}
 
 matrix-create-access-token username password device="openclaw":
-  password="$(printf '%s' {{ quote(password) }} | tr -d '\r')"; \
+  @password="$(printf '%s' {{ quote(password) }} | tr -d '\r')"; \
   payload="$(jq -nc \
     --arg user {{ quote(username) }} \
     --arg password "$password" \
@@ -296,6 +303,63 @@ matrix-accept-invite room token:
   fi; \
   jq -er '.room_id' < "$tmpfile"
 
+matrix-create-room token name=grafana_matrix_alert_room_name topic=grafana_matrix_alert_room_topic invite=grafana_matrix_alert_invite_user:
+  @token={{ quote(token) }}; \
+  name={{ quote(name) }}; \
+  topic={{ quote(topic) }}; \
+  invite={{ quote(invite) }}; \
+  [[ -n "$token" ]] || { echo "Refusing to create Matrix room with empty access token" >&2; exit 1; }; \
+  payload="$(jq -nc \
+    --arg name "$name" \
+    --arg topic "$topic" \
+    --arg invite "$invite" \
+    '{preset: "private_chat", visibility: "private", name: $name, topic: $topic, is_direct: false} | if $invite != "" then . + {invite: [$invite]} else . end')"; \
+  tmpfile="$(mktemp)"; \
+  trap 'rm -f "$tmpfile"' EXIT; \
+  status="$(curl -skS -o "$tmpfile" -w '%{http_code}' \
+    -X POST {{matrix_public_url}}/_matrix/client/v3/createRoom \
+    -H "Authorization: Bearer $token" \
+    -H 'Content-Type: application/json' \
+    --data "$payload")"; \
+  if [[ "$status" != "200" ]]; then \
+    echo "Matrix room creation failed (HTTP $status)" >&2; \
+    cat "$tmpfile" >&2; \
+    exit 1; \
+  fi; \
+  jq -er '.room_id' < "$tmpfile"
+
+seal-grafana-matrix-webhook-secret room_id matrix_access_token:
+  @mkdir -p "$(dirname {{quote(grafana_matrix_webhook_secret_path)}})"; \
+  room_id={{ quote(room_id) }}; \
+  matrix_access_token={{ quote(matrix_access_token) }}; \
+  [[ -n "$room_id" ]] || { echo "Refusing to seal empty MATRIX_ROOM_ID" >&2; exit 1; }; \
+  [[ -n "$matrix_access_token" ]] || { echo "Refusing to seal empty MATRIX_ACCESS_TOKEN" >&2; exit 1; }; \
+  kubectl create secret generic {{grafana_matrix_webhook_secret_name}} \
+    --namespace monitoring \
+    --from-literal="MATRIX_ROOM_ID=$room_id" \
+    --from-literal="MATRIX_ACCESS_TOKEN=$matrix_access_token" \
+    --dry-run=client \
+    -o yaml \
+    | kubeseal \
+      --kubeconfig "${KUBECONFIG:-./.kubeconfig}" \
+      --controller-name {{sealed_secrets_controller_name}} \
+      --controller-namespace {{sealed_secrets_controller_namespace}} \
+      --format=yaml \
+    > {{grafana_matrix_webhook_secret_path}}
+
+setup-grafana-matrix-alerts password username=grafana_matrix_alert_username room_name=grafana_matrix_alert_room_name invite=grafana_matrix_alert_invite_user device=grafana_matrix_alert_device:
+  @password="$(printf '%s' {{ quote(password) }} | tr -d '\r')"; \
+  username={{ quote(username) }}; \
+  room_name={{ quote(room_name) }}; \
+  invite={{ quote(invite) }}; \
+  device={{ quote(device) }}; \
+  [[ -n "$password" ]] || { echo "Refusing to create grafana-alerts Matrix user with empty password" >&2; exit 1; }; \
+  just matrix-create-user "$username" "$password"; \
+  matrix_access_token="$(just matrix-create-access-token "$username" "$password" "$device")"; \
+  room_id="$(just matrix-create-room "$matrix_access_token" "$room_name" {{ quote(grafana_matrix_alert_room_topic) }} "$invite")"; \
+  just seal-grafana-matrix-webhook-secret "$room_id" "$matrix_access_token"; \
+  printf 'Matrix alert room: %s\nSealedSecret written: %s\n' "$room_id" {{ quote(grafana_matrix_webhook_secret_path) }}
+
 seal-openclaw-secret matrix_access_token:
   @mkdir -p "$(dirname {{quote(openclaw_secret_path)}})"; \
   matrix_access_token={{ quote(matrix_access_token) }}; \
@@ -331,7 +395,7 @@ seal-openclaw-copyparty-secret:
   just seal-openclaw-secret "$matrix_access_token"
 
 seal-openclaw-matrix-token username password device="openclaw":
-  matrix_access_token="$(just --quiet matrix-create-access-token {{ quote(username) }} {{ quote(password) }} device={{ quote(device) }})"; \
+  @matrix_access_token="$(just matrix-create-access-token {{ quote(username) }} {{ quote(password) }} {{ quote(device) }})"; \
   just seal-openclaw-secret "$matrix_access_token"
 
 generate-github-deploy-key:

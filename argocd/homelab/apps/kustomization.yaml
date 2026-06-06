@@ -20,6 +20,7 @@ resources:
   - ../../base/infra
   - ../../base/jellyfin
   - ../../base/kube-prometheus-stack
+  - ../../base/grafana-dashboards
   - ../../base/local-path-provisioner
   - ../../base/mosquitto
   - ../../base/kyverno

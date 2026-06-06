@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alert-longhorn
+  namespace: monitoring
+  labels:
+    grafana_alert: "1"
+data:
+  longhorn.yml: |
+    apiVersion: 1
+    groups:
+    - orgId: 1
+      name: Longhorn Health
+      folder: Homelab Alerts
+      interval: 1m
+      rules:
+      - uid: homelab_longhorn_volume_unhealthy
+        title: homelab Longhorn volume unhealthy
+        condition: C
+        for: 5m
+        annotations:
+          summary: Longhorn volume {{ $labels.volume }} is not healthy
+          description: Longhorn volume {{ $labels.volume }} has robustness {{ $labels.robustness }}.
+        labels:
+          severity: critical
+          team: sre
+          cluster: homelab
+          service: longhorn
+        data:
+        - refId: A
+          queryType: query
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: prometheus
+          model:
+            expr: longhorn_volume_robustness{robustness!="healthy"}
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: A
+        - refId: B
+          queryType: reduce
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: A
+            intervalMs: 1000
+            maxDataPoints: 43200
+            reducer: last
+            refId: B
+            type: reduce
+        - refId: C
+          queryType: threshold
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            conditions:
+            - evaluator:
+                params:
+                - 0
+                type: gt
+              operator:
+                type: and
+              query:
+                params:
+                - C
+              reducer:
+                params: []
+                type: last
+              type: query
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: B
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: C
+            type: threshold
+        noDataState: OK
+        execErrState: Error
+        isPaused: false

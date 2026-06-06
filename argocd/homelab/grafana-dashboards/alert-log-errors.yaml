@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alert-log-errors
+  namespace: monitoring
+  labels:
+    grafana_alert: "1"
+data:
+  log-errors.yml: |-
+    apiVersion: 1
+    groups:
+      - orgId: 1
+        name: Log Errors
+        folder: Homelab Alerts
+        interval: 30s
+        rules:
+          - uid: homelab_log_errors
+            title: homelab log errors detected
+            condition: C
+            data:
+              - refId: A
+                queryType: stats
+                relativeTimeRange:
+                  from: 60
+                  to: 0
+                datasourceUid: victorialogs_ds
+                model:
+                  datasource:
+                    type: victoriametrics-logs-datasource
+                    uid: victorialogs_ds
+                  editorMode: code
+                  expr: '_time: 5m AND ~"(?i)(error|exception|panic|fatal)" AND NOT ~"(?i)(readiness probe failed|liveness probe failed)" | stats by (_msg) count()'
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  queryType: stats
+                  refId: A
+              - refId: B
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                  datasource:
+                    type: __expr__
+                    uid: __expr__
+                  expression: A
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  reducer: last
+                  refId: B
+                  type: reduce
+              - refId: C
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                  datasource:
+                    type: __expr__
+                    uid: __expr__
+                  expression: B
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: C
+                  type: threshold
+            noDataState: OK
+            execErrState: Error
+            for: 1m
+            annotations:
+              summary: Recent error logs detected in homelab
+              description: VictoriaLogs found recent error, exception, panic, or fatal log entries. Review the grouped message in Grafana for the exact source.
+            labels:
+              severity: warning
+              team: sre
+              cluster: homelab
+              service: logs
+            isPaused: false

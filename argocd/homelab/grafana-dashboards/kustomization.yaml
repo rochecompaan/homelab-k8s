@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: monitoring
+resources:
+  - alert-backups.yaml
+  - alert-kubernetes-health.yaml
+  - alert-log-errors.yaml
+  - alert-longhorn.yaml
+  - alert-node-resources.yaml
+  - grafana-alert-notifications.yaml
+  - grafana-matrix-webhook-secret.yaml
+  - grafana-matrix-webhook-deployment.yaml
+  - grafana-matrix-webhook-service.yaml
+configMapGenerator:
+  - name: grafana-matrix-webhook
+    files:
+      - grafana_matrix_webhook.py=webhook/grafana_matrix_webhook.py
+    options:
+      disableNameSuffixHash: true

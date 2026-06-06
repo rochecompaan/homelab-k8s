@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alert-backups
+  namespace: monitoring
+  labels:
+    grafana_alert: "1"
+data:
+  backups.yml: |
+    apiVersion: 1
+    groups:
+    - orgId: 1
+      name: Backup Freshness
+      folder: Homelab Alerts
+      interval: 1m
+      rules:
+      - uid: homelab_cnpg_backup_stale_24h
+        title: homelab CNPG backup older than 24h
+        condition: C
+        for: 10m
+        annotations:
+          summary: CNPG backup is stale on homelab
+          description: Latest available CNPG backup for a homelab CNPG cluster is older than 24h. This alert stays OK when no backup telemetry exists, because homelab backup schedules are not defined in this repo yet.
+        labels:
+          severity: critical
+          team: sre
+          cluster: homelab
+          service: cnpg
+        data:
+        - refId: A
+          queryType: query
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: prometheus
+          model:
+            expr: time() - max by (namespace, job) (cnpg_collector_last_available_backup_timestamp{namespace=~"nextcloud-db|matrix",job=~"nextcloud-db/postgres|matrix/matrix-whatsapp-postgres"}) > bool 86400
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: A
+        - refId: B
+          queryType: reduce
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: A
+            intervalMs: 1000
+            maxDataPoints: 43200
+            reducer: last
+            refId: B
+            type: reduce
+        - refId: C
+          queryType: threshold
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: __expr__
+          model:
+            conditions:
+            - evaluator:
+                params:
+                - 0
+                type: gt
+              operator:
+                type: and
+              query:
+                params:
+                - C
+              reducer:
+                params: []
+                type: last
+              type: query
+            datasource:
+              type: __expr__
+              uid: __expr__
+            expression: B
+            intervalMs: 1000
+            maxDataPoints: 43200
+            refId: C
+            type: threshold
+        noDataState: OK
+        execErrState: Error
+        isPaused: false

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-matrix-webhook
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: grafana-matrix-webhook
+spec:
+  selector:
+    app.kubernetes.io/name: grafana-matrix-webhook
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

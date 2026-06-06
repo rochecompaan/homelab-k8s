@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-alert-notifications
+  namespace: monitoring
+  labels:
+    grafana_alert: "1"
+data:
+  notifications.yml: |
+    apiVersion: 1
+    contactPoints:
+      - orgId: 1
+        name: homelab-matrix-alerts
+        receivers:
+          - uid: homelab_matrix_alerts_webhook
+            type: webhook
+            disableResolveMessage: false
+            settings:
+              url: http://grafana-matrix-webhook.monitoring.svc.cluster.local:8080/alert
+              httpMethod: POST
+              maxAlerts: "10"
+              title: '{{ template "default.title" . }}'
+              message: '{{ template "default.message" . }}'
+    policies:
+      - orgId: 1
+        receiver: homelab-matrix-alerts
+        group_by:
+          - grafana_folder
+          - alertname
+          - severity
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 4h
