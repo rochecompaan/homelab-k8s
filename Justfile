@@ -30,6 +30,8 @@ matrix_namespace := "matrix"
 matrix_deployment := "matrix"
 matrix_internal_url := "http://localhost:8008"
 matrix_public_url := "https://matrix.compaan"
+grafana_url := "https://grafana.compaan"
+grafana_password_entry := "private/login/grafana.compaan"
 grafana_matrix_alert_username := "grafana-alerts"
 grafana_matrix_alert_device := "grafana-alerts"
 grafana_matrix_alert_room_name := "Homelab Alerts"
@@ -81,6 +83,47 @@ cluster-status:
     | @tsv' "$tmpfile" \
     | sort \
     | column -t -s "$(printf '\t')"
+
+# Reload Grafana provisioned alerting resources after GitOps sync.
+grafana-alerts-reload url=grafana_url:
+  @for bin in pass curl; do \
+    if ! command -v "$bin" >/dev/null 2>&1; then \
+      echo "Required command '$bin' is not installed" >&2; \
+      exit 1; \
+    fi; \
+  done; \
+  grafana_url="${GRAFANA_URL:-}"; \
+  if [[ -z "$grafana_url" ]]; then \
+    grafana_url={{ quote(url) }}; \
+  fi; \
+  grafana_url="${grafana_url%/}"; \
+  response_body="$(mktemp)"; \
+  trap 'rm -f "$response_body"' EXIT; \
+  credential_entry={{ quote(grafana_password_entry) }}; \
+  credential_content="$(pass show "$credential_entry")"; \
+  grafana_user="${GRAFANA_USER:-}"; \
+  if [[ -z "$grafana_user" ]]; then \
+    grafana_user="$(sed -nE 's/^(login|username|user):[[:space:]]*//Ip' <<<"$credential_content" | head -n1)"; \
+  fi; \
+  grafana_password="${GRAFANA_PASSWORD:-}"; \
+  if [[ -z "$grafana_password" ]]; then \
+    grafana_password="$(printf '%s' "$credential_content" | head -n1 | tr -d '\r')"; \
+  fi; \
+  unset credential_content; \
+  if [[ -z "$grafana_user" || -z "$grafana_password" ]]; then \
+    echo "Grafana credentials are missing from pass entry $credential_entry or GRAFANA_USER/GRAFANA_PASSWORD" >&2; \
+    exit 1; \
+  fi; \
+  curl -fsS "$grafana_url/api/health" >/dev/null; \
+  http_code="$(curl -sS -o "$response_body" -w '%{http_code}' \
+    -u "$grafana_user:$grafana_password" \
+    -X POST "$grafana_url/api/admin/provisioning/alerting/reload")"; \
+  if [[ "$http_code" -lt 200 || "$http_code" -ge 300 ]]; then \
+    echo "Grafana alerting provisioning reload failed with HTTP $http_code:" >&2; \
+    cat "$response_body" >&2; \
+    exit 1; \
+  fi; \
+  echo "Grafana alerting provisioning reload requested at $grafana_url (HTTP $http_code)."
 
 garage-exec +args:
   @kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" \

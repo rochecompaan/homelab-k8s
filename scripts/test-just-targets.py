@@ -43,6 +43,24 @@ def test_seal_openclaw_matrix_token_uses_positional_device_argument() -> None:
     assert "device='device-name'" not in output
 
 
+def test_grafana_alerts_reload_uses_homelab_url_and_pass_entry() -> None:
+    result = subprocess.run(
+        ["just", "--dry-run", "grafana-alerts-reload"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    output = result.stdout + result.stderr
+
+    assert "https://grafana.compaan" in output
+    assert "private/login/grafana.compaan" in output
+    assert "GRAFANA_USER" in output
+    assert "GRAFANA_PASSWORD" in output
+    assert "kube-prometheus-stack-grafana" not in output
+    assert "/api/health" in output
+    assert "/api/admin/provisioning/alerting/reload" in output
+
+
 def test_sensitive_matrix_recipes_do_not_echo_commands() -> None:
     lines = JUSTFILE.read_text(encoding="utf-8").splitlines()
     sensitive_recipes = {
@@ -72,6 +90,7 @@ def main() -> None:
     tests = [
         test_setup_grafana_matrix_alerts_uses_positional_recipe_arguments,
         test_seal_openclaw_matrix_token_uses_positional_device_argument,
+        test_grafana_alerts_reload_uses_homelab_url_and_pass_entry,
         test_sensitive_matrix_recipes_do_not_echo_commands,
     ]
     for test in tests:

@@ -22,6 +22,16 @@ just setup-grafana-matrix-alerts '<new-grafana-alerts-user-password>'
 
 The target overwrites `grafana-matrix-webhook-secret.yaml` with a SealedSecret containing the Matrix room ID and access token. Commit that SealedSecret before syncing this app.
 
+## Reload provisioning
+
+After ArgoCD syncs updated alert rules, ask Grafana to reload provisioned alerting resources:
+
+```bash
+just grafana-alerts-reload
+```
+
+The target defaults to `https://grafana.compaan` and reads the Grafana admin credentials from `pass show private/login/grafana.compaan`. Override with `GRAFANA_URL`, `GRAFANA_USER`, or `GRAFANA_PASSWORD` if needed.
+
 ## Validation
 
 ```bash
