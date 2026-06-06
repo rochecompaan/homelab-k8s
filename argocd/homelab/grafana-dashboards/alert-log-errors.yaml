@@ -29,7 +29,7 @@ data:
                     type: victoriametrics-logs-datasource
                     uid: victorialogs_ds
                   editorMode: code
-                  expr: '_time: 5m AND ~"(?i)(error|exception|panic|fatal)" AND NOT ~"(?i)(readiness probe failed|liveness probe failed)" | stats count()'
+                  expr: '_time: 5m AND ~"(?i)(error|exception|panic|fatal)" AND NOT ~"(?i)(readiness probe failed|liveness probe failed|rule_uid=homelab_log_errors|level=(info|debug)|Ignoring error because|Database locked, sleeping then retrying|slow query according to -search.logSlowQueryDuration)" | stats by (_msg) count()'
                   intervalMs: 1000
                   maxDataPoints: 43200
                   queryType: stats

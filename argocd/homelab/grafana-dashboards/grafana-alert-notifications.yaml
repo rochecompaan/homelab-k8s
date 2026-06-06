@@ -20,7 +20,35 @@ data:
               httpMethod: POST
               maxAlerts: "10"
               title: '{{ template "default.title" . }}'
-              message: '{{ template "default.message" . }}'
+              message: |-
+                {{ if .Alerts.Firing }}
+                <font color="#D50000"><b>🚨 Firing</b></font>
+                {{ range .Alerts.Firing }}
+                {{ if .Labels._msg }}
+                Error: {{ .Labels._msg }}
+                {{ else if .Annotations.description }}
+                {{ .Annotations.description }}
+                {{ else if .Annotations.summary }}
+                {{ .Annotations.summary }}
+                {{ else }}
+                {{ .Labels.alertname }}
+                {{ end }}
+                {{ end }}
+                {{ end }}
+                {{ if .Alerts.Resolved }}
+                <font color="#00C853"><b>✅ Resolved</b></font>
+                {{ range .Alerts.Resolved }}
+                {{ if .Labels._msg }}
+                Error: {{ .Labels._msg }}
+                {{ else if .Annotations.description }}
+                {{ .Annotations.description }}
+                {{ else if .Annotations.summary }}
+                {{ .Annotations.summary }}
+                {{ else }}
+                {{ .Labels.alertname }}
+                {{ end }}
+                {{ end }}
+                {{ end }}
     policies:
       - orgId: 1
         receiver: homelab-matrix-alerts

@@ -7,8 +7,10 @@ import html
 import json
 import logging
 import os
+import re
 import time
 import uuid
+from html.parser import HTMLParser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 from urllib import error, parse, request
@@ -16,6 +18,10 @@ from urllib import error, parse, request
 
 LOG = logging.getLogger("grafana-matrix-webhook")
 MAX_BODY_CHARS = 6000
+SAFE_MATRIX_TAGS = {"b", "strong", "i", "em", "code"}
+SAFE_FONT_COLOR = re.compile(r"^#[0-9A-Fa-f]{6}$")
+BR_TAG_RE = re.compile(r"<br\s*/?>", re.IGNORECASE)
+MATRIX_FORMATTING_TAG_RE = re.compile(r"</?(?:font|b|strong|i|em|code)(?:\s+[^>]*)?>", re.IGNORECASE)
 
 
 def matrix_send_url(homeserver: str, room_id: str, txn_id: str) -> str:
@@ -53,6 +59,67 @@ def _truncate(body: str) -> str:
     if len(body) <= MAX_BODY_CHARS:
         return body
     return body[: MAX_BODY_CHARS - 32].rstrip() + "\n… truncated by relay"
+
+
+class _MatrixHTMLSanitizer(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.parts: list[str] = []
+        self.open_tags: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        normalized = tag.lower()
+        if normalized == "br":
+            self.parts.append("<br>")
+            return
+        if normalized == "font":
+            color = next((_clean(value) for key, value in attrs if key.lower() == "color"), "")
+            if SAFE_FONT_COLOR.fullmatch(color):
+                self.parts.append(f'<font color="{html.escape(color, quote=True)}">')
+                self.open_tags.append(normalized)
+                return
+        elif normalized in SAFE_MATRIX_TAGS:
+            self.parts.append(f"<{normalized}>")
+            self.open_tags.append(normalized)
+            return
+        self.parts.append(html.escape(self.get_starttag_text() or "", quote=False))
+
+    def handle_endtag(self, tag: str) -> None:
+        normalized = tag.lower()
+        if normalized == "font" or normalized in SAFE_MATRIX_TAGS:
+            for index in range(len(self.open_tags) - 1, -1, -1):
+                if self.open_tags[index] == normalized:
+                    del self.open_tags[index]
+                    self.parts.append(f"</{normalized}>")
+                    return
+        self.parts.append(html.escape(f"</{tag}>", quote=False))
+
+    def handle_data(self, data: str) -> None:
+        self.parts.append(html.escape(data))
+
+    def sanitized(self) -> str:
+        return "".join(self.parts)
+
+
+def _sanitize_matrix_html(value: str) -> str:
+    sanitizer = _MatrixHTMLSanitizer()
+    sanitizer.feed(value)
+    sanitizer.close()
+    return sanitizer.sanitized()
+
+
+def _strip_matrix_formatting(value: str) -> str:
+    value = BR_TAG_RE.sub("\n", value)
+    value = MATRIX_FORMATTING_TAG_RE.sub("", value)
+    return html.unescape(value)
+
+
+def _format_matrix_html(body: str) -> str:
+    first, *rest = body.splitlines()
+    formatted = "<strong>" + _sanitize_matrix_html(first) + "</strong>"
+    if rest:
+        formatted += "<br>" + "<br>".join(_sanitize_matrix_html(line) for line in rest)
+    return formatted
 
 
 def build_matrix_event(payload: dict[str, Any]) -> dict[str, str]:
@@ -99,13 +166,9 @@ def build_matrix_event(payload: dict[str, Any]) -> dict[str, str]:
     if external_url:
         lines.extend(["", f"Grafana: {external_url}"])
 
-    body = _truncate("\n".join(lines))
-    formatted = "<br>".join(html.escape(line) for line in body.splitlines())
-    if lines:
-        first, *rest = body.splitlines()
-        formatted = "<strong>" + html.escape(first) + "</strong>"
-        if rest:
-            formatted += "<br>" + "<br>".join(html.escape(line) for line in rest)
+    raw_body = _truncate("\n".join(lines))
+    body = _strip_matrix_formatting(raw_body)
+    formatted = _format_matrix_html(raw_body) if raw_body else ""
     return {
         "msgtype": "m.notice",
         "body": body,
