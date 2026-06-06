@@ -15,6 +15,8 @@ spec:
       releaseName: kube-prometheus-stack
       valuesObject:
         grafana:
+          deploymentStrategy:
+            type: Recreate
           ingress:
             enabled: true
             ingressClassName: traefik
