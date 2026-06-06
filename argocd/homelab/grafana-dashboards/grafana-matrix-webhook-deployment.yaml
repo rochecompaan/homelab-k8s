@@ -31,7 +31,7 @@ spec:
               containerPort: 8080
           env:
             - name: MATRIX_HOMESERVER
-              value: https://matrix.compaan
+              value: http://matrix.matrix.svc.cluster.local
             - name: MATRIX_ROOM_ID
               valueFrom:
                 secretKeyRef:
