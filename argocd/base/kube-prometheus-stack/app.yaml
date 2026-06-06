@@ -70,8 +70,8 @@ spec:
             ruleSelectorNilUsesHelmValues: false
             serviceMonitorSelectorNilUsesHelmValues: false
             probeSelectorNilUsesHelmValues: false
-            retention: 90d
-            retentionSize: 9GB
+            retention: 60d
+            retentionSize: 16GB
             storageSpec:
               volumeClaimTemplate:
                 spec:
@@ -80,7 +80,7 @@ spec:
                     - ReadWriteOnce
                   resources:
                     requests:
-                      storage: 10Gi
+                      storage: 20Gi
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
