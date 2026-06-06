@@ -19,6 +19,7 @@ resources:
   - ../../base/ftp
   - ../../base/infra
   - ../../base/jellyfin
+  - ../../base/grafana-postgres
   - ../../base/kube-prometheus-stack
   - ../../base/grafana-dashboards
   - ../../base/local-path-provisioner

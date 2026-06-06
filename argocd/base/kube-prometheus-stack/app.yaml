@@ -15,6 +15,10 @@ spec:
       releaseName: kube-prometheus-stack
       valuesObject:
         grafana:
+          admin:
+            existingSecret: grafana-admin
+            userKey: admin-user
+            passwordKey: admin-password
           deploymentStrategy:
             type: RollingUpdate
             rollingUpdate:
@@ -34,12 +38,7 @@ spec:
                 hosts:
                   - grafana.compaan
           persistence:
-            type: pvc
-            enabled: true
-            accessModes:
-              - ReadWriteMany
-            storageClassName: longhorn
-            size: 10Gi
+            enabled: false
           sidecar:
             alerts:
               enabled: true
@@ -49,8 +48,17 @@ spec:
             server:
               domain: grafana.compaan
               root_url: https://%(domain)s
-            database:
-              wal: true
+          env:
+            GF_DATABASE_TYPE: postgres
+            GF_DATABASE_HOST: grafana-postgres-rw.monitoring.svc.cluster.local:5432
+            GF_DATABASE_NAME: grafana
+            GF_DATABASE_USER: grafana
+            GF_DATABASE_SSL_MODE: disable
+          envValueFrom:
+            GF_DATABASE_PASSWORD:
+              secretKeyRef:
+                name: grafana-postgres-app
+                key: password
           additionalDataSources:
             - name: VictoriaLogs
               type: victoriametrics-logs-datasource
