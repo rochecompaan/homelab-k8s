@@ -3,3 +3,4 @@ kind: Kustomization
 namespace: monitoring
 resources:
   - postgres-cluster.yaml
+  - grafana-admin-secret.yaml
