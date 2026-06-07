@@ -15,5 +15,3 @@ configMapGenerator:
   - name: grafana-matrix-webhook
     files:
       - grafana_matrix_webhook.py=webhook/grafana_matrix_webhook.py
-    options:
-      disableNameSuffixHash: true

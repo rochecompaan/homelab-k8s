@@ -3,11 +3,14 @@
 
 from __future__ import annotations
 
+import re
+import subprocess
 from pathlib import Path
 
 
-LOG_ERRORS = Path("argocd/homelab/grafana-dashboards/alert-log-errors.yaml")
-NOTIFICATIONS = Path("argocd/homelab/grafana-dashboards/grafana-alert-notifications.yaml")
+GRAFANA_DASHBOARDS = Path("argocd/homelab/grafana-dashboards")
+LOG_ERRORS = GRAFANA_DASHBOARDS / "alert-log-errors.yaml"
+NOTIFICATIONS = GRAFANA_DASHBOARDS / "grafana-alert-notifications.yaml"
 
 
 def test_log_errors_alert_groups_by_message() -> None:
@@ -41,12 +44,50 @@ def test_matrix_notification_message_uses_log_message_template() -> None:
     assert "Error: {{ .Labels._msg }}" in content
 
 
+def _kustomize_documents(path: Path) -> list[str]:
+    result = subprocess.run(
+        ["kubectl", "kustomize", str(path)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return [document for document in result.stdout.split("\n---\n") if document.strip()]
+
+
+def _document_kind(document: str) -> str:
+    match = re.search(r"(?m)^kind: (\S+)$", document)
+    return match.group(1) if match else ""
+
+
+def _metadata_name(document: str) -> str:
+    match = re.search(r"(?m)^  name: ([^\n]+)$", document)
+    return match.group(1) if match else ""
+
+
+def test_matrix_webhook_configmap_changes_roll_deployment() -> None:
+    documents = _kustomize_documents(GRAFANA_DASHBOARDS)
+    webhook_configmaps = [
+        _metadata_name(document)
+        for document in documents
+        if _document_kind(document) == "ConfigMap"
+        and _metadata_name(document).startswith("grafana-matrix-webhook-")
+    ]
+    assert len(webhook_configmaps) == 1
+
+    generated_name = webhook_configmaps[0]
+    deployments = [
+        document for document in documents if _document_kind(document) == "Deployment"
+    ]
+    assert any(f"          name: {generated_name}\n" in document for document in deployments)
+
+
 def main() -> None:
     tests = [
         test_log_errors_alert_groups_by_message,
         test_log_errors_alert_excludes_synapse_preview_404_noise,
         test_log_errors_alert_excludes_grafana_provisioning_file_noise,
         test_matrix_notification_message_uses_log_message_template,
+        test_matrix_webhook_configmap_changes_roll_deployment,
     ]
     for test in tests:
         test()
