@@ -21,6 +21,8 @@ MAX_BODY_CHARS = 6000
 SAFE_MATRIX_TAGS = {"b", "strong", "i", "em", "code"}
 SAFE_SPAN_COLOR_ATTRS = {"data-mx-bg-color", "data-mx-color"}
 SAFE_FONT_COLOR = re.compile(r"^#[0-9A-Fa-f]{6}$")
+ANSI_ESCAPE_RE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+CONTROL_CHARACTER_RE = re.compile(r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]")
 BR_TAG_RE = re.compile(r"<br\s*/?>", re.IGNORECASE)
 MATRIX_FORMATTING_TAG_RE = re.compile(r"</?(?:span|font|b|strong|i|em|code)(?:\s+[^>]*)?>", re.IGNORECASE)
 
@@ -40,12 +42,17 @@ def is_ready() -> bool:
     return _configured(os.getenv("MATRIX_ACCESS_TOKEN")) and _configured(os.getenv("MATRIX_ROOM_ID"))
 
 
+def _strip_terminal_control_sequences(value: str) -> str:
+    value = ANSI_ESCAPE_RE.sub("", value)
+    return CONTROL_CHARACTER_RE.sub("", value)
+
+
 def _clean(value: Any) -> str:
     if value is None:
         return ""
     if isinstance(value, str):
-        return value.strip()
-    return str(value).strip()
+        return _strip_terminal_control_sequences(value).strip()
+    return _strip_terminal_control_sequences(str(value)).strip()
 
 
 def _target_label(labels: dict[str, Any]) -> str:
@@ -128,14 +135,14 @@ def _sanitize_matrix_html(value: str) -> str:
 
 
 def _strip_matrix_formatting(value: str) -> str:
-    value = html.unescape(value)
+    value = _strip_terminal_control_sequences(html.unescape(value))
     value = BR_TAG_RE.sub("\n", value)
     value = MATRIX_FORMATTING_TAG_RE.sub("", value)
     return value
 
 
 def _format_matrix_html(body: str) -> str:
-    body = html.unescape(body)
+    body = _strip_terminal_control_sequences(html.unescape(body))
     first, *rest = body.splitlines()
     formatted = "<strong>" + _sanitize_matrix_html(first) + "</strong>"
     if rest:

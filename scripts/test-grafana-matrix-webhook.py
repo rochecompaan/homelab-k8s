@@ -110,12 +110,45 @@ def test_build_matrix_event_decodes_grafana_escaped_message_html() -> None:
     assert "Error: disk <boom> & retry failed" in event["body"]
 
 
+def test_build_matrix_event_strips_ansi_control_sequences() -> None:
+    server = _load_server_module()
+    payload = {
+        "status": "resolved",
+        "title": "[RESOLVED] homelab log errors \x1b[2mwarning\x1b[0m",
+        "message": "Error: \x1b[2m2026-06-07T08:49:29Z\x1b[0m \x1b[32mINFO\x1b[0m garage request failed",
+        "alerts": [
+            {
+                "status": "resolved",
+                "labels": {
+                    "alertname": "homelab log errors detected",
+                    "severity": "warning",
+                    "instance": "\x1b[2mgarage_web\x1b[0m",
+                },
+                "annotations": {
+                    "summary": "Recent \x1b[31merror\x1b[0m logs detected",
+                },
+            }
+        ],
+    }
+
+    event = server.build_matrix_event(payload)
+
+    assert "\x1b" not in event["body"]
+    assert "\x1b" not in event["formatted_body"]
+    assert "[2m" not in event["body"]
+    assert "[32m" not in event["body"]
+    assert "2026-06-07T08:49:29Z INFO garage request failed" in event["body"]
+    assert "instance: garage_web" in event["body"]
+    assert "summary: Recent error logs detected" in event["body"]
+
+
 def main() -> None:
     tests = [
         test_matrix_send_url_escapes_room_id_and_uses_transaction_id,
         test_build_matrix_event_summarizes_grafana_alert_payload,
         test_build_matrix_event_preserves_safe_grafana_message_html,
         test_build_matrix_event_decodes_grafana_escaped_message_html,
+        test_build_matrix_event_strips_ansi_control_sequences,
     ]
     for test in tests:
         test()
