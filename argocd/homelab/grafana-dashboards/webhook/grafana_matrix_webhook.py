@@ -19,9 +19,10 @@ from urllib import error, parse, request
 LOG = logging.getLogger("grafana-matrix-webhook")
 MAX_BODY_CHARS = 6000
 SAFE_MATRIX_TAGS = {"b", "strong", "i", "em", "code"}
+SAFE_SPAN_COLOR_ATTRS = {"data-mx-bg-color", "data-mx-color"}
 SAFE_FONT_COLOR = re.compile(r"^#[0-9A-Fa-f]{6}$")
 BR_TAG_RE = re.compile(r"<br\s*/?>", re.IGNORECASE)
-MATRIX_FORMATTING_TAG_RE = re.compile(r"</?(?:font|b|strong|i|em|code)(?:\s+[^>]*)?>", re.IGNORECASE)
+MATRIX_FORMATTING_TAG_RE = re.compile(r"</?(?:span|font|b|strong|i|em|code)(?:\s+[^>]*)?>", re.IGNORECASE)
 
 
 def matrix_send_url(homeserver: str, room_id: str, txn_id: str) -> str:
@@ -55,6 +56,16 @@ def _target_label(labels: dict[str, Any]) -> str:
     return ""
 
 
+def _safe_span_attrs(attrs: list[tuple[str, str | None]]) -> list[str]:
+    safe_attrs: list[str] = []
+    for key, value in attrs:
+        normalized_key = key.lower()
+        color = _clean(value)
+        if normalized_key in SAFE_SPAN_COLOR_ATTRS and SAFE_FONT_COLOR.fullmatch(color):
+            safe_attrs.append(f'{normalized_key}="{html.escape(color, quote=True)}"')
+    return safe_attrs
+
+
 def _truncate(body: str) -> str:
     if len(body) <= MAX_BODY_CHARS:
         return body
@@ -72,6 +83,14 @@ class _MatrixHTMLSanitizer(HTMLParser):
         if normalized == "br":
             self.parts.append("<br>")
             return
+        if normalized == "span":
+            safe_attrs = _safe_span_attrs(attrs)
+            if safe_attrs:
+                self.parts.append(f'<span {" ".join(safe_attrs)}>')
+            else:
+                self.parts.append("<span>")
+            self.open_tags.append(normalized)
+            return
         if normalized == "font":
             color = next((_clean(value) for key, value in attrs if key.lower() == "color"), "")
             if SAFE_FONT_COLOR.fullmatch(color):
@@ -86,7 +105,7 @@ class _MatrixHTMLSanitizer(HTMLParser):
 
     def handle_endtag(self, tag: str) -> None:
         normalized = tag.lower()
-        if normalized == "font" or normalized in SAFE_MATRIX_TAGS:
+        if normalized in {"font", "span"} or normalized in SAFE_MATRIX_TAGS:
             for index in range(len(self.open_tags) - 1, -1, -1):
                 if self.open_tags[index] == normalized:
                     del self.open_tags[index]

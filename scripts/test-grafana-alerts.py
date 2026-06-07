@@ -35,8 +35,8 @@ def test_matrix_notification_message_uses_log_message_template() -> None:
     content = NOTIFICATIONS.read_text(encoding="utf-8")
 
     assert '{{ template "default.message" . }}' not in content
-    assert '<font color="#D50000"><b>🚨 Firing</b></font>' in content
-    assert '<font color="#00C853"><b>✅ Resolved</b></font>' in content
+    assert '<span data-mx-color="#D50000"><strong>🚨 Firing</strong></span>' in content
+    assert '<span data-mx-color="#00C853"><strong>✅ Resolved</strong></span>' in content
     assert "{{ if .Labels._msg }}" in content
     assert "Error: {{ .Labels._msg }}" in content
 

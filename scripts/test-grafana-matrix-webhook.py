@@ -76,17 +76,17 @@ def test_build_matrix_event_preserves_safe_grafana_message_html() -> None:
         "status": "firing",
         "title": "[FIRING:1] homelab log errors detected",
         "message": (
-            '<font color="#D50000"><b>🚨 Firing</b></font>\n'
+            '<span data-mx-color="#D50000"><strong>🚨 Firing</strong></span>\n'
             "Error: disk <boom> & retry failed"
         ),
     }
 
     event = server.build_matrix_event(payload)
 
-    assert '<font color="#D50000"><b>🚨 Firing</b></font>' in event["formatted_body"]
+    assert '<span data-mx-color="#D50000"><strong>🚨 Firing</strong></span>' in event["formatted_body"]
     assert "Error: disk &lt;boom&gt; &amp; retry failed" in event["formatted_body"]
-    assert "&lt;font" not in event["formatted_body"]
-    assert '<font color="#D50000">' not in event["body"]
+    assert "&lt;span" not in event["formatted_body"]
+    assert '<span data-mx-color="#D50000">' not in event["body"]
     assert "Error: disk <boom> & retry failed" in event["body"]
 
 
@@ -96,17 +96,17 @@ def test_build_matrix_event_decodes_grafana_escaped_message_html() -> None:
         "status": "resolved",
         "title": "[RESOLVED] homelab log errors detected",
         "message": (
-            '&lt;font color=&quot;#00C853&quot;&gt;&lt;b&gt;✅ Resolved&lt;/b&gt;&lt;/font&gt;\n'
+            '&lt;span data-mx-color=&quot;#00C853&quot;&gt;&lt;strong&gt;✅ Resolved&lt;/strong&gt;&lt;/span&gt;\n'
             "Error: disk &lt;boom&gt; &amp; retry failed"
         ),
     }
 
     event = server.build_matrix_event(payload)
 
-    assert '<font color="#00C853"><b>✅ Resolved</b></font>' in event["formatted_body"]
+    assert '<span data-mx-color="#00C853"><strong>✅ Resolved</strong></span>' in event["formatted_body"]
     assert "Error: disk &lt;boom&gt; &amp; retry failed" in event["formatted_body"]
-    assert "&lt;font" not in event["formatted_body"]
-    assert '<font color="#00C853">' not in event["body"]
+    assert "&lt;span" not in event["formatted_body"]
+    assert '<span data-mx-color="#00C853">' not in event["body"]
     assert "Error: disk <boom> & retry failed" in event["body"]
 
 

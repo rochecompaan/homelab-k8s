@@ -22,7 +22,7 @@ data:
               title: '{{ template "default.title" . }}'
               message: |-
                 {{ if .Alerts.Firing }}
-                <font color="#D50000"><b>🚨 Firing</b></font>
+                <span data-mx-color="#D50000"><strong>🚨 Firing</strong></span>
                 {{ range .Alerts.Firing }}
                 {{ if .Labels._msg }}
                 Error: {{ .Labels._msg }}
@@ -36,7 +36,7 @@ data:
                 {{ end }}
                 {{ end }}
                 {{ if .Alerts.Resolved }}
-                <font color="#00C853"><b>✅ Resolved</b></font>
+                <span data-mx-color="#00C853"><strong>✅ Resolved</strong></span>
                 {{ range .Alerts.Resolved }}
                 {{ if .Labels._msg }}
                 Error: {{ .Labels._msg }}
