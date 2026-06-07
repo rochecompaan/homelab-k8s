@@ -21,6 +21,7 @@ def test_log_errors_alert_excludes_synapse_preview_404_noise() -> None:
     content = LOG_ERRORS.read_text(encoding="utf-8")
 
     assert "media/preview_url.*SynapseError: 404 - Unrecognized request" in content
+    assert "404 .*GET /_matrix/client/v1/media/preview_url" in content
 
 
 def test_matrix_notification_message_uses_log_message_template() -> None:
