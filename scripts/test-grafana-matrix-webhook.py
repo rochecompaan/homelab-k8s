@@ -90,11 +90,32 @@ def test_build_matrix_event_preserves_safe_grafana_message_html() -> None:
     assert "Error: disk <boom> & retry failed" in event["body"]
 
 
+def test_build_matrix_event_decodes_grafana_escaped_message_html() -> None:
+    server = _load_server_module()
+    payload = {
+        "status": "resolved",
+        "title": "[RESOLVED] homelab log errors detected",
+        "message": (
+            '&lt;font color=&quot;#00C853&quot;&gt;&lt;b&gt;✅ Resolved&lt;/b&gt;&lt;/font&gt;\n'
+            "Error: disk &lt;boom&gt; &amp; retry failed"
+        ),
+    }
+
+    event = server.build_matrix_event(payload)
+
+    assert '<font color="#00C853"><b>✅ Resolved</b></font>' in event["formatted_body"]
+    assert "Error: disk &lt;boom&gt; &amp; retry failed" in event["formatted_body"]
+    assert "&lt;font" not in event["formatted_body"]
+    assert '<font color="#00C853">' not in event["body"]
+    assert "Error: disk <boom> & retry failed" in event["body"]
+
+
 def main() -> None:
     tests = [
         test_matrix_send_url_escapes_room_id_and_uses_transaction_id,
         test_build_matrix_event_summarizes_grafana_alert_payload,
         test_build_matrix_event_preserves_safe_grafana_message_html,
+        test_build_matrix_event_decodes_grafana_escaped_message_html,
     ]
     for test in tests:
         test()

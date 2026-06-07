@@ -109,12 +109,14 @@ def _sanitize_matrix_html(value: str) -> str:
 
 
 def _strip_matrix_formatting(value: str) -> str:
+    value = html.unescape(value)
     value = BR_TAG_RE.sub("\n", value)
     value = MATRIX_FORMATTING_TAG_RE.sub("", value)
-    return html.unescape(value)
+    return value
 
 
 def _format_matrix_html(body: str) -> str:
+    body = html.unescape(body)
     first, *rest = body.splitlines()
     formatted = "<strong>" + _sanitize_matrix_html(first) + "</strong>"
     if rest:
