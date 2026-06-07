@@ -4,6 +4,8 @@ resources:
   - ../../base/argocd
   - ../../base/cert-manager
   - ../../base/cloudnative-pg
+  - ../../base/csi-snapshot-crds
+  - ../../base/csi-snapshot-controller
   - ../../base/coturn
   - ../../base/nextcloud-db
   - ../../base/nextcloud
