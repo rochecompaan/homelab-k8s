@@ -29,7 +29,7 @@ data:
                     type: victoriametrics-logs-datasource
                     uid: victorialogs_ds
                   editorMode: code
-                  expr: '_time: 5m AND ~"(?i)(error|exception|panic|fatal)" AND NOT ~"(?i)(readiness probe failed|liveness probe failed|rule_uid=homelab_log_errors|level=(info|debug)|Ignoring error because|Database locked, sleeping then retrying|slow query according to -search.logSlowQueryDuration|^.* - synapse\.http\.server - .* - INFO -|media/preview_url.*SynapseError: 404 - Unrecognized request|404 .*GET /_matrix/client/v1/media/preview_url|Applying resource ConfigMap/alert-log-errors|Writing /etc/grafana/provisioning/alerting/log-errors)" | stats by (_msg) count()'
+                  expr: '_time: 5m AND ~"(?i)(error|exception|panic|fatal)" AND NOT ~"(?i)(readiness probe failed|liveness probe failed|rule_uid=homelab_log_errors|level=(info|debug)|Ignoring error because|Database locked, sleeping then retrying|slow query according to -search.logSlowQueryDuration|^.* - synapse[.]http[.]server - .* - INFO -|media/preview_url.*SynapseError: 404 - Unrecognized request|404 .*GET /_matrix/client/v1/media/preview_url|Applying resource ConfigMap/alert-log-errors|Writing /etc/grafana/provisioning/alerting/log-errors)" | stats by (_msg) count()'
                   intervalMs: 1000
                   maxDataPoints: 43200
                   queryType: stats
