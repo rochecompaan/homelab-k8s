@@ -17,6 +17,12 @@ def test_log_errors_alert_groups_by_message() -> None:
     assert "homelab_log_errors" in content
 
 
+def test_log_errors_alert_excludes_synapse_preview_404_noise() -> None:
+    content = LOG_ERRORS.read_text(encoding="utf-8")
+
+    assert "media/preview_url.*SynapseError: 404 - Unrecognized request" in content
+
+
 def test_matrix_notification_message_uses_log_message_template() -> None:
     content = NOTIFICATIONS.read_text(encoding="utf-8")
 
@@ -30,6 +36,7 @@ def test_matrix_notification_message_uses_log_message_template() -> None:
 def main() -> None:
     tests = [
         test_log_errors_alert_groups_by_message,
+        test_log_errors_alert_excludes_synapse_preview_404_noise,
         test_matrix_notification_message_uses_log_message_template,
     ]
     for test in tests:
