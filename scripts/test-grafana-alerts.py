@@ -34,6 +34,28 @@ def test_log_errors_alert_excludes_grafana_provisioning_file_noise() -> None:
     assert "Writing /etc/grafana/provisioning/alerting/log-errors" in content
 
 
+def _log_errors_exclusion_regex() -> re.Pattern[str]:
+    content = LOG_ERRORS.read_text(encoding="utf-8")
+    match = re.search(r'AND NOT ~"([^"]+)"', content)
+    assert match is not None
+    return re.compile(match.group(1).replace("''", "'"))
+
+
+def test_log_errors_alert_excludes_transient_gmail_imap_noise() -> None:
+    excluded = _log_errors_exclusion_regex()
+
+    transient_messages = [
+        "Error: Socket error on imap.gmail.com (108.177.15.109:993): timeout.",
+        "Error: [ERROR] plugin/errors: 2 imap.gmail.com. AAAA: read udp 10.42.0.59:33113->192.168.1.1:53: i/o timeout",
+        "Error: [ERROR] plugin/errors: 2 imap.gmail.com. AAAA: read udp 10.42.0.59:35171->192.168.1.1:53: i/o timeout",
+        "Error: [ERROR] plugin/errors: 2 imap.gmail.com. AAAA: read udp 10.42.0.59:47097->192.168.1.1:53: i/o timeout",
+        "Error: IMAP command 'UID FETCH 1:1653650 (UID FLAGS)' returned an error: Some messages could not be FETCHed (Failure)",
+    ]
+
+    for message in transient_messages:
+        assert excluded.search(message), message
+
+
 def test_matrix_notification_message_uses_log_message_template() -> None:
     content = NOTIFICATIONS.read_text(encoding="utf-8")
 
@@ -86,6 +108,7 @@ def main() -> None:
         test_log_errors_alert_groups_by_message,
         test_log_errors_alert_excludes_synapse_preview_404_noise,
         test_log_errors_alert_excludes_grafana_provisioning_file_noise,
+        test_log_errors_alert_excludes_transient_gmail_imap_noise,
         test_matrix_notification_message_uses_log_message_template,
         test_matrix_webhook_configmap_changes_roll_deployment,
     ]
