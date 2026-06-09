@@ -1,5 +1,5 @@
 # Sourced from:
-# https://raw.githubusercontent.com/sixfeetup/miniziti-operator/aebb6c4978262c8618c03e64609775ac6db21e0b/dist/install.yaml
+# https://raw.githubusercontent.com/sixfeetup/miniziti-operator/bedeb9d04ca97bd330d181cd13536f24a4b9163b/dist/install.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -441,6 +441,16 @@ spec:
                     type: string
                   type: array
                   x-kubernetes-list-type: set
+                router:
+                  description: Router enables server-side router wiring for a functional hosted service.
+                  properties:
+                    name:
+                      description: Name is the exact OpenZiti router and router identity name.
+                      minLength: 1
+                      type: string
+                  required:
+                    - name
+                  type: object
               required:
                 - configs
                 - name
@@ -448,6 +458,8 @@ spec:
             status:
               description: ZitiServiceStatus defines the observed state of ZitiService.
               properties:
+                bindPolicyID:
+                  type: string
                 conditions:
                   description: Conditions reports readiness, reconciliation progress, and degraded states.
                   items:
@@ -522,6 +534,8 @@ spec:
                   description: ObservedGeneration is the most recent metadata generation processed by the operator.
                   format: int64
                   type: integer
+                serviceEdgeRouterPolicyID:
+                  type: string
               type: object
           type: object
       served: true
