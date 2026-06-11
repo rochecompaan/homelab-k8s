@@ -49,6 +49,32 @@ data:
                 {{ end }}
                 {{ end }}
                 {{ end }}
+      - orgId: 1
+        name: homelab-matrix-log-alerts
+        receivers:
+          - uid: homelab_matrix_log_alerts_webhook
+            type: webhook
+            disableResolveMessage: true
+            settings:
+              url: http://grafana-matrix-webhook.monitoring.svc.cluster.local:8080/alert
+              httpMethod: POST
+              maxAlerts: "10"
+              title: '{{ template "default.title" . }}'
+              message: |-
+                {{ if .Alerts.Firing }}
+                <span data-mx-color="#D50000"><strong>🚨 Firing</strong></span>
+                {{ range .Alerts.Firing }}
+                {{ if .Labels._msg }}
+                Error: {{ .Labels._msg }}
+                {{ else if .Annotations.description }}
+                {{ .Annotations.description }}
+                {{ else if .Annotations.summary }}
+                {{ .Annotations.summary }}
+                {{ else }}
+                {{ .Labels.alertname }}
+                {{ end }}
+                {{ end }}
+                {{ end }}
     policies:
       - orgId: 1
         receiver: homelab-matrix-alerts
@@ -59,3 +85,16 @@ data:
         group_wait: 30s
         group_interval: 5m
         repeat_interval: 4h
+        routes:
+          - receiver: homelab-matrix-log-alerts
+            object_matchers:
+              - - service
+                - =
+                - logs
+            group_by:
+              - grafana_folder
+              - alertname
+              - severity
+            group_wait: 1m
+            group_interval: 30m
+            repeat_interval: 12h

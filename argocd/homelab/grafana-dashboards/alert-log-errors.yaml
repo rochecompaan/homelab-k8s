@@ -21,7 +21,7 @@ data:
               - refId: A
                 queryType: stats
                 relativeTimeRange:
-                  from: 60
+                  from: 600
                   to: 0
                 datasourceUid: victorialogs_ds
                 model:
@@ -29,7 +29,7 @@ data:
                     type: victoriametrics-logs-datasource
                     uid: victorialogs_ds
                   editorMode: code
-                  expr: '_time: 5m AND ~"(?i)(error|exception|panic|fatal)" AND NOT ~"(?i)(readiness probe failed|liveness probe failed|rule_uid=homelab_log_errors|level=(info|debug)|Ignoring error because|Database locked, sleeping then retrying|slow query according to -search.logSlowQueryDuration|^.* - synapse[.]http[.]server - .* - INFO -|media/preview_url.*SynapseError: 404 - Unrecognized request|404 .*GET /_matrix/client/v1/media/preview_url|Applying resource ConfigMap/alert-log-errors|Writing /etc/grafana/provisioning/alerting/log-errors|Socket error on imap[.]gmail[.]com [(][0-9.]+:993[)]: timeout[.]?|[[]ERROR[]] plugin/errors: 2 imap[.]gmail[.]com[.] AAAA: read udp [0-9.]+:[0-9]+->[0-9.]+:53: i/o timeout|IMAP command ''UID FETCH [0-9:]+ [(]UID FLAGS[)]'' returned an error: Some messages could not be FETCHed [(]Failure[)])" | stats by (_msg) count()'
+                  expr: '_time: 10m AND ~"(?i)(error|exception|panic|fatal)" AND NOT ~"(?i)(readiness probe failed|liveness probe failed|rule_uid=homelab_log_errors|level=(info|debug)|Ignoring error because|Database locked, sleeping then retrying|slow query according to -search.logSlowQueryDuration|^.* - synapse[.]http[.]server - .* - INFO -|media/preview_url.*SynapseError: 404 - Unrecognized request|404 .*GET /_matrix/client/v1/media/preview_url|Applying resource ConfigMap/alert-log-errors|Writing /etc/grafana/provisioning/alerting/log-errors|Socket error on imap[.]gmail[.]com [(][0-9.]+:993[)]: timeout[.]?|[[]ERROR[]] plugin/errors: 2 imap[.]gmail[.]com[.] AAAA: read udp [0-9.]+:[0-9]+->[0-9.]+:53: i/o timeout|IMAP command ''UID FETCH [0-9:]+ [(]UID FLAGS[)]'' returned an error: Some messages could not be FETCHed [(]Failure[)]|garage_web::web_server.*GET 404 Not Found.*API error: Key not found|Error while handling TCP connection.*readfrom tcp [0-9.]+:[0-9]+->[0-9.]+:3022: read tcp [0-9.]+:8443->[0-9.]+:[0-9]+: read: connection reset by peer|source=collector[.]go:168 msg=.collector failed. name=thermal_zone.*err=.invalid argument.|Jellyfin[.]Database[.]Implementations[.]JellyfinDbContext: Error trying to save changes[.]|Microsoft[.]EntityFrameworkCore[.]DbUpdateConcurrencyException: The database operation was expected to affect 1 row[(]s[)], but actually affected 0 row[(]s[)]|AffectedCountModificationCommandBatch[.]ThrowAggregateUpdateConcurrencyExceptionAsync|Failed to get filesystem device type of .*collectNodeDiskCount.*controller=longhorn-setting)" | stats by (_msg) count()'
                   intervalMs: 1000
                   maxDataPoints: 43200
                   queryType: stats
@@ -86,7 +86,7 @@ data:
                   type: threshold
             noDataState: OK
             execErrState: Error
-            for: 1m
+            for: 5m
             annotations:
               summary: Recent error logs detected in homelab
               description: VictoriaLogs found recent error, exception, panic, or fatal log entries. Review the grouped message in Grafana for the exact source.
