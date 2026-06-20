@@ -47,8 +47,6 @@ spec:
           volumeMounts:
             - mountPath: /config
               name: home-assistant-config-volume
-      nodeSelector:
-        kubernetes.io/hostname: dauwalter
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       volumes:
