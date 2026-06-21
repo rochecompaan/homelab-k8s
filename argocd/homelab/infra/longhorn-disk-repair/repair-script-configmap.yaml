@@ -1,0 +1,302 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: longhorn-disk-repair-script
+  labels:
+    app.kubernetes.io/name: longhorn-disk-repair
+    app.kubernetes.io/part-of: longhorn
+data:
+  repair-longhorn-disks.py: |
+    #!/usr/bin/env python3
+    """Safely replace stale Longhorn disk records after host reinstalls.
+
+    This script is intentionally conservative. It only removes disk records when
+    Longhorn already reports DiskFilesystemChanged and no scheduled replicas
+    remain on the stale disk status. Stopped replica CRs on those stale disk UUIDs
+    are deleted only when DELETE_STALE_REPLICAS=true.
+    """
+
+    from __future__ import annotations
+
+    import json
+    import os
+    import ssl
+    import sys
+    import time
+    from dataclasses import dataclass
+    from typing import Any
+    from urllib.error import HTTPError
+    from urllib.parse import quote
+    from urllib.request import Request, urlopen
+
+
+    NAMESPACE = os.environ.get("LONGHORN_NAMESPACE", "longhorn-system")
+    API_HOST = os.environ["KUBERNETES_SERVICE_HOST"]
+    API_PORT = os.environ.get("KUBERNETES_SERVICE_PORT", "443")
+    API_ROOT = f"https://{API_HOST}:{API_PORT}/apis/longhorn.io/v1beta2/namespaces/{NAMESPACE}"
+    TOKEN_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+    CA_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    CONFIRM_REPAIR = os.environ.get("CONFIRM_REPAIR", "")
+    DRY_RUN = os.environ.get("DRY_RUN", "false").lower() == "true"
+    DELETE_STALE_REPLICAS = os.environ.get("DELETE_STALE_REPLICAS", "false").lower() == "true"
+    REQUIRED_READY_REASON = os.environ.get("REQUIRED_READY_REASON", "DiskFilesystemChanged")
+
+
+    @dataclass(frozen=True)
+    class DiskRepair:
+      old_name: str
+      old_path: str
+      new_name: str
+      new_path: str
+      storage_reserved: int
+      tags: list[str]
+
+      def new_spec(self) -> dict[str, Any]:
+        return {
+          "allowScheduling": True,
+          "diskDriver": "",
+          "diskType": "filesystem",
+          "evictionRequested": False,
+          "path": self.new_path,
+          "storageReserved": self.storage_reserved,
+          "tags": self.tags,
+        }
+
+
+    TARGETS: dict[str, list[DiskRepair]] = {
+      "dauwalter": [
+        DiskRepair(
+          old_name="default-disk-b5dbf4849fa96599",
+          old_path="/var/lib/longhorn/",
+          new_name="longhorn-root",
+          new_path="/var/lib/longhorn/",
+          storage_reserved=301938432000,
+          tags=[],
+        ),
+      ],
+      "fordyce": [
+        DiskRepair(
+          old_name="default-disk-fec640abc4d0caff",
+          old_path="/var/lib/longhorn/",
+          new_name="longhorn-root",
+          new_path="/var/lib/longhorn/",
+          storage_reserved=75116306841,
+          tags=[],
+        ),
+      ],
+      "selassie": [
+        DiskRepair(
+          old_name="default-disk-75fe019eb4ad6eea",
+          old_path="/var/lib/longhorn/",
+          new_name="longhorn-root",
+          new_path="/var/lib/longhorn/",
+          storage_reserved=75116306841,
+          tags=[],
+        ),
+        DiskRepair(
+          old_name="disk-1",
+          old_path="/srv/data",
+          new_name="longhorn-sata",
+          new_path="/srv/data",
+          storage_reserved=0,
+          tags=["sata"],
+        ),
+      ],
+    }
+
+
+    def log(message: str) -> None:
+      print(message, flush=True)
+
+
+    def fail(message: str) -> None:
+      print(f"ERROR: {message}", file=sys.stderr, flush=True)
+      sys.exit(1)
+
+
+    with open(TOKEN_PATH, encoding="utf-8") as token_file:
+      TOKEN = token_file.read().strip()
+
+    SSL_CONTEXT = ssl.create_default_context(cafile=CA_PATH)
+
+
+    def api_path(resource: str, name: str | None = None) -> str:
+      path = f"{API_ROOT}/{resource}"
+      if name:
+        path = f"{path}/{quote(name, safe='')}"
+      return path
+
+
+    def request_json(method: str, path: str, body: dict[str, Any] | None = None) -> dict[str, Any]:
+      data = None
+      headers = {"Authorization": f"Bearer {TOKEN}"}
+      if body is not None:
+        data = json.dumps(body).encode("utf-8")
+        headers["Content-Type"] = "application/merge-patch+json" if method == "PATCH" else "application/json"
+      request = Request(path, data=data, method=method, headers=headers)
+      with urlopen(request, context=SSL_CONTEXT, timeout=30) as response:
+        raw = response.read()
+      if not raw:
+        return {}
+      return json.loads(raw.decode("utf-8"))
+
+
+    def delete_resource(path: str) -> None:
+      headers = {"Authorization": f"Bearer {TOKEN}"}
+      request = Request(path, method="DELETE", headers=headers)
+      try:
+        with urlopen(request, context=SSL_CONTEXT, timeout=30) as response:
+          response.read()
+      except HTTPError as error:
+        if error.code != 404:
+          raise
+
+
+    def list_items(resource: str) -> list[dict[str, Any]]:
+      return request_json("GET", api_path(resource)).get("items", [])
+
+
+    def get_node(name: str) -> dict[str, Any]:
+      return request_json("GET", api_path("nodes", name))
+
+
+    def condition(status: dict[str, Any], condition_name: str) -> dict[str, Any]:
+      conditions = status.get("conditions", {})
+      if isinstance(conditions, dict):
+        value = conditions.get(condition_name, {})
+        return value if isinstance(value, dict) else {}
+      if isinstance(conditions, list):
+        for item in conditions:
+          if item.get("type") == condition_name:
+            return item
+      return {}
+
+
+    def stale_replicas(node: str, disk_uuid: str) -> list[dict[str, Any]]:
+      replicas = []
+      for replica in list_items("replicas"):
+        labels = replica.get("metadata", {}).get("labels", {})
+        spec = replica.get("spec", {})
+        if labels.get("longhornnode") == node and labels.get("longhorndiskuuid") == disk_uuid:
+          replicas.append(replica)
+        elif spec.get("nodeID") == node and spec.get("diskID") == disk_uuid:
+          replicas.append(replica)
+      return replicas
+
+
+    def delete_stale_replicas(node: str, disk_name: str, disk_uuid: str) -> None:
+      replicas = stale_replicas(node, disk_uuid)
+      if not replicas:
+        return
+
+      for replica in replicas:
+        name = replica["metadata"]["name"]
+        state = replica.get("status", {}).get("currentState", "")
+        if state == "running":
+          fail(f"refusing to delete running replica {name} on {node}/{disk_name}")
+
+      names = [replica["metadata"]["name"] for replica in replicas]
+      if not DELETE_STALE_REPLICAS:
+        fail(
+          f"stale replicas remain on {node}/{disk_name} diskUUID={disk_uuid}: "
+          f"{', '.join(names)}. Set DELETE_STALE_REPLICAS=true after review."
+        )
+
+      for name in names:
+        log(f"deleting stopped stale replica {name} from {node}/{disk_name}")
+        if not DRY_RUN:
+          delete_resource(api_path("replicas", name))
+
+      if DRY_RUN:
+        return
+
+      deadline = time.time() + 60
+      while time.time() < deadline:
+        remaining = stale_replicas(node, disk_uuid)
+        if not remaining:
+          return
+        time.sleep(2)
+      fail(f"timed out waiting for stale replicas to disappear from {node}/{disk_name}")
+
+
+    def validate_stale_disk(node_name: str, node: dict[str, Any], repair: DiskRepair) -> bool:
+      spec_disks = node.get("spec", {}).get("disks", {})
+      status_disks = node.get("status", {}).get("diskStatus", {})
+
+      if repair.old_name not in spec_disks:
+        fresh = spec_disks.get(repair.new_name)
+        if fresh and fresh.get("path") == repair.new_path:
+          log(f"{node_name}/{repair.new_name} is already present; skipping stale disk {repair.old_name}")
+          return False
+        fail(f"{node_name}/{repair.old_name} is absent and {repair.new_name} is not already present")
+
+      old_spec = spec_disks[repair.old_name]
+      if old_spec.get("path") != repair.old_path:
+        fail(f"{node_name}/{repair.old_name} path is {old_spec.get('path')!r}, expected {repair.old_path!r}")
+
+      if repair.new_name in spec_disks:
+        fail(f"{node_name}/{repair.new_name} already exists while stale {repair.old_name} is still present")
+
+      old_status = status_disks.get(repair.old_name)
+      if not old_status:
+        fail(f"{node_name}/{repair.old_name} has no status; refusing to replace blindly")
+
+      ready = condition(old_status, "Ready")
+      reason = ready.get("reason", "")
+      if reason != REQUIRED_READY_REASON:
+        fail(
+          f"{node_name}/{repair.old_name} Ready reason is {reason!r}, "
+          f"expected {REQUIRED_READY_REASON!r}"
+        )
+
+      scheduled = old_status.get("scheduledReplica", {})
+      if scheduled:
+        fail(f"{node_name}/{repair.old_name} still has scheduled replicas: {scheduled}")
+      if int(old_status.get("storageScheduled") or 0) != 0:
+        fail(f"{node_name}/{repair.old_name} storageScheduled is {old_status.get('storageScheduled')}, expected 0")
+
+      disk_uuid = old_status.get("diskUUID")
+      if not disk_uuid:
+        fail(f"{node_name}/{repair.old_name} has no diskUUID in status")
+      delete_stale_replicas(node_name, repair.old_name, disk_uuid)
+      return True
+
+
+    def repair_node(node_name: str, repairs: list[DiskRepair]) -> None:
+      node = get_node(node_name)
+      patch_disks: dict[str, Any] = {}
+
+      for repair in repairs:
+        if validate_stale_disk(node_name, node, repair):
+          patch_disks[repair.old_name] = None
+          patch_disks[repair.new_name] = repair.new_spec()
+
+      if not patch_disks:
+        log(f"{node_name}: no disk patch needed")
+        return
+
+      patch = {"spec": {"disks": patch_disks}}
+      log(f"{node_name}: replacing stale disk records: {', '.join(patch_disks.keys())}")
+      if DRY_RUN:
+        log(json.dumps(patch, indent=2, sort_keys=True))
+      else:
+        request_json("PATCH", api_path("nodes", node_name), patch)
+
+
+    def main() -> None:
+      if CONFIRM_REPAIR != "clear stale longhorn disks":
+        fail("CONFIRM_REPAIR must be exactly 'clear stale longhorn disks'")
+
+      backing_images = list_items("backingimages")
+      if backing_images:
+        names = [item["metadata"]["name"] for item in backing_images]
+        fail(f"backing images exist and require manual review before disk removal: {', '.join(names)}")
+
+      log(f"dry_run={DRY_RUN} delete_stale_replicas={DELETE_STALE_REPLICAS}")
+      for node_name, repairs in TARGETS.items():
+        repair_node(node_name, repairs)
+      log("Longhorn disk repair job finished. Watch nodes.longhorn.io disk readiness and volume rebuilds.")
+
+
+    if __name__ == "__main__":
+      main()

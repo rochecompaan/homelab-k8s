@@ -1,0 +1,46 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: longhorn-disk-repair
+  labels:
+    app.kubernetes.io/name: longhorn-disk-repair
+    app.kubernetes.io/part-of: longhorn
+rules:
+  - apiGroups:
+      - longhorn.io
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - patch
+  - apiGroups:
+      - longhorn.io
+    resources:
+      - replicas
+    verbs:
+      - get
+      - list
+      - delete
+  - apiGroups:
+      - longhorn.io
+    resources:
+      - backingimages
+    verbs:
+      - get
+      - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: longhorn-disk-repair
+  labels:
+    app.kubernetes.io/name: longhorn-disk-repair
+    app.kubernetes.io/part-of: longhorn
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: longhorn-disk-repair
+subjects:
+  - kind: ServiceAccount
+    name: longhorn-disk-repair
