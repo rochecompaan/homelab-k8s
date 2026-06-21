@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: longhorn-disk-repair-20260621-v2
+  name: longhorn-disk-repair-20260621-v3
   labels:
     app.kubernetes.io/name: longhorn-disk-repair
     app.kubernetes.io/part-of: longhorn
@@ -48,6 +48,10 @@ spec:
               value: "true"
             - name: REQUIRED_READY_REASON
               value: DiskFilesystemChanged
+            - name: API_RETRY_LIMIT
+              value: "30"
+            - name: API_RETRY_DEFAULT_SECONDS
+              value: "1"
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

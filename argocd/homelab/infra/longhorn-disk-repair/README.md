@@ -30,7 +30,9 @@ UUIDs, then replaces the disk records with stable names:
 
 The operator approved activation after reviewing the dormant manifests. The
 first activation job failed because Longhorn requires stale disks to be disabled
-before deleting disk records. The v2 job performs that sequence explicitly.
+before deleting disk records. The v2 job performed that sequence explicitly, but
+hit a transient Kubernetes API 429 while Longhorn storage was reinitializing. The
+v3 job retries retryable API 429 responses and then continues idempotently.
 
 The activation change should:
 
@@ -41,7 +43,7 @@ The activation change should:
 
    ```bash
    KUBECONFIG=/home/roche/homelab-k8s/.kubeconfig kubectl -n longhorn-system get jobs,pods
-   KUBECONFIG=/home/roche/homelab-k8s/.kubeconfig kubectl -n longhorn-system logs job/longhorn-disk-repair-20260621-v2
+   KUBECONFIG=/home/roche/homelab-k8s/.kubeconfig kubectl -n longhorn-system logs job/longhorn-disk-repair-20260621-v3
    KUBECONFIG=/home/roche/homelab-k8s/.kubeconfig kubectl -n longhorn-system get nodes.longhorn.io
    KUBECONFIG=/home/roche/homelab-k8s/.kubeconfig kubectl -n longhorn-system get volumes.longhorn.io
    ```
