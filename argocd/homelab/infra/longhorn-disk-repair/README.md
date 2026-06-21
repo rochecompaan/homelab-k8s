@@ -1,11 +1,11 @@
 # Longhorn disk repair job
 
-Dormant, review-only manifests for clearing stale Longhorn disk records after the
-2026-06-21 benchmark-node reinstalls.
+GitOps-managed repair manifests for clearing stale Longhorn disk records after
+the 2026-06-21 benchmark-node reinstalls.
 
-These manifests are **not** referenced by `argocd/homelab/infra/kustomization.yaml`,
-so ArgoCD will not deploy them until a later reviewed change wires them in.
-The `Job` is also created with `spec.suspend: true` as a second safety guard.
+When this directory is referenced by `argocd/homelab/infra/kustomization.yaml`
+and the `Job` has `spec.suspend: false`, ArgoCD will create and run the repair
+job in `longhorn-system`.
 
 ## What the job is intended to do
 
@@ -26,9 +26,10 @@ UUIDs, then replaces the disk records with stable names:
 | `selassie` | `default-disk-75fe019eb4ad6eea` | `longhorn-root` | `/var/lib/longhorn/` | `[]` |
 | `selassie` | `disk-1` | `longhorn-sata` | `/srv/data` | `["sata"]` |
 
-## Activation checklist
+## Activation status
 
-Do not activate until the operator has reviewed and approved these manifests.
+The operator approved activation after reviewing the dormant manifests. The
+activation change should:
 
 1. Add `longhorn-disk-repair` to `argocd/homelab/infra/kustomization.yaml`.
 2. Change `spec.suspend` in `job.yaml` from `true` to `false`.

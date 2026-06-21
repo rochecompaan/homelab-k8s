@@ -10,6 +10,7 @@ resources:
   - home-assistant-namespace.yaml
   - home-assistant.yaml
   - home-assistant-ingress.yaml
+  - longhorn-disk-repair
   - longhorn-sata-storageclass.yaml
   - private-ca.yaml
   - ziti-router-ingress.yaml

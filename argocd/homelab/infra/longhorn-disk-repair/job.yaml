@@ -6,10 +6,9 @@ metadata:
     app.kubernetes.io/name: longhorn-disk-repair
     app.kubernetes.io/part-of: longhorn
 spec:
-  # Safety guard: this Job is intentionally dormant for review. To execute via
-  # GitOps, include this kustomization in argocd/homelab/infra/kustomization.yaml
-  # and change suspend to false in a reviewed commit.
-  suspend: true
+  # This Job is activated only when this kustomization is referenced by
+  # argocd/homelab/infra/kustomization.yaml and this value is false.
+  suspend: false
   backoffLimit: 0
   activeDeadlineSeconds: 300
   ttlSecondsAfterFinished: 86400
