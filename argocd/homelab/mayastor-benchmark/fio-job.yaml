@@ -1,0 +1,118 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: storage-bench-mayastor-run-001
+  namespace: storage-benchmark
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    app.kubernetes.io/name: storage-benchmark
+    storage.compaan.io/backend: mayastor
+spec:
+  activeDeadlineSeconds: 7200
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: storage-benchmark
+        storage.compaan.io/backend: mayastor
+    spec:
+      restartPolicy: Never
+      nodeSelector:
+        openebs.io/engine: mayastor
+      containers:
+        - name: fio
+          image: nixery.dev/shell/fio/jq/coreutils
+          env:
+            - name: BACKEND
+              value: mayastor
+          command:
+            - /bin/sh
+            - -ceu
+            - |
+              echo "RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors"
+
+              timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+              result_dir="/volume/results/${BACKEND}/${timestamp}"
+              mkdir -p "${result_dir}"
+
+              fio \
+                --name=warmup \
+                --filename=/volume/fio-test-file \
+                --rw=write \
+                --bs=1m \
+                --size=4G \
+                --ioengine=libaio \
+                --iodepth=16 \
+                --direct=1 \
+                --time_based \
+                --runtime=30 \
+                --group_reporting \
+                --output-format=json \
+                --output="${result_dir}/warmup.json"
+
+              run_profile() {
+                profile="$1"
+                pass="$2"
+                rw="$3"
+                bs="$4"
+                rwmixread="${5:-}"
+                iodepth="${6:-16}"
+                output="${result_dir}/${profile}-pass-${pass}.json"
+
+                fio \
+                  --name="${profile}" \
+                  --filename=/volume/fio-test-file \
+                  --rw="${rw}" \
+                  --bs="${bs}" \
+                  --size=4G \
+                  --ioengine=libaio \
+                  --iodepth="${iodepth}" \
+                  --direct=1 \
+                  --time_based \
+                  --runtime=60 \
+                  --ramp_time=10 \
+                  --group_reporting \
+                  --output-format=json \
+                  ${rwmixread:+--rwmixread="${rwmixread}"} \
+                  --output="${output}"
+
+                jq -r --arg backend "${BACKEND}" --arg profile "${profile}" --arg pass "${pass}" '
+                  .jobs[0] as $job |
+                  [
+                    "RESULT",
+                    $backend,
+                    $profile,
+                    $pass,
+                    ($job.read.iops // 0),
+                    ($job.write.iops // 0),
+                    (($job.read.bw_bytes // 0) / 1048576),
+                    (($job.write.bw_bytes // 0) / 1048576),
+                    (($job.read.clat_ns.mean // 0) / 1000000),
+                    (($job.write.clat_ns.mean // 0) / 1000000),
+                    (($job.read.clat_ns.percentile["95.000000"] // 0) / 1000000),
+                    (($job.write.clat_ns.percentile["95.000000"] // 0) / 1000000),
+                    (($job.read.clat_ns.percentile["99.000000"] // 0) / 1000000),
+                    (($job.write.clat_ns.percentile["99.000000"] // 0) / 1000000),
+                    (($job.read.clat_ns.percentile["99.900000"] // 0) / 1000000),
+                    (($job.write.clat_ns.percentile["99.900000"] // 0) / 1000000),
+                    ($job.error // 0)
+                  ] | @csv | sub("^\\\"RESULT\\\","; "RESULT,")
+                ' "${output}"
+              }
+
+              for pass in 1 2 3; do
+                run_profile seq-write-1m "${pass}" write 1m
+                run_profile seq-read-1m "${pass}" read 1m
+                run_profile rand-write-4k "${pass}" randwrite 4k
+                run_profile rand-read-4k "${pass}" randread 4k
+                run_profile randrw-4k-70r30w "${pass}" randrw 4k 70
+                run_profile sync-write-4k "${pass}" write 4k "" 1
+              done
+          volumeMounts:
+            - name: benchmark-volume
+              mountPath: /volume
+      volumes:
+        - name: benchmark-volume
+          persistentVolumeClaim:
+            claimName: mayastor-fio-pvc

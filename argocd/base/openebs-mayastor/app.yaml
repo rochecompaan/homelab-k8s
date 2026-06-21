@@ -1,0 +1,67 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openebs-mayastor
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '4'
+spec:
+  project: default
+  source:
+    chart: openebs
+    repoURL: https://openebs.github.io/openebs
+    targetRevision: 4.5.1
+    helm:
+      releaseName: openebs
+      valuesObject:
+        alloy:
+          enabled: false
+        engines:
+          local:
+            hostpath:
+              enabled: false
+            lvm:
+              enabled: false
+            zfs:
+              enabled: false
+          replicated:
+            mayastor:
+              enabled: true
+        loki:
+          enabled: false
+        openebs-crds:
+          csi:
+            volumeSnapshots:
+              enabled: false
+        mayastor:
+          alloy:
+            enabled: false
+          etcd:
+            localpvScConfig:
+              enabled: false
+            persistence:
+              storageClass: local-path
+          localpv-provisioner:
+            enabled: false
+          loki:
+            enabled: false
+          obs:
+            callhome:
+              enabled: false
+          storageClass:
+            enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: openebs
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+    syncOptions:
+      - CreateNamespace=true
