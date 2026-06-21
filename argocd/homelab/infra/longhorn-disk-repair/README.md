@@ -29,7 +29,10 @@ UUIDs, then replaces the disk records with stable names:
 ## Activation status
 
 The operator approved activation after reviewing the dormant manifests. The
-activation change should:
+first activation job failed because Longhorn requires stale disks to be disabled
+before deleting disk records. The v2 job performs that sequence explicitly.
+
+The activation change should:
 
 1. Add `longhorn-disk-repair` to `argocd/homelab/infra/kustomization.yaml`.
 2. Change `spec.suspend` in `job.yaml` from `true` to `false`.
@@ -38,6 +41,7 @@ activation change should:
 
    ```bash
    KUBECONFIG=/home/roche/homelab-k8s/.kubeconfig kubectl -n longhorn-system get jobs,pods
+   KUBECONFIG=/home/roche/homelab-k8s/.kubeconfig kubectl -n longhorn-system logs job/longhorn-disk-repair-20260621-v2
    KUBECONFIG=/home/roche/homelab-k8s/.kubeconfig kubectl -n longhorn-system get nodes.longhorn.io
    KUBECONFIG=/home/roche/homelab-k8s/.kubeconfig kubectl -n longhorn-system get volumes.longhorn.io
    ```

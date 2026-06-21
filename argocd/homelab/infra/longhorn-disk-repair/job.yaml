@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: longhorn-disk-repair-20260621
+  name: longhorn-disk-repair-20260621-v2
   labels:
     app.kubernetes.io/name: longhorn-disk-repair
     app.kubernetes.io/part-of: longhorn

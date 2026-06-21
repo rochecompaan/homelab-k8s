@@ -134,8 +134,12 @@ data:
         data = json.dumps(body).encode("utf-8")
         headers["Content-Type"] = "application/merge-patch+json" if method == "PATCH" else "application/json"
       request = Request(path, data=data, method=method, headers=headers)
-      with urlopen(request, context=SSL_CONTEXT, timeout=30) as response:
-        raw = response.read()
+      try:
+        with urlopen(request, context=SSL_CONTEXT, timeout=30) as response:
+          raw = response.read()
+      except HTTPError as error:
+        response_body = error.read().decode("utf-8", "replace")
+        fail(f"{method} {path} failed: HTTP {error.code} {error.reason}: {response_body}")
       if not raw:
         return {}
       return json.loads(raw.decode("utf-8"))
@@ -219,7 +223,13 @@ data:
       fail(f"timed out waiting for stale replicas to disappear from {node}/{disk_name}")
 
 
-    def validate_stale_disk(node_name: str, node: dict[str, Any], repair: DiskRepair) -> bool:
+    def validate_stale_disk(
+      node_name: str,
+      node: dict[str, Any],
+      repair: DiskRepair,
+      *,
+      require_disabled: bool = False,
+    ) -> bool:
       spec_disks = node.get("spec", {}).get("disks", {})
       status_disks = node.get("status", {}).get("diskStatus", {})
 
@@ -233,6 +243,9 @@ data:
       old_spec = spec_disks[repair.old_name]
       if old_spec.get("path") != repair.old_path:
         fail(f"{node_name}/{repair.old_name} path is {old_spec.get('path')!r}, expected {repair.old_path!r}")
+
+      if require_disabled and old_spec.get("allowScheduling") is not False:
+        fail(f"{node_name}/{repair.old_name} must be disabled before deletion")
 
       if repair.new_name in spec_disks:
         fail(f"{node_name}/{repair.new_name} already exists while stale {repair.old_name} is still present")
@@ -262,18 +275,54 @@ data:
       return True
 
 
+    def disable_stale_disk(node_name: str, repair: DiskRepair) -> None:
+      patch = {"spec": {"disks": {repair.old_name: {"allowScheduling": False}}}}
+      log(f"{node_name}: disabling scheduling on stale disk {repair.old_name}")
+      if DRY_RUN:
+        log(json.dumps(patch, indent=2, sort_keys=True))
+      else:
+        request_json("PATCH", api_path("nodes", node_name), patch)
+
+
+    def wait_for_stale_disk_disabled(node_name: str, repair: DiskRepair) -> None:
+      if DRY_RUN:
+        return
+      deadline = time.time() + 60
+      while time.time() < deadline:
+        node = get_node(node_name)
+        old_spec = node.get("spec", {}).get("disks", {}).get(repair.old_name)
+        if old_spec is None:
+          return
+        if old_spec.get("allowScheduling") is False:
+          return
+        time.sleep(2)
+      fail(f"timed out waiting for {node_name}/{repair.old_name} scheduling to become disabled")
+
+
     def repair_node(node_name: str, repairs: list[DiskRepair]) -> None:
       node = get_node(node_name)
-      patch_disks: dict[str, Any] = {}
+      repairs_to_replace: list[DiskRepair] = []
 
       for repair in repairs:
         if validate_stale_disk(node_name, node, repair):
-          patch_disks[repair.old_name] = None
-          patch_disks[repair.new_name] = repair.new_spec()
+          repairs_to_replace.append(repair)
 
-      if not patch_disks:
+      if not repairs_to_replace:
         log(f"{node_name}: no disk patch needed")
         return
+
+      for repair in repairs_to_replace:
+        disable_stale_disk(node_name, repair)
+
+      for repair in repairs_to_replace:
+        wait_for_stale_disk_disabled(node_name, repair)
+
+      node = get_node(node_name) if not DRY_RUN else node
+      patch_disks: dict[str, Any] = {}
+      for repair in repairs_to_replace:
+        validate_stale_disk(node_name, node, repair, require_disabled=not DRY_RUN)
+        patch_disks[repair.old_name] = None
+        patch_disks[repair.new_name] = repair.new_spec()
 
       patch = {"spec": {"disks": patch_disks}}
       log(f"{node_name}: replacing stale disk records: {', '.join(patch_disks.keys())}")
