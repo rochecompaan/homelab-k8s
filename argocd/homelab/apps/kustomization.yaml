@@ -29,6 +29,8 @@ resources:
   - ../../base/kyverno
   - ../../base/longhorn
   - ../../base/longhorn-admission-hooks
+  - ../../base/piraeus-operator
+  - ../../base/piraeus-benchmark
   - ../../base/reflector
   - ../../base/sealed-secrets
   - ../../base/speedtest-exporter
