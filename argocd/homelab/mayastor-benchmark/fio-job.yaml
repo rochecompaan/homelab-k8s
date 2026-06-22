@@ -4,7 +4,7 @@ metadata:
   name: storage-bench-mayastor-run-001
   namespace: storage-benchmark
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: "1"
   labels:
     app.kubernetes.io/name: storage-benchmark
     storage.compaan.io/backend: mayastor
