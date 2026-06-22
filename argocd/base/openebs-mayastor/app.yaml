@@ -38,6 +38,12 @@ spec:
         mayastor:
           alloy:
             enabled: false
+          csi:
+            node:
+              topology:
+                nodeSelector: true
+                segments:
+                  openebs.io/engine: mayastor
           etcd:
             localpvScConfig:
               enabled: false
