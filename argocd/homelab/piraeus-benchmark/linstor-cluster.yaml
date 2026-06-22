@@ -17,6 +17,13 @@ metadata:
 spec:
   nodeSelector:
     storage.compaan.io/linstor-benchmark: "true"
+  podTemplate:
+    spec:
+      volumes:
+        - name: usr-src
+          hostPath:
+            path: /usr/src
+            type: DirectoryOrCreate
   storagePools:
     - name: linstor-bench
       lvmThinPool:
