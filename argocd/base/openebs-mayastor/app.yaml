@@ -33,6 +33,8 @@ spec:
           csi:
             volumeSnapshots:
               enabled: false
+        preUpgradeHook:
+          enabled: false
         mayastor:
           alloy:
             enabled: false
@@ -41,6 +43,8 @@ spec:
               enabled: false
             persistence:
               storageClass: local-path
+            preUpgradeJob:
+              enabled: false
           localpv-provisioner:
             enabled: false
           loki:
