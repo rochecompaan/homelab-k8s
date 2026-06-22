@@ -7,3 +7,4 @@ resources:
   - storageclass.yaml
   - pvc.yaml
   - fio-job.yaml
+  - recovery-deployment.yaml

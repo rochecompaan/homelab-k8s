@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mayastor-recovery-probe
+  namespace: storage-benchmark
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    app.kubernetes.io/name: mayastor-recovery-probe
+    storage.compaan.io/backend: mayastor
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mayastor-recovery-probe
+      storage.compaan.io/backend: mayastor
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mayastor-recovery-probe
+        storage.compaan.io/backend: mayastor
+    spec:
+      terminationGracePeriodSeconds: 5
+      tolerations:
+        - key: node.kubernetes.io/not-ready
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 30
+        - key: node.kubernetes.io/unreachable
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 30
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - dauwalter
+                      - fordyce
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - dauwalter
+      containers:
+        - name: heartbeat
+          image: nixery.dev/shell/coreutils
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+          command:
+            - /bin/sh
+            - -ceu
+            - |
+              mkdir -p /volume/recovery
+              marker=/volume/recovery/mayastor-recovery-heartbeat.log
+              block=/volume/recovery/mayastor-recovery-block
+              sequence=0
+
+              echo "START $(date -u +%Y-%m-%dT%H:%M:%SZ) pod=${POD_NAME} uid=${POD_UID} node=${NODE_NAME}" | tee -a "${marker}"
+
+              while true; do
+                sequence=$((sequence + 1))
+                now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+                echo "HEARTBEAT ${now} seq=${sequence} pod=${POD_NAME} uid=${POD_UID} node=${NODE_NAME}" | tee -a "${marker}"
+                dd if=/dev/zero of="${block}" bs=4096 count=1 conv=fsync,notrunc status=none
+                sync "${marker}" "${block}" 2>/dev/null || sync
+                sleep 5
+              done
+          volumeMounts:
+            - name: benchmark-volume
+              mountPath: /volume
+      volumes:
+        - name: benchmark-volume
+          persistentVolumeClaim:
+            claimName: mayastor-fio-pvc
