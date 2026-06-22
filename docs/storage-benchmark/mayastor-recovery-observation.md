@@ -133,3 +133,82 @@ ns=openziti count=1 pods=openziti-router-5495cbb496-7k7p5
 - Reboot `dauwalter` only after typed operator confirmation.
 - Planned reboot command: `ssh roche@192.168.1.100 sudo systemctl reboot`.
 - Observe Deployment migration, pod replacement, PVC detach/reattach, Mayastor nexus/replica state, node readiness, DiskPool state, OpenEBS pods, benchmark PVC, and ArgoCD health until recovery.
+
+## Recovery probe activation check
+
+Before the reboot, the recovery probe was deployed through GitOps and verified read-only.
+
+```text
+2026-06-22T09:21:16Z START pod=mayastor-recovery-probe-79fcbc9df7-w7hd9 node=dauwalter
+2026-06-22T09:21:16Z HEARTBEAT seq=1 pod=mayastor-recovery-probe-79fcbc9df7-w7hd9 node=dauwalter
+2026-06-22T09:22:11Z HEARTBEAT seq=12 pod=mayastor-recovery-probe-79fcbc9df7-w7hd9 node=dauwalter
+```
+
+- `mayastor-benchmark` ArgoCD application was `Synced`/`Healthy` at revision `59bd47a361f0f4d1ba81ac4bcf3bbf03795b2cfb`.
+- `openebs-mayastor` remained `OutOfSync`/`Healthy` as previously observed; this did not block the benchmark workload or recovery probe.
+- `mayastor-recovery-probe` was `1/1` ready on `dauwalter`.
+- PVC `storage-benchmark/mayastor-fio-pvc` was `Bound` to `pvc-a8515b32-1fd9-40af-9fe7-fc78d6e55c1c`.
+- VolumeAttachment was attached to `dauwalter` by `io.openebs.csi-mayastor`.
+- Mayastor replicas for entity `a8515b32-1fd9-40af-9fe7-fc78d6e55c1c` existed on `dauwalter`, `fordyce`, and `selassie`.
+- The active Nexus CAS bdev was on `dauwalter` before reboot.
+- CNPG clusters were healthy at `3/3` ready.
+
+## Failure-style reboot observation
+
+The operator manually rebooted `dauwalter`. Monitoring started at `2026-06-22T09:32:42Z`.
+
+During the outage:
+
+```text
+2026-06-22T09:32:42Z dauwalter Ready=Unknown; replacement probe Pending on fordyce; old probe still Running on dauwalter; VolumeAttachment still attached to dauwalter; CNPG 3/3
+2026-06-22T09:35:44Z dauwalter Ready=Unknown; replacement probe Pending on fordyce; VolumeAttachment still attached to dauwalter; CNPG temporarily 2/3
+2026-06-22T09:36:16Z dauwalter Ready=True; replacement probe still Pending on fordyce; old attachment still draining
+```
+
+The old pod on `dauwalter` eventually disappeared, the Deployment replacement pod became active on `fordyce`, and the Mayastor volume reattached there.
+
+## Final recovered state
+
+Fresh final check at `2026-06-22T09:37:25Z`:
+
+```text
+Node: dauwalter Ready=True, unschedulable=false
+Probe pod: mayastor-recovery-probe-79fcbc9df7-vsfh4 1/1 Running on fordyce
+VolumeAttachment: attached=true, node=fordyce, driver=io.openebs.csi-mayastor
+DiskPools: mayastor-bench-dauwalter, mayastor-bench-fordyce, mayastor-bench-selassie Online/Healthy
+OpenEBS problem pods: none
+CNPG: matrix 3/3, grafana 3/3, nextcloud 3/3
+```
+
+Post-recovery Mayastor topology at `2026-06-22T09:37:50Z`:
+
+```text
+selassie:  replica entity=a8515b32-1fd9-40af-9fe7-fc78d6e55c1c pool=mayastor-bench-selassie share=1 allowed=nqn.2019-05.io.openebs:node-name:fordyce
+
+dauwalter: replica entity=a8515b32-1fd9-40af-9fe7-fc78d6e55c1c pool=mayastor-bench-dauwalter share=1 allowed=nqn.2019-05.io.openebs:node-name:fordyce
+
+fordyce:   replica entity=a8515b32-1fd9-40af-9fe7-fc78d6e55c1c pool=mayastor-bench-fordyce share=0
+           nexus bdev name=a8515b32-1fd9-40af-9fe7-fc78d6e55c1c product="Nexus CAS Driver v0.0.1" claimed_by="NVMe-oF Target"
+```
+
+Heartbeat proof from the reattached pod on `fordyce`:
+
+```text
+HEARTBEAT 2026-06-22T09:37:22Z seq=10 pod=mayastor-recovery-probe-79fcbc9df7-vsfh4 node=fordyce
+HEARTBEAT 2026-06-22T09:37:27Z seq=11 pod=mayastor-recovery-probe-79fcbc9df7-vsfh4 node=fordyce
+HEARTBEAT 2026-06-22T09:37:32Z seq=12 pod=mayastor-recovery-probe-79fcbc9df7-vsfh4 node=fordyce
+HEARTBEAT 2026-06-22T09:37:37Z seq=13 pod=mayastor-recovery-probe-79fcbc9df7-vsfh4 node=fordyce
+HEARTBEAT 2026-06-22T09:37:42Z seq=14 pod=mayastor-recovery-probe-79fcbc9df7-vsfh4 node=fordyce
+HEARTBEAT 2026-06-22T09:37:47Z seq=15 pod=mayastor-recovery-probe-79fcbc9df7-vsfh4 node=fordyce
+```
+
+## Outcome
+
+Mayastor successfully recovered from the failure-style `dauwalter` reboot for this benchmark volume:
+
+- Kubernetes replaced the running probe pod on `fordyce`.
+- The Mayastor PVC detached from `dauwalter` and reattached to `fordyce`.
+- The active Mayastor nexus moved from `dauwalter` to `fordyce`.
+- Replicas were present on all three benchmark pools after recovery.
+- The probe resumed heartbeat writes on the same PVC after reattachment.
+- CNPG production database clusters temporarily degraded during the node outage and recovered to `3/3`.
