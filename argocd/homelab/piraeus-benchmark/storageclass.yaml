@@ -1,0 +1,15 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: piraeus-bench-3r
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  labels:
+    storage.compaan.io/benchmark: "true"
+provisioner: linstor.csi.linbit.com
+allowVolumeExpansion: false
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  linstor.csi.linbit.com/storagePool: linstor-bench
+  linstor.csi.linbit.com/placementCount: "3"

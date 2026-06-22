@@ -1,0 +1,24 @@
+apiVersion: piraeus.io/v1
+kind: LinstorCluster
+metadata:
+  name: linstorcluster
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  nodeSelector:
+    storage.compaan.io/linstor-benchmark: "true"
+---
+apiVersion: piraeus.io/v1
+kind: LinstorSatelliteConfiguration
+metadata:
+  name: linstor-bench-storage
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  nodeSelector:
+    storage.compaan.io/linstor-benchmark: "true"
+  storagePools:
+    - name: linstor-bench
+      lvmThinPool:
+        volumeGroup: vg-nvme
+        thinPool: linstor-bench-thin
