@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: piraeus-fio-pvc
+  name: piraeus-fio-pvc-run-002
   namespace: storage-benchmark
   annotations:
     argocd.argoproj.io/sync-wave: "1"

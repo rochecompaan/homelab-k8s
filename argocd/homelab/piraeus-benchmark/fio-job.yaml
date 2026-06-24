@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: storage-bench-piraeus-run-001
+  name: storage-bench-piraeus-run-002
   namespace: storage-benchmark
   annotations:
     argocd.argoproj.io/sync-wave: "1"
@@ -115,4 +115,4 @@ spec:
       volumes:
         - name: benchmark-volume
           persistentVolumeClaim:
-            claimName: piraeus-fio-pvc
+            claimName: piraeus-fio-pvc-run-002
