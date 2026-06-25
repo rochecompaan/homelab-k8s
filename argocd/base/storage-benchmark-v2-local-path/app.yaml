@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: storage-benchmark-v2-local-path
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:rochecompaan/homelab-k8s.git
+    targetRevision: main
+    path: argocd/homelab/storage-benchmark-v2-local-path
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: storage-benchmark-v2
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
