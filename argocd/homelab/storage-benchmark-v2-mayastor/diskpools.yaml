@@ -1,0 +1,38 @@
+apiVersion: openebs.io/v1beta3
+kind: DiskPool
+metadata:
+  name: mayastor-bench-v2-dauwalter
+  namespace: openebs
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  node: dauwalter
+  disks:
+    - aio:///dev/disk/by-id/dm-name-vg--nvme-mayastor--bench
+  maxExpansion: "1x"
+---
+apiVersion: openebs.io/v1beta3
+kind: DiskPool
+metadata:
+  name: mayastor-bench-v2-fordyce
+  namespace: openebs
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  node: fordyce
+  disks:
+    - aio:///dev/disk/by-id/dm-name-vg--nvme-mayastor--bench
+  maxExpansion: "1x"
+---
+apiVersion: openebs.io/v1beta3
+kind: DiskPool
+metadata:
+  name: mayastor-bench-v2-selassie
+  namespace: openebs
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  node: selassie
+  disks:
+    - aio:///dev/disk/by-id/dm-name-vg--nvme-mayastor--bench
+  maxExpansion: "1x"
