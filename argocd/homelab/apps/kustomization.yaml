@@ -25,6 +25,7 @@ resources:
   - ../../base/kube-prometheus-stack
   - ../../base/grafana-dashboards
   - ../../base/local-path-provisioner
+  - ../../base/piraeus-operator
   - ../../base/mosquitto
   - ../../base/kyverno
   - ../../base/longhorn
