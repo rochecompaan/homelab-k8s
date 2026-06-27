@@ -1,7 +1,7 @@
 apiVersion: openebs.io/v1beta3
 kind: DiskPool
 metadata:
-  name: mayastor-bench-v2-dauwalter
+  name: mayastor-bench-dauwalter
   namespace: openebs
   annotations:
     argocd.argoproj.io/sync-wave: "0"
@@ -14,7 +14,7 @@ spec:
 apiVersion: openebs.io/v1beta3
 kind: DiskPool
 metadata:
-  name: mayastor-bench-v2-fordyce
+  name: mayastor-bench-fordyce
   namespace: openebs
   annotations:
     argocd.argoproj.io/sync-wave: "0"
@@ -27,7 +27,7 @@ spec:
 apiVersion: openebs.io/v1beta3
 kind: DiskPool
 metadata:
-  name: mayastor-bench-v2-selassie
+  name: mayastor-bench-selassie
   namespace: openebs
   annotations:
     argocd.argoproj.io/sync-wave: "0"
