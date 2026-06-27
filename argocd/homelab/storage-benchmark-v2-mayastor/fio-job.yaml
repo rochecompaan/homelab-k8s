@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: storage-bench-mayastor-v2-run-001
+  name: storage-bench-mayastor-v2-run-002
   namespace: storage-benchmark-v2
   annotations:
     argocd.argoproj.io/sync-wave: "1"
