@@ -4,7 +4,7 @@
 
 - Performance-only trial
 - Fixed fio consumer node: `fordyce`
-- Backends: existing `local-path`, 3-replica Mayastor, 3-replica LINSTOR/Piraeus
+- Backends: existing `local-path`, 3-replica Mayastor, 3-replica LINSTOR/Piraeus, 3-replica Longhorn NVMe
 - PVC size: 20 GiB
 - fio file size: 16 GiB
 - passes: 5 per profile
@@ -19,6 +19,12 @@
 | local-path | seq-read-1m | 5 | 2924.58 | 0.00 | 2924.83 | 0.00 | 9.73 | 0.00 | 13.71 | 0.00 | 0 |
 | local-path | seq-write-1m | 5 | 0.00 | 860.28 | 0.00 | 860.53 | 0.00 | 286.47 | 0.00 | 492.41 | 0 |
 | local-path | sync-write-4k | 5 | 0.00 | 55207.73 | 0.00 | 215.66 | 0.00 | 0.06 | 0.00 | 0.57 | 0 |
+| longhorn-nvme | rand-read-4k | 5 | 46276.22 | 0.00 | 180.77 | 0.00 | 1.96 | 0.00 | 3.80 | 0.00 | 0 |
+| longhorn-nvme | rand-write-4k | 5 | 0.00 | 8329.00 | 0.00 | 32.54 | 0.00 | 5.46 | 0.00 | 7.93 | 0 |
+| longhorn-nvme | randrw-4k-70r30w | 5 | 13167.64 | 5650.27 | 51.44 | 22.07 | 2.40 | 4.52 | 4.80 | 8.79 | 0 |
+| longhorn-nvme | seq-read-1m | 5 | 383.12 | 0.00 | 383.37 | 0.00 | 440.82 | 0.00 | 505.41 | 0.00 | 0 |
+| longhorn-nvme | seq-write-1m | 5 | 0.00 | 35.19 | 0.00 | 35.44 | 0.00 | 775.95 | 0.00 | 817.89 | 0 |
+| longhorn-nvme | sync-write-4k | 5 | 0.00 | 777.31 | 0.00 | 3.04 | 0.00 | 3.77 | 0.00 | 5.51 | 0 |
 | mayastor | rand-read-4k | 5 | 73629.00 | 0.00 | 287.61 | 0.00 | 1.17 | 0.00 | 3.55 | 0.00 | 0 |
 | mayastor | rand-write-4k | 5 | 0.00 | 12495.31 | 0.00 | 48.81 | 0.00 | 4.63 | 0.00 | 6.63 | 0 |
 | mayastor | randrw-4k-70r30w | 5 | 21846.94 | 9371.90 | 85.34 | 36.61 | 2.55 | 4.19 | 4.99 | 6.64 | 0 |
@@ -39,6 +45,7 @@
 - Piraeus is the stronger replicated read backend. It had the best sequential read and random read numbers in v2.
 - Piraeus write latency is the main concern: random-write p99 averaged 58.41 ms and mixed-write p99 averaged 65.12 ms, much higher than Mayastor.
 - Mayastor read latency is the main Mayastor concern: sequential-read p99 averaged 130.34 ms.
+- Longhorn NVMe was not the top replicated backend for reads or writes. It beat Piraeus on random, mixed, and single-depth writes, but remained behind Mayastor on write throughput and far behind Piraeus on read throughput.
 
 ## Validation Against v1
 
@@ -60,6 +67,20 @@ So the result did not reverse. It narrowed only for sequential writes; for rando
 
 `local-path` is a non-replicated local-node baseline. It shows what `fordyce` can do without network replication, quorum, or distributed-volume overhead. It is useful as a ceiling/reference, not as an HA app-state candidate.
 
+## Longhorn NVMe Add-On Findings
+
+The first default-`longhorn` run was discarded because Longhorn placed 2/3 replicas on `sata`-tagged `/srv/data` disks. The retained add-on run used `longhorn-nvme-bench-v2-3r` with `diskSelector: nvme`; the health artifact confirms all three replicas used `/var/lib/longhorn/` disks tagged `nvme`.
+
+- `seq-read-1m` read throughput: Longhorn NVMe ranked 3/4 at 383.37 MiB/s.
+- `seq-write-1m` write throughput: Longhorn NVMe ranked 4/4 at 35.44 MiB/s.
+- `rand-read-4k` read IOPS: Longhorn NVMe ranked 4/4 at 46276.22 IOPS.
+- `rand-write-4k` write IOPS: Longhorn NVMe ranked 3/4 at 8329.00 IOPS.
+- `randrw-4k-70r30w` mixed read IOPS: Longhorn NVMe ranked 3/4 at 13167.64 IOPS.
+- `randrw-4k-70r30w` mixed write IOPS: Longhorn NVMe ranked 3/4 at 5650.27 IOPS.
+- `sync-write-4k` single-depth write IOPS: Longhorn NVMe ranked 3/4 at 777.31 IOPS.
+
+Longhorn NVMe did not beat Mayastor on write throughput in this workload. It landed between Mayastor and Piraeus for random, mixed, and single-depth writes, but behind both on sequential writes.
+
 ## Recommendation
 
 Proceed with one non-critical app trial on Mayastor.
@@ -67,6 +88,8 @@ Proceed with one non-critical app trial on Mayastor.
 Mayastor is the better next trial because v2 confirmed the replicated-write pattern that matters most for many stateful app workloads. Keep the trial non-critical: Mayastor still had an operational wrinkle from reused pool metadata, and production migration still needs the gates below.
 
 Do not pick LINSTOR/Piraeus for the first write-sensitive app-state trial from these results. Its read performance is excellent, but v2 write throughput and write tail latency were much weaker.
+
+Longhorn NVMe does not change this recommendation: it did not beat Mayastor on write throughput, and Piraeus still dominated read throughput.
 
 ## Remaining Gates Before Production App-State Migration
 

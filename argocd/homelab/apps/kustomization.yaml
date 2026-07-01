@@ -29,7 +29,6 @@ resources:
   - ../../base/kyverno
   - ../../base/longhorn
   - ../../base/longhorn-admission-hooks
-  - ../../base/storage-benchmark-v2-longhorn
   - ../../base/reflector
   - ../../base/sealed-secrets
   - ../../base/speedtest-exporter
