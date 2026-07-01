@@ -4,11 +4,11 @@
 
 Add one quick Longhorn run to the existing storage benchmark v2 results before making a storage decision.
 
-This run tests the cluster's default `longhorn` StorageClass because it has no `sata` disk selector and should exercise the default NVMe-backed Longhorn path rather than the `longhorn-sata` class.
+This run tests Longhorn on NVMe-backed disks only. The default `longhorn` StorageClass is not sufficient because it has no `diskSelector` and can place replicas on `sata`-tagged disks.
 
 ## Decisions
 
-- Use the existing default `longhorn` StorageClass.
+- Use a benchmark-only `longhorn-nvme-bench-v2-3r` StorageClass with `diskSelector: nvme`.
 - Keep the same benchmark shape as storage benchmark v2.
 - Pin the fio consumer pod to `fordyce`, matching the earlier v2 runs.
 - Use GitOps only. Do not run `kubectl apply`, `kubectl patch`, `kubectl delete`, or `helm upgrade` against homelab resources.
@@ -28,7 +28,7 @@ The cluster already has these Longhorn StorageClasses:
 - `longhorn-sata`
 - `longhorn-static`
 
-The default `longhorn` StorageClass uses `driver.longhorn.io`, `numberOfReplicas: "3"`, `dataEngine: v1`, `volumeBindingMode: Immediate`, and no `diskSelector`. The `longhorn-sata` class has `diskSelector: sata`, so it is intentionally not used for this NVMe-focused test.
+The default `longhorn` StorageClass uses `driver.longhorn.io`, `numberOfReplicas: "3"`, `dataEngine: v1`, `volumeBindingMode: Immediate`, and no `diskSelector`. A first run proved that it can place replicas on `sata`-tagged `/srv/data` disks, so that mixed-disk result is discarded. The fixed run tags Longhorn `/var/lib/longhorn/` disks as `nvme` through a GitOps Job, then uses a benchmark-only StorageClass with `diskSelector: nvme`.
 
 ## Chosen Approach
 
@@ -37,19 +37,21 @@ Create a new GitOps benchmark app named `storage-benchmark-v2-longhorn`.
 The app creates:
 
 - namespace `storage-benchmark-v2` if needed
-- PVC `longhorn-fio-pvc-v2-run-001`
-- Job `storage-bench-longhorn-v2-run-001`
+- one-shot Job `longhorn-nvme-disk-tagger-20260630`
+- StorageClass `longhorn-nvme-bench-v2-3r`
+- PVC `longhorn-nvme-fio-pvc-v2-run-001`
+- Job `storage-bench-longhorn-nvme-v2-run-001`
 
 The PVC uses:
 
 ```yaml
-storageClassName: longhorn
+storageClassName: longhorn-nvme-bench-v2-3r
 resources:
   requests:
     storage: 20Gi
 ```
 
-The Job reuses the existing v2 fio workload script with only backend names and PVC claim names changed.
+The Job reuses the existing v2 fio workload script with backend name `longhorn-nvme` and the NVMe PVC claim name changed.
 
 ## Benchmark Shape
 
@@ -88,9 +90,9 @@ Activation stays GitOps-only:
 
 Write these artifacts under `docs/storage-benchmark-v2/`:
 
-- `longhorn-v2-run-001.log`
-- `longhorn-v2-run-001-summary.md`
-- `longhorn-v2-run-001-health.md`
+- `longhorn-nvme-v2-run-001.log`
+- `longhorn-nvme-v2-run-001-summary.md`
+- `longhorn-nvme-v2-run-001-health.md`
 
 Then update:
 
@@ -102,7 +104,7 @@ Then update:
 Before activation:
 
 - validate kustomize output for the new app path
-- confirm manifests reference `storageClassName: longhorn`
+- confirm manifests reference `storageClassName: longhorn-nvme-bench-v2-3r` and `diskSelector: nvme`
 - confirm the Job is pinned to `fordyce`
 
 After activation:
@@ -115,5 +117,5 @@ After activation:
 ## Risks and Mitigations
 
 - Longhorn uses `Immediate` binding, so replica placement happens before the fio pod is scheduled. Keep the consumer pod pinned to `fordyce` for workload consistency and record Longhorn volume placement in the health artifact.
-- The default `longhorn` class has no `diskSelector`. Confirm in the health artifact that the benchmark volume did not use `sata`-tagged disks.
+- Longhorn only selects NVMe disks by tag. Confirm in the health artifact that `/var/lib/longhorn/` disks have the `nvme` tag and that benchmark replica `diskPath` values do not use `sata`-tagged `/srv/data` disks.
 - The benchmark app is temporary. Remove it from the bootstrap bundle after artifacts are captured.

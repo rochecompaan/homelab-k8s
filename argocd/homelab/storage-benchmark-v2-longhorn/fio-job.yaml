@@ -1,13 +1,13 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: storage-bench-longhorn-v2-run-001
+  name: storage-bench-longhorn-nvme-v2-run-001
   namespace: storage-benchmark-v2
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "3"
   labels:
     app.kubernetes.io/name: storage-benchmark-v2
-    storage.compaan.io/backend: longhorn
+    storage.compaan.io/backend: longhorn-nvme
 spec:
   activeDeadlineSeconds: 14400
   backoffLimit: 0
@@ -15,7 +15,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: storage-benchmark-v2
-        storage.compaan.io/backend: longhorn
+        storage.compaan.io/backend: longhorn-nvme
     spec:
       restartPolicy: Never
       nodeSelector:
@@ -25,7 +25,7 @@ spec:
           image: nixery.dev/shell/fio/jq/coreutils
           env:
             - name: BACKEND
-              value: longhorn
+              value: longhorn-nvme
             - name: PASSES
               value: "5"
             - name: FIO_SIZE
@@ -130,4 +130,4 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: longhorn-fio-pvc-v2-run-001
+            claimName: longhorn-nvme-fio-pvc-v2-run-001

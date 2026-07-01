@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: longhorn-nvme-disk-tagger-script
+  namespace: longhorn-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  labels:
+    app.kubernetes.io/name: longhorn-nvme-disk-tagger
+    app.kubernetes.io/part-of: storage-benchmark-v2
+data:
+  tag-longhorn-nvme-disks.py: |
+    #!/usr/bin/env python3
+    import json
+    import os
+    import ssl
+    from urllib.parse import quote
+    from urllib.request import Request, urlopen
+
+    NAMESPACE = os.environ.get("LONGHORN_NAMESPACE", "longhorn-system")
+    API = "https://{}:{}/apis/longhorn.io/v1beta2/namespaces/{}".format(
+        os.environ["KUBERNETES_SERVICE_HOST"],
+        os.environ.get("KUBERNETES_SERVICE_PORT", "443"),
+        NAMESPACE,
+    )
+    TOKEN_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+    CA_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    TARGET_PATH = os.environ.get("TARGET_PATH", "/var/lib/longhorn/")
+    TAG = os.environ.get("TAG", "nvme")
+    CONFIRM = os.environ.get("CONFIRM_TAG_NVME", "")
+
+    if CONFIRM != "tag longhorn nvme disks":
+        raise SystemExit("refusing to tag disks without CONFIRM_TAG_NVME")
+
+    with open(TOKEN_PATH, encoding="utf-8") as token_file:
+        TOKEN = token_file.read().strip()
+
+    context = ssl.create_default_context(cafile=CA_PATH)
+
+    def request(method, path, body=None):
+        data = None if body is None else json.dumps(body).encode()
+        req = Request(
+            API + path,
+            data=data,
+            method=method,
+            headers={
+                "Authorization": "Bearer " + TOKEN,
+                "Accept": "application/json",
+                "Content-Type": "application/merge-patch+json",
+            },
+        )
+        with urlopen(req, context=context, timeout=30) as response:
+            raw = response.read().decode()
+            return json.loads(raw) if raw else {}
+
+    nodes = request("GET", "/nodes").get("items", [])
+    changed = []
+    for node in nodes:
+        name = node["metadata"]["name"]
+        disks = node.get("spec", {}).get("disks", {}) or {}
+        patched = False
+        for disk_name, disk in disks.items():
+            path = disk.get("path")
+            tags = list(disk.get("tags") or [])
+            if path == TARGET_PATH and TAG not in tags:
+                tags.append(TAG)
+                disk["tags"] = tags
+                patched = True
+                changed.append((name, disk_name, path, tags))
+            elif path != TARGET_PATH and TAG in tags:
+                raise SystemExit("refusing: non-target disk already has nvme tag: {} {} {}".format(name, disk_name, path))
+        if patched:
+            request("PATCH", "/nodes/" + quote(name, safe=""), {"spec": {"disks": disks}})
+
+    if changed:
+        for name, disk_name, path, tags in changed:
+            print("tagged {} {} {} tags={}".format(name, disk_name, path, tags))
+    else:
+        print("all {} disks already tagged {}".format(TARGET_PATH, TAG))

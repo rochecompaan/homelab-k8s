@@ -1,0 +1,38 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: longhorn-nvme-disk-tagger
+  namespace: longhorn-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  labels:
+    app.kubernetes.io/name: longhorn-nvme-disk-tagger
+    app.kubernetes.io/part-of: storage-benchmark-v2
+rules:
+  - apiGroups:
+      - longhorn.io
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: longhorn-nvme-disk-tagger
+  namespace: longhorn-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  labels:
+    app.kubernetes.io/name: longhorn-nvme-disk-tagger
+    app.kubernetes.io/part-of: storage-benchmark-v2
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: longhorn-nvme-disk-tagger
+subjects:
+  - kind: ServiceAccount
+    name: longhorn-nvme-disk-tagger
+    namespace: longhorn-system
