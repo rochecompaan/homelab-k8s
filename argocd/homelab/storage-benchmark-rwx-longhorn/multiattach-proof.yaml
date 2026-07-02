@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: longhorn-rwx-proof-a
+  name: longhorn-rwx-proof-a-run-002
   namespace: storage-benchmark-rwx
   annotations:
     argocd.argoproj.io/sync-wave: "2"
@@ -28,12 +28,12 @@ spec:
   volumes:
     - name: data
       persistentVolumeClaim:
-        claimName: longhorn-rwx-pvc-run-001
+        claimName: longhorn-rwx-pvc-run-002
 ---
 apiVersion: v1
 kind: Pod
 metadata:
-  name: longhorn-rwx-proof-b
+  name: longhorn-rwx-proof-b-run-002
   namespace: storage-benchmark-rwx
   annotations:
     argocd.argoproj.io/sync-wave: "2"
@@ -60,4 +60,4 @@ spec:
   volumes:
     - name: data
       persistentVolumeClaim:
-        claimName: longhorn-rwx-pvc-run-001
+        claimName: longhorn-rwx-pvc-run-002

@@ -18,6 +18,7 @@ data:
     PASSES_SINGLE="${PASSES_SINGLE:-5}"
     PASSES_CONCURRENT="${PASSES_CONCURRENT:-1}"
     FIO_SIZE="${FIO_SIZE:-16G}"
+    FIO_SIZE_CONCURRENT="${FIO_SIZE_CONCURRENT:-8G}"
     FIO_RUNTIME="${FIO_RUNTIME:-60}"
     FIO_RAMP="${FIO_RAMP:-10}"
     barrier_dir="/volume/barriers/${BACKEND_BASE}"
@@ -102,16 +103,10 @@ data:
       jq -r --arg backend "${backend}" --arg profile "${profile}" --arg pass "${pass}" '
         .jobs[0] as $job |
         [
-          "RESULT",
-          $backend,
-          $profile,
-          $pass,
-          ($job.read.iops // 0),
-          ($job.write.iops // 0),
-          (($job.read.bw_bytes // 0) / 1048576),
-          (($job.write.bw_bytes // 0) / 1048576),
-          (($job.read.clat_ns.mean // 0) / 1000000),
-          (($job.write.clat_ns.mean // 0) / 1000000),
+          "RESULT", $backend, $profile, $pass,
+          ($job.read.iops // 0), ($job.write.iops // 0),
+          (($job.read.bw_bytes // 0) / 1048576), (($job.write.bw_bytes // 0) / 1048576),
+          (($job.read.clat_ns.mean // 0) / 1000000), (($job.write.clat_ns.mean // 0) / 1000000),
           (($job.read.clat_ns.percentile["95.000000"] // 0) / 1000000),
           (($job.write.clat_ns.percentile["95.000000"] // 0) / 1000000),
           (($job.read.clat_ns.percentile["99.000000"] // 0) / 1000000),
@@ -144,6 +139,7 @@ data:
       run_warmup single
       echo "index 0: single-client run starting"
       run_all_profiles "${BACKEND_BASE}-single" single "${PASSES_SINGLE}"
+      rm -f /volume/single-fio-test-file
       touch "${barrier_dir}/single.done"
       echo "index 0: single-client run complete"
       exit 0
@@ -154,6 +150,7 @@ data:
     wait_for_file "${barrier_dir}/single.done" "single-client completion"
     touch "${barrier_dir}/${client_id}.ready"
     wait_for_count "${barrier_dir}/client-*.ready" 2 "both concurrent clients"
+    FIO_SIZE="${FIO_SIZE_CONCURRENT}"
     echo "index ${INDEX}: concurrent warmup starting as ${client_id}"
     run_warmup "${client_id}"
     echo "index ${INDEX}: concurrent run starting as ${client_id}"

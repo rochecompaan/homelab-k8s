@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: longhorn-rwx-fio-run-001
+  name: longhorn-rwx-fio-run-002
   namespace: storage-benchmark-rwx
   annotations:
     argocd.argoproj.io/sync-wave: "3"
@@ -21,7 +21,7 @@ spec:
         app.kubernetes.io/name: storage-benchmark-rwx
         storage.compaan.io/backend: longhorn-rwx
         storage.compaan.io/role: fio
-        storage.compaan.io/fio-job: longhorn-rwx-fio-run-001
+        storage.compaan.io/fio-job: longhorn-rwx-fio-run-002
     spec:
       restartPolicy: Never
       affinity:
@@ -39,7 +39,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchLabels:
-                  storage.compaan.io/fio-job: longhorn-rwx-fio-run-001
+                  storage.compaan.io/fio-job: longhorn-rwx-fio-run-002
               topologyKey: kubernetes.io/hostname
       containers:
         - name: fio
@@ -71,7 +71,7 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: longhorn-rwx-pvc-run-001
+            claimName: longhorn-rwx-pvc-run-002
         - name: script
           configMap:
             name: longhorn-rwx-fio-script
