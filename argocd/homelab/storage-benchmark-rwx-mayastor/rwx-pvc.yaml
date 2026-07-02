@@ -4,7 +4,7 @@ metadata:
   name: mayastor-rwx-pvc-run-001
   namespace: storage-benchmark-rwx
   annotations:
-    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-wave: "2"
   labels:
     app.kubernetes.io/name: storage-benchmark-rwx
     storage.compaan.io/backend: mayastor-rwx
