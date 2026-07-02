@@ -71,13 +71,16 @@ So the result did not reverse. It narrowed only for sequential writes; for rando
 
 The first default-`longhorn` run was discarded because Longhorn placed 2/3 replicas on `sata`-tagged `/srv/data` disks. The retained add-on run used `longhorn-nvme-bench-v2-3r` with `diskSelector: nvme`; the health artifact confirms all three replicas used `/var/lib/longhorn/` disks tagged `nvme`.
 
-- `seq-read-1m` read throughput: Longhorn NVMe ranked 3/4 at 383.37 MiB/s.
-- `seq-write-1m` write throughput: Longhorn NVMe ranked 4/4 at 35.44 MiB/s.
-- `rand-read-4k` read IOPS: Longhorn NVMe ranked 4/4 at 46276.22 IOPS.
-- `rand-write-4k` write IOPS: Longhorn NVMe ranked 3/4 at 8329.00 IOPS.
-- `randrw-4k-70r30w` mixed read IOPS: Longhorn NVMe ranked 3/4 at 13167.64 IOPS.
-- `randrw-4k-70r30w` mixed write IOPS: Longhorn NVMe ranked 3/4 at 5650.27 IOPS.
-- `sync-write-4k` single-depth write IOPS: Longhorn NVMe ranked 3/4 at 777.31 IOPS.
+| Workload | Longhorn NVMe | Mayastor | Piraeus |
+| --- | ---: | ---: | ---: |
+| Seq read | 383 MiB/s | 365 MiB/s | 5403 MiB/s\* |
+| Seq write | 35 MiB/s | 56 MiB/s\* | 54 MiB/s |
+| 4k random read | 46k IOPS | 74k IOPS | 230k IOPS\* |
+| 4k random write | 8.3k IOPS / 32.5 MiB/s | 12.5k IOPS / 48.8 MiB/s\* | 1.1k IOPS / 4.1 MiB/s |
+| Mixed 70/30 write | 5.7k IOPS / 22.1 MiB/s | 9.4k IOPS / 36.6 MiB/s\* | 0.8k IOPS / 3.2 MiB/s |
+| Sync 4k write | 777 IOPS / 3.0 MiB/s | 1009 IOPS / 3.9 MiB/s\* | 279 IOPS / 1.1 MiB/s |
+
+\* winner among Longhorn NVMe, Mayastor, and Piraeus.
 
 Longhorn NVMe did not beat Mayastor on write throughput in this workload. It landed between Mayastor and Piraeus for random, mixed, and single-depth writes, but behind both on sequential writes.
 
