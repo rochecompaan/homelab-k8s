@@ -11,7 +11,10 @@ data:
     set -eu
     
     BACKEND_BASE="${BACKEND_BASE:?BACKEND_BASE is required}"
-    INDEX="${JOB_COMPLETION_INDEX:-0}"
+    INDEX="${JOB_COMPLETION_INDEX:-}"
+    if [ -z "${INDEX}" ]; then
+      INDEX="${HOSTNAME##*-}"
+    fi
     PASSES_SINGLE="${PASSES_SINGLE:-5}"
     PASSES_CONCURRENT="${PASSES_CONCURRENT:-1}"
     FIO_SIZE="${FIO_SIZE:-16G}"
@@ -41,6 +44,27 @@ data:
         echo "waiting for ${label}; ready=${count}/${expected}"
         sleep 5
       done
+    }
+    
+    run_warmup() {
+      client_id="$1"
+      result_dir="/volume/results/${BACKEND_BASE}-warmup/${client_id}/$(date -u +%Y%m%dT%H%M%SZ)"
+      mkdir -p "${result_dir}"
+      fio \
+        --name=warmup \
+        --filename="/volume/${client_id}-fio-test-file" \
+        --rw=write \
+        --bs=1m \
+        --size="${FIO_SIZE}" \
+        --ioengine=libaio \
+        --iodepth=16 \
+        --numjobs=1 \
+        --direct=1 \
+        --time_based \
+        --runtime=30 \
+        --group_reporting \
+        --output-format=json \
+        --output="${result_dir}/warmup.json"
     }
     
     run_profile() {
@@ -116,6 +140,8 @@ data:
     }
     
     if [ "${INDEX}" = "0" ]; then
+      echo "index 0: single-client warmup starting"
+      run_warmup single
       echo "index 0: single-client run starting"
       run_all_profiles "${BACKEND_BASE}-single" single "${PASSES_SINGLE}"
       touch "${barrier_dir}/single.done"
@@ -128,6 +154,8 @@ data:
     wait_for_file "${barrier_dir}/single.done" "single-client completion"
     touch "${barrier_dir}/${client_id}.ready"
     wait_for_count "${barrier_dir}/client-*.ready" 2 "both concurrent clients"
+    echo "index ${INDEX}: concurrent warmup starting as ${client_id}"
+    run_warmup "${client_id}"
     echo "index ${INDEX}: concurrent run starting as ${client_id}"
     run_all_profiles "${BACKEND_BASE}-concurrent" "${client_id}" "${PASSES_CONCURRENT}"
     echo "index ${INDEX}: concurrent run complete"
