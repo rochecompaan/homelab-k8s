@@ -1,0 +1,1217 @@
+# longhorn-rwx proof logs run-002
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-a sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+--- proof-b sees ---
+2026-07-02T15:11:03Z proof-b longhorn-rwx-proof-b-run-002
+2026-07-02T15:11:04Z proof-a longhorn-rwx-proof-a-run-002
+# longhorn-rwx fio run-002 index 0
+RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors
+index 0: single-client warmup starting
+index 0: single-client run starting
+RESULT,"longhorn-rwx-single","seq-write-1m","1",0.000000,47.895621,0,48.14525032043457,0,333.73955117939903,0,367.0016,0,442.499072,0,541.065216,0
+RESULT,"longhorn-rwx-single","seq-read-1m","1",1003.399547,0.000000,1003.6495132446289,0,15.860138488087001,0,106.430464,0,164.626432,0,235.9296,0,0
+RESULT,"longhorn-rwx-single","rand-write-4k","1",0.000000,3159.930668,0,12.344454765319824,0,5.054325861123,0,6.324224,0,7.634944,0,11.206656,0
+RESULT,"longhorn-rwx-single","rand-read-4k","1",24859.669006,0.000000,97.10905838012695,0,0.636128310296,0,0.741376,0,0.872448,0,1.581056,0,0
+RESULT,"longhorn-rwx-single","randrw-4k-70r30w","1",5642.607160,2427.138191,22.041433334350586,9.48198413848877,0.37923449115900004,5.669703014473,1.335296,7.503872,1.695744,8.84736,2.506752,12.12416,0
+RESULT,"longhorn-rwx-single","sync-write-4k","1",0.000000,227.209093,0,0.8875350952148438,0,4.387335326267,0,5.144576,0,6.127616,0,8.290304,0
+RESULT,"longhorn-rwx-single","seq-write-1m","2",0.000000,49.265169,0,49.51398277282715,0,324.70651084623097,0,467.664896,0,526.385152,0,599.785472,0
+RESULT,"longhorn-rwx-single","seq-read-1m","2",2059.408746,0.000000,2059.6587114334106,0,7.6580513611850005,0,9.109504,0,10.027008,0,15.663104,0,0
+RESULT,"longhorn-rwx-single","rand-write-4k","2",0.000000,3393.150571,0,13.255470275878906,0,4.705889237598,0,5.799936,0,6.71744,0,8.978432,0
+RESULT,"longhorn-rwx-single","rand-read-4k","2",24093.531774,0.000000,94.11633491516113,0,0.656509826108,0,0.765952,0,0.905216,0,2.08896,0,0
+RESULT,"longhorn-rwx-single","randrw-4k-70r30w","2",5476.102390,2355.431124,21.391024589538574,9.201878547668457,0.386916149291,5.851473345124,1.35168,7.634944,1.728512,8.84736,2.473984,11.206656,0
+RESULT,"longhorn-rwx-single","sync-write-4k","2",0.000000,225.281227,0,0.8800039291381836,0,4.425666450436,0,5.144576,0,6.127616,0,7.766016,0
+RESULT,"longhorn-rwx-single","seq-write-1m","3",0.000000,47.199256,0,47.44828414916992,0,338.691352335199,0,505.413632,0,583.008256,0,692.06016,0
+RESULT,"longhorn-rwx-single","seq-read-1m","3",2015.181309,0.000000,2015.4312753677368,0,7.830051959352,0,9.371648,0,10.15808,0,21.102592,0,0
+RESULT,"longhorn-rwx-single","rand-write-4k","3",0.000000,3172.268978,0,12.392651557922363,0,5.034537488919,0,6.258688,0,7.438336,0,10.81344,0
+RESULT,"longhorn-rwx-single","rand-read-4k","3",24366.193897,0.000000,95.18142127990723,0,0.649056035689,0,0.75776,0,0.888832,0,1.810432,0,0
+RESULT,"longhorn-rwx-single","randrw-4k-70r30w","3",5811.268873,2499.333400,22.700268745422363,9.763997077941895,0.37627275586700004,5.484663111481,1.335296,6.979584,1.630208,8.159232,2.441216,11.4688,0
+RESULT,"longhorn-rwx-single","sync-write-4k","3",0.000000,227.047746,0,0.8869047164916992,0,4.390498973062,0,5.07904,0,5.996544,0,8.716288,0
+RESULT,"longhorn-rwx-single","seq-write-1m","4",0.000000,48.039931,0,48.28867053985596,0,332.863211018888,0,488.636416,0,557.842432,0,650.11712,0
+RESULT,"longhorn-rwx-single","seq-read-1m","4",2031.228649,0.000000,2031.4786109924316,0,7.764639543431,0,9.240576,0,10.027008,0,13.828096,0,0
+RESULT,"longhorn-rwx-single","rand-write-4k","4",0.000000,3111.190734,0,12.154065132141113,0,5.133573779295,0,6.38976,0,7.569408,0,10.551296,0
+RESULT,"longhorn-rwx-single","rand-read-4k","4",24142.914285,0.000000,94.30923461914062,0,0.6550908896380001,0,0.765952,0,0.88064,0,1.630208,0,0
+RESULT,"longhorn-rwx-single","randrw-4k-70r30w","4",5624.597950,2419.231731,21.971150398254395,9.451034545898438,0.38977947720199996,5.663812427607,1.35168,7.307264,1.695744,8.716288,2.899968,13.697024,0
+RESULT,"longhorn-rwx-single","sync-write-4k","4",0.000000,224.542515,0,0.8771190643310547,0,4.439799251614,0,5.144576,0,5.996544,0,7.766016,0
+RESULT,"longhorn-rwx-single","seq-write-1m","5",0.000000,48.304521,0,48.553855895996094,0,331.087706662102,0,476.053504,0,566.23104,0,624.951296,0
+RESULT,"longhorn-rwx-single","seq-read-1m","5",2038.128250,0.000000,2038.3948802947998,0,7.739301416248,0,9.240576,0,10.027008,0,12.648448,0,0
+RESULT,"longhorn-rwx-single","rand-write-4k","5",0.000000,3281.131258,0,12.81789493560791,0,4.866803579849,0,6.06208,0,7.3728,0,11.4688,0
+RESULT,"longhorn-rwx-single","rand-read-4k","5",24061.432309,0.000000,93.99094581604004,0,0.657305104822,0,0.765952,0,0.888832,0,1.712128,0,0
+RESULT,"longhorn-rwx-single","randrw-4k-70r30w","5",5436.789654,2339.466053,21.237459182739258,9.139514923095703,0.389376854898,5.892624682536001,1.368064,7.766016,1.744896,9.240576,2.572288,13.565952,0
+RESULT,"longhorn-rwx-single","sync-write-4k","5",0.000000,227.551497,0,0.8888721466064453,0,4.380997702065001,0,5.144576,0,6.06208,0,7.766016,0
+index 0: single-client run complete
+# longhorn-rwx fio run-002 index 1
+RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors
+index 1: waiting for single-client run
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for both concurrent clients; ready=1/2
+index 1: concurrent warmup starting as client-1
+index 1: concurrent run starting as client-1
+RESULT,"longhorn-rwx-concurrent","seq-write-1m","client-1-1",0.000000,23.341145,0,23.572397232055664,0,679.210716357095,0,851.443712,0,3204.448256,0,6744.440832,0
+RESULT,"longhorn-rwx-concurrent","seq-read-1m","client-1-1",30.857862,0.000000,31.106181144714355,0,517.146957830761,0,775.94624,0,792.723456,0,817.88928,0,0
+RESULT,"longhorn-rwx-concurrent","rand-write-4k","client-1-1",0.000000,1545.230318,0,6.037032127380371,0,10.349742890473001,0,20.054016,0,22.151168,0,26.083328,0
+RESULT,"longhorn-rwx-concurrent","rand-read-4k","client-1-1",11432.368921,0.000000,44.65866756439209,0,1.395087531801,0,2.00704,0,2.473984,0,3.555328,0,0
+RESULT,"longhorn-rwx-concurrent","randrw-4k-70r30w","client-1-1",3700.748171,1590.472064,14.456307411193848,6.213497161865234,1.269575546752,7.085355703666,2.179072,9.240576,2.932736,10.682368,4.42368,18.219008,0
+RESULT,"longhorn-rwx-concurrent","sync-write-4k","client-1-1",0.000000,173.277557,0,0.6768646240234375,0,5.759787273540001,0,7.569408,0,8.454144,0,10.551296,0
+index 1: concurrent run complete
+# longhorn-rwx fio run-002 index 2
+RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors
+index 2: waiting for single-client run
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+index 2: concurrent warmup starting as client-2
+index 2: concurrent run starting as client-2
+RESULT,"longhorn-rwx-concurrent","seq-write-1m","client-2-1",0.000000,24.313596,0,24.56169319152832,0,653.3818530356899,0,843.055104,0,918.552576,0,1010.827264,0
+RESULT,"longhorn-rwx-concurrent","seq-read-1m","client-2-1",88.433791,0.000000,88.68313407897949,0,180.772031584817,0,270.532608,0,354.418688,0,392.167424,0,0
+RESULT,"longhorn-rwx-concurrent","rand-write-4k","client-2-1",0.000000,2490.533649,0,9.729622840881348,0,6.418138383347,0,8.093696,0,9.50272,0,14.876672,0
+RESULT,"longhorn-rwx-concurrent","rand-read-4k","client-2-1",11201.959935,0.000000,43.75863170623779,0,1.4243425557279998,0,1.908736,0,2.277376,0,3.948544,0,0
+RESULT,"longhorn-rwx-concurrent","randrw-4k-70r30w","client-2-1",4278.122188,1838.916108,16.71154499053955,7.184111595153809,1.042718671581,6.2568942570970005,1.794048,8.35584,2.506752,9.633792,3.555328,12.386304,0
+RESULT,"longhorn-rwx-concurrent","sync-write-4k","client-2-1",0.000000,193.850512,0,0.757227897644043,0,5.148104270289,0,5.931008,0,6.979584,0,9.371648,0
+index 2: concurrent run complete
