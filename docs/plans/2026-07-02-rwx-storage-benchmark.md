@@ -4,7 +4,7 @@
 
 **Goal:** Add and run a GitOps-only RWX benchmark for Longhorn, LINSTOR/Piraeus, and OpenEBS Mayastor, then publish raw logs, summaries, health captures, and a final comparison under `docs/storage-benchmark-rwx/`.
 
-**Architecture:** Create dormant benchmark ArgoCD apps for each backend and activate only one backend at a time through `argocd/homelab/apps/kustomization.yaml`. Each backend app provisions an RWX PVC, keeps two proof pods on different nodes, runs one single-client fio job, and runs two concurrent fio jobs with unique files in the same RWX mount. Mayastor also uses a temporary NFS CSI app and an NFS server pod backed by a Mayastor RWO PVC.
+**Architecture:** Create dormant benchmark ArgoCD apps for each backend and activate only one backend at a time through `argocd/homelab/apps/kustomization.yaml`. Each backend app provisions an RWX PVC, keeps two proof pods on different nodes, and runs one sequenced fio Job that first runs single-client fio and then runs two concurrent fio clients with unique files in the same RWX mount. Mayastor also uses a temporary NFS CSI app and an NFS server pod backed by a Mayastor RWO PVC.
 
 **Tech Stack:** Kubernetes YAML, ArgoCD Applications, Kustomize, Longhorn CSI, LINSTOR/Piraeus CSI, OpenEBS Mayastor, Kubernetes NFS CSI driver, fio, jq, Python summary script, Git.
 
@@ -15,11 +15,15 @@
 - Use new result directory `docs/storage-benchmark-rwx/`.
 - Every backend must prove multi-attach with two pods on different nodes before fio results are accepted.
 - Single-client fio uses 20Gi PVC, 16G fio file, 5 passes, 60 second runtime, 10 second ramp, default `iodepth=16`, and `sync-write-4k` at `iodepth=1`.
-- Concurrent fio uses two pods, unique filenames under the same RWX mount, and one pass per profile.
+- Concurrent fio uses two client processes in one sequenced Job, unique filenames under the same RWX mount, and one pass per profile.
 - Homelab changes are GitOps-only: do not run `kubectl apply`, `kubectl patch`, `kubectl delete`, or `helm upgrade` against homelab resources.
 - Read-only `kubectl get`, `kubectl describe`, `kubectl logs`, `kubectl wait`, and `kubectl exec` for inspection are allowed.
 - Do not bypass git commit signing or hooks.
 - No new automated tests are needed for static benchmark YAML/docs; use Kustomize render checks, grep checks, existing Python tests, and read-only cluster checks.
+
+## Approved Execution Correction
+
+The committed plan originally used three independent fio Jobs per backend. That would let the single-client and concurrent jobs start together and corrupt the single-client measurement. The implementation uses one sequenced Job per backend instead: single-client profiles run first, then two concurrent fio clients run together with unique filenames. Any later step that mentions separate `*-single`, `*-concurrent-a`, or `*-concurrent-b` Jobs is superseded by the single `*-fio-run-001` Job and its combined log.
 
 ---
 
