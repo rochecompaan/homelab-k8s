@@ -1,0 +1,14 @@
+| backend | profile | passes | read_iops_avg | write_iops_avg | read_mib_s_avg | write_mib_s_avg | read_p99_ms_avg | write_p99_ms_avg | read_p999_ms_avg | write_p999_ms_avg | errors_total |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| piraeus-rwx-concurrent | rand-read-4k | 2 | 20066.32 | 0.00 | 78.39 | 0.00 | 2.18 | 0.00 | 4.65 | 0.00 | 0 |
+| piraeus-rwx-concurrent | rand-write-4k | 2 | 0.00 | 192.19 | 0.00 | 0.75 | 0.00 | 173.02 | 0.00 | 196.08 | 0 |
+| piraeus-rwx-concurrent | randrw-4k-70r30w | 2 | 451.19 | 192.75 | 1.76 | 0.75 | 15.27 | 128.97 | 29.49 | 148.90 | 0 |
+| piraeus-rwx-concurrent | seq-read-1m | 2 | 731.70 | 0.00 | 731.95 | 0.00 | 98.89 | 0.00 | 155.58 | 0.00 | 0 |
+| piraeus-rwx-concurrent | seq-write-1m | 2 | 0.00 | 26.43 | 0.00 | 26.68 | 0.00 | 868.22 | 0.00 | 922.75 | 0 |
+| piraeus-rwx-concurrent | sync-write-4k | 2 | 0.00 | 55.00 | 0.00 | 0.21 | 0.00 | 28.84 | 0.00 | 36.96 | 0 |
+| piraeus-rwx-single | rand-read-4k | 5 | 24869.92 | 0.00 | 97.15 | 0.00 | 1.14 | 0.00 | 5.64 | 0.00 | 0 |
+| piraeus-rwx-single | rand-write-4k | 5 | 0.00 | 563.90 | 0.00 | 2.20 | 0.00 | 81.74 | 0.00 | 105.91 | 0 |
+| piraeus-rwx-single | randrw-4k-70r30w | 5 | 711.65 | 303.21 | 2.78 | 1.19 | 12.94 | 113.35 | 23.88 | 141.24 | 0 |
+| piraeus-rwx-single | seq-read-1m | 5 | 106.92 | 0.00 | 107.17 | 0.00 | 156.66 | 0.00 | 244.95 | 0.00 | 0 |
+| piraeus-rwx-single | seq-write-1m | 5 | 0.00 | 51.13 | 0.00 | 51.38 | 0.00 | 473.54 | 0.00 | 517.16 | 0 |
+| piraeus-rwx-single | sync-write-4k | 5 | 0.00 | 93.10 | 0.00 | 0.36 | 0.00 | 17.13 | 0.00 | 24.20 | 0 |

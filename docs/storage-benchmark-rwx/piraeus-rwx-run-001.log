@@ -1,0 +1,1509 @@
+# Piraeus RWX run 001 raw logs
+
+Captured: 2026-07-02T19:44:51Z
+
+## fio pods
+NAME                              READY   STATUS      RESTARTS   AGE   IP            NODE        NOMINATED NODE   READINESS GATES
+piraeus-rwx-fio-run-001-0-2m74c   0/1     Completed   0          46m   10.42.3.137   fordyce     <none>           <none>
+piraeus-rwx-fio-run-001-1-qdz62   0/1     Completed   0          46m   10.42.0.103   dauwalter   <none>           <none>
+piraeus-rwx-fio-run-001-2-qqcd6   0/1     Completed   0          46m   10.42.2.10    selassie    <none>           <none>
+
+## logs/piraeus-rwx-fio-run-001-0-2m74c
+RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors
+index 0: single-client warmup starting
+index 0: single-client run starting
+RESULT,"piraeus-rwx-single","seq-write-1m","1",0.000000,50.740765,0,50.989901542663574,0,314.030412057654,0,408.94464,0,450.88768,0,463.470592,0
+RESULT,"piraeus-rwx-single","seq-read-1m","1",106.682629,0.000000,106.9320421218872,0,149.717108067952,0,149.946368,0,166.723584,0,278.921216,0,0
+RESULT,"piraeus-rwx-single","rand-write-4k","1",0.000000,245.119595,0,0.9584741592407227,0,65.24318545204,0,126.353408,0,152.04352,0,189.792256,0
+RESULT,"piraeus-rwx-single","rand-read-4k","1",24967.467209,0.000000,97.5302095413208,0,0.637008813498,0,0.724992,0,1.236992,0,4.75136,0,0
+RESULT,"piraeus-rwx-single","randrw-4k-70r30w","1",479.177763,204.477364,1.8717880249023438,0.7997140884399414,1.5859780246619999,74.43262221439099,9.50272,108.527616,13.697024,122.159104,23.199744,137.363456,0
+RESULT,"piraeus-rwx-single","sync-write-4k","1",0.000000,93.389105,0,0.36480045318603516,0,10.69550577409,0,13.303808,0,17.170432,0,25.55904,0
+RESULT,"piraeus-rwx-single","seq-write-1m","2",0.000000,51.252300,0,51.50093650817871,0,312.051124401673,0,425.721856,0,476.053504,0,513.80224,0
+RESULT,"piraeus-rwx-single","seq-read-1m","2",106.971254,0.000000,107.22064208984375,0,149.312711997053,0,149.946368,0,152.04352,0,235.9296,0,0
+RESULT,"piraeus-rwx-single","rand-write-4k","2",0.000000,413.466342,0,1.6160783767700195,0,38.675443116054,0,82.313216,0,101.187584,0,124.256256,0
+RESULT,"piraeus-rwx-single","rand-read-4k","2",24800.453326,0.000000,96.87774658203125,0,0.6410640501699999,0,0.7168,0,1.302528,0,5.40672,0,0
+RESULT,"piraeus-rwx-single","randrw-4k-70r30w","2",580.555463,247.011222,2.2681846618652344,0.9654722213745117,2.1672896509329997,59.620437216518,9.764864,100.139008,14.483456,115.867648,32.11264,175.112192,0
+RESULT,"piraeus-rwx-single","sync-write-4k","2",0.000000,93.308891,0,0.3644876480102539,0,10.706006534381,0,13.43488,0,16.71168,0,22.413312,0
+RESULT,"piraeus-rwx-single","seq-write-1m","3",0.000000,51.150046,0,51.399152755737305,0,312.681057819063,0,421.527552,0,467.664896,0,549.453824,0
+RESULT,"piraeus-rwx-single","seq-read-1m","3",106.888124,0.000000,107.13751220703125,0,149.425432597765,0,149.946368,0,156.237824,0,240.123904,0,0
+RESULT,"piraeus-rwx-single","rand-write-4k","3",0.000000,631.470221,0,2.467656135559082,0,25.329149865846002,0,47.448064,0,58.458112,0,94.896128,0
+RESULT,"piraeus-rwx-single","rand-read-4k","3",24954.084099,0.000000,97.47786712646484,0,0.6373356308610001,0,0.708608,0,1.036288,0,5.275648,0,0
+RESULT,"piraeus-rwx-single","randrw-4k-70r30w","3",720.660717,307.246570,2.8150806427001953,1.2011566162109375,1.294206136091,48.985296537337,5.865472,99.090432,12.648448,115.867648,22.151168,135.266304,0
+RESULT,"piraeus-rwx-single","sync-write-4k","3",0.000000,92.910473,0,0.3629312515258789,0,10.750277201614,0,13.565952,0,17.170432,0,24.510464,0
+RESULT,"piraeus-rwx-single","seq-write-1m","4",0.000000,51.122877,0,51.37185192108154,0,312.830425939579,0,421.527552,0,484.442112,0,541.065216,0
+RESULT,"piraeus-rwx-single","seq-read-1m","4",106.987880,0.000000,107.23726844787598,0,149.286976304496,0,149.946368,0,152.04352,0,246.41536,0,0
+RESULT,"piraeus-rwx-single","rand-write-4k","4",0.000000,740.767885,0,2.8945999145507812,0,21.592345214848997,0,40.108032,0,51.11808,0,64.22528,0
+RESULT,"piraeus-rwx-single","rand-read-4k","4",24934.584424,0.000000,97.40169620513916,0,0.637907900637,0,0.708608,0,1.019904,0,5.341184,0,0
+RESULT,"piraeus-rwx-single","randrw-4k-70r30w","4",971.198348,414.061199,3.793743133544922,1.6184015274047852,0.865854316083,36.574445095514996,2.932736,90.701824,10.289152,110.624768,17.170432,137.363456,0
+RESULT,"piraeus-rwx-single","sync-write-4k","4",0.000000,92.854286,0,0.36271190643310547,0,10.747317864501,0,13.43488,0,17.432576,0,23.986176,0
+RESULT,"piraeus-rwx-single","seq-write-1m","5",0.000000,51.365086,0,51.6141881942749,0,311.352106818533,0,425.721856,0,488.636416,0,517.996544,0
+RESULT,"piraeus-rwx-single","seq-read-1m","5",107.066844,0.000000,107.3162612915039,0,149.181619577781,0,149.946368,0,156.237824,0,223.346688,0,0
+RESULT,"piraeus-rwx-single","rand-write-4k","5",0.000000,788.698362,0,3.081829071044922,0,20.279325765567002,0,32.11264,0,45.8752,0,56.36096,0
+RESULT,"piraeus-rwx-single","rand-read-4k","5",24692.988450,0.000000,96.45796203613281,0,0.644057693585,0,0.708608,0,1.10592,0,7.438336,0,0
+RESULT,"piraeus-rwx-single","randrw-4k-70r30w","5",806.667000,343.273890,3.1511077880859375,1.3418235778808594,1.469311107664,43.107544634804,8.454144,87.556096,13.565952,102.23616,24.772608,121.110528,0
+RESULT,"piraeus-rwx-single","sync-write-4k","5",0.000000,93.060463,0,0.36351680755615234,0,10.734145975107,0,13.43488,0,17.170432,0,24.510464,0
+index 0: single-client run complete
+
+## logs/piraeus-rwx-fio-run-001-1-qdz62
+RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors
+index 1: waiting for single-client run
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+index 1: concurrent warmup starting as client-1
+index 1: concurrent run starting as client-1
+RESULT,"piraeus-rwx-concurrent","seq-write-1m","client-1-1",0.000000,25.027275,0,25.275233268737793,0,639.225744054283,0,918.552576,0,935.329792,0,1035.993088,0
+RESULT,"piraeus-rwx-concurrent","seq-read-1m","client-1-1",106.749140,0.000000,106.99855327606201,0,149.593906923698,0,152.04352,0,164.626432,0,270.532608,0,0
+RESULT,"piraeus-rwx-concurrent","rand-write-4k","client-1-1",0.000000,191.442604,0,0.7487974166870117,0,83.500626677697,0,147.849216,0,173.01504,0,196.083712,0
+RESULT,"piraeus-rwx-concurrent","rand-read-4k","client-1-1",18944.034266,0.000000,74.0011100769043,0,0.839005541576,0,1.368064,0,2.277376,0,4.685824,0,0
+RESULT,"piraeus-rwx-concurrent","randrw-4k-70r30w","client-1-1",447.932976,191.512042,1.749802589416504,0.7490043640136719,2.049941109392,78.64412566548,10.551296,112.72192,15.794176,129.499136,31.326208,149.946368,0
+RESULT,"piraeus-rwx-concurrent","sync-write-4k","client-1-1",0.000000,55.012999,0,0.21489429473876953,0,18.161104352317,0,23.986176,0,28.704768,0,36.438016,0
+index 1: concurrent run complete
+
+## logs/piraeus-rwx-fio-run-001-2-qqcd6
+RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors
+index 2: waiting for single-client run
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for single-client completion
+waiting for both concurrent clients; ready=1/2
+index 2: concurrent warmup starting as client-2
+index 2: concurrent run starting as client-2
+RESULT,"piraeus-rwx-concurrent","seq-write-1m","client-2-1",0.000000,27.827588,0,28.07664203643799,0,573.764780859254,0,700.448768,0,801.112064,0,809.500672,0
+RESULT,"piraeus-rwx-concurrent","seq-read-1m","client-2-1",1356.652446,0.000000,1356.9024124145508,0,11.663724024415,0,22.9376,0,33.161216,0,40.63232,0,0
+RESULT,"piraeus-rwx-concurrent","rand-write-4k","client-2-1",0.000000,192.942468,0,0.7546558380126953,0,82.85258003892501,0,147.849216,0,173.01504,0,196.083712,0
+RESULT,"piraeus-rwx-concurrent","rand-read-4k","client-2-1",21188.596857,0.000000,82.76899719238281,0,0.742649711955,0,1.236992,0,2.08896,0,4.620288,0,0
+RESULT,"piraeus-rwx-concurrent","randrw-4k-70r30w","client-2-1",454.450122,193.984387,1.7751951217651367,0.7587261199951172,1.326272756721,79.24994822067,9.240576,114.819072,14.7456,128.45056,27.656192,147.849216,0
+RESULT,"piraeus-rwx-concurrent","sync-write-4k","client-2-1",0.000000,54.981501,0,0.21477127075195312,0,18.170889390724,0,23.724032,0,28.966912,0,37.486592,0
+index 2: concurrent run complete
+
+## proof pods
+NAME                  READY   STATUS    RESTARTS   AGE   IP            NODE       NOMINATED NODE   READINESS GATES
+piraeus-rwx-proof-a   1/1     Running   0          46m   10.42.3.136   fordyce    <none>           <none>
+piraeus-rwx-proof-b   1/1     Running   0          46m   10.42.2.11    selassie   <none>           <none>
+
+## logs/piraeus-rwx-proof-a
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-a sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+
+## logs/piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+--- proof-b sees ---
+2026-07-02T18:59:04Z proof-a piraeus-rwx-proof-a
+2026-07-02T18:59:06Z proof-b piraeus-rwx-proof-b
+
