@@ -1,0 +1,68 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: piraeus-rwx-fio-run-001
+  namespace: storage-benchmark-rwx
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  labels:
+    app.kubernetes.io/name: storage-benchmark-rwx
+    storage.compaan.io/backend: piraeus-rwx
+    storage.compaan.io/role: fio
+spec:
+  activeDeadlineSeconds: 21600
+  backoffLimit: 0
+  completionMode: Indexed
+  completions: 3
+  parallelism: 3
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: storage-benchmark-rwx
+        storage.compaan.io/backend: piraeus-rwx
+        storage.compaan.io/role: fio
+        storage.compaan.io/fio-job: piraeus-rwx-fio-run-001
+    spec:
+      restartPolicy: Never
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  storage.compaan.io/fio-job: piraeus-rwx-fio-run-001
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - name: fio
+          image: nixery.dev/shell/fio/jq/coreutils
+          env:
+            - name: BACKEND_BASE
+              value: piraeus-rwx
+            - name: JOB_COMPLETION_INDEX
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['batch.kubernetes.io/job-completion-index']
+            - name: PASSES_SINGLE
+              value: "5"
+            - name: PASSES_CONCURRENT
+              value: "1"
+            - name: FIO_SIZE
+              value: 16G
+            - name: FIO_RUNTIME
+              value: "60"
+            - name: FIO_RAMP
+              value: "10"
+          command: ["/bin/sh", "/scripts/fio-rwx.sh"]
+          volumeMounts:
+            - name: data
+              mountPath: /volume
+            - name: script
+              mountPath: /scripts
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: piraeus-rwx-pvc-run-001
+        - name: script
+          configMap:
+            name: piraeus-rwx-fio-script
+            defaultMode: 0555

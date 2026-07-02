@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: piraeus-rwx-pvc-run-001
+  namespace: storage-benchmark-rwx
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    app.kubernetes.io/name: storage-benchmark-rwx
+    storage.compaan.io/backend: piraeus-rwx
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: piraeus-rwx-bench-3r
+  resources:
+    requests:
+      storage: 20Gi

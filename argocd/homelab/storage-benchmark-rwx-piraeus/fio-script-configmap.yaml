@@ -1,0 +1,133 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: piraeus-rwx-fio-script
+  namespace: storage-benchmark-rwx
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+data:
+  fio-rwx.sh: |
+    #!/bin/sh
+    set -eu
+    
+    BACKEND_BASE="${BACKEND_BASE:?BACKEND_BASE is required}"
+    INDEX="${JOB_COMPLETION_INDEX:-0}"
+    PASSES_SINGLE="${PASSES_SINGLE:-5}"
+    PASSES_CONCURRENT="${PASSES_CONCURRENT:-1}"
+    FIO_SIZE="${FIO_SIZE:-16G}"
+    FIO_RUNTIME="${FIO_RUNTIME:-60}"
+    FIO_RAMP="${FIO_RAMP:-10}"
+    barrier_dir="/volume/barriers/${BACKEND_BASE}"
+    mkdir -p "${barrier_dir}"
+    
+    echo "RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors"
+    
+    wait_for_file() {
+      path="$1"
+      label="$2"
+      while [ ! -f "${path}" ]; do
+        echo "waiting for ${label}"
+        sleep 5
+      done
+    }
+    
+    wait_for_count() {
+      pattern="$1"
+      expected="$2"
+      label="$3"
+      while :; do
+        count="$(ls ${pattern} 2>/dev/null | wc -l | tr -d ' ')"
+        [ "${count}" -ge "${expected}" ] && break
+        echo "waiting for ${label}; ready=${count}/${expected}"
+        sleep 5
+      done
+    }
+    
+    run_profile() {
+      backend="$1"
+      client_id="$2"
+      profile="$3"
+      pass="$4"
+      rw="$5"
+      bs="$6"
+      rwmixread="${7:-}"
+      iodepth="${8:-16}"
+      result_dir="/volume/results/${backend}/${client_id}/$(date -u +%Y%m%dT%H%M%SZ)"
+      mkdir -p "${result_dir}"
+      fio_file="/volume/${client_id}-fio-test-file"
+      output="${result_dir}/${profile}-pass-${pass}.json"
+    
+      fio \
+        --name="${profile}" \
+        --filename="${fio_file}" \
+        --rw="${rw}" \
+        --bs="${bs}" \
+        --size="${FIO_SIZE}" \
+        --ioengine=libaio \
+        --iodepth="${iodepth}" \
+        --numjobs=1 \
+        --direct=1 \
+        --time_based \
+        --runtime="${FIO_RUNTIME}" \
+        --ramp_time="${FIO_RAMP}" \
+        --group_reporting \
+        --output-format=json \
+        ${rwmixread:+--rwmixread="${rwmixread}"} \
+        --output="${output}"
+    
+      jq -r --arg backend "${backend}" --arg profile "${profile}" --arg pass "${pass}" '
+        .jobs[0] as $job |
+        [
+          "RESULT",
+          $backend,
+          $profile,
+          $pass,
+          ($job.read.iops // 0),
+          ($job.write.iops // 0),
+          (($job.read.bw_bytes // 0) / 1048576),
+          (($job.write.bw_bytes // 0) / 1048576),
+          (($job.read.clat_ns.mean // 0) / 1000000),
+          (($job.write.clat_ns.mean // 0) / 1000000),
+          (($job.read.clat_ns.percentile["95.000000"] // 0) / 1000000),
+          (($job.write.clat_ns.percentile["95.000000"] // 0) / 1000000),
+          (($job.read.clat_ns.percentile["99.000000"] // 0) / 1000000),
+          (($job.write.clat_ns.percentile["99.000000"] // 0) / 1000000),
+          (($job.read.clat_ns.percentile["99.900000"] // 0) / 1000000),
+          (($job.write.clat_ns.percentile["99.900000"] // 0) / 1000000),
+          ($job.error // 0)
+        ] | @csv | sub("^\\\"RESULT\\\","; "RESULT,")
+      ' "${output}"
+    }
+    
+    run_all_profiles() {
+      backend="$1"
+      client_id="$2"
+      passes="$3"
+      for pass in $(seq 1 "${passes}"); do
+        label="${pass}"
+        [ "${client_id}" != "single" ] && label="${client_id}-${pass}"
+        run_profile "${backend}" "${client_id}" seq-write-1m "${label}" write 1m
+        run_profile "${backend}" "${client_id}" seq-read-1m "${label}" read 1m
+        run_profile "${backend}" "${client_id}" rand-write-4k "${label}" randwrite 4k
+        run_profile "${backend}" "${client_id}" rand-read-4k "${label}" randread 4k
+        run_profile "${backend}" "${client_id}" randrw-4k-70r30w "${label}" randrw 4k 70
+        run_profile "${backend}" "${client_id}" sync-write-4k "${label}" write 4k "" 1
+      done
+    }
+    
+    if [ "${INDEX}" = "0" ]; then
+      echo "index 0: single-client run starting"
+      run_all_profiles "${BACKEND_BASE}-single" single "${PASSES_SINGLE}"
+      touch "${barrier_dir}/single.done"
+      echo "index 0: single-client run complete"
+      exit 0
+    fi
+    
+    client_id="client-${INDEX}"
+    echo "index ${INDEX}: waiting for single-client run"
+    wait_for_file "${barrier_dir}/single.done" "single-client completion"
+    touch "${barrier_dir}/${client_id}.ready"
+    wait_for_count "${barrier_dir}/client-*.ready" 2 "both concurrent clients"
+    echo "index ${INDEX}: concurrent run starting as ${client_id}"
+    run_all_profiles "${BACKEND_BASE}-concurrent" "${client_id}" "${PASSES_CONCURRENT}"
+    echo "index ${INDEX}: concurrent run complete"
