@@ -23,6 +23,18 @@ All 126 fio `RESULT` rows across the three backends reported `errors_total = 0` 
 
 Full generated table: [`combined-summary.md`](combined-summary.md).
 
+## Placement audit caveat
+
+A follow-up audit found that the sequential-read results are materially affected by RWX serving placement and cache warmth. See [`placement-audit.md`](placement-audit.md).
+
+Key examples:
+
+- Longhorn single-client sequential read was 1004 MiB/s on pass 1, then about 2 GiB/s on later passes, which suggests warm-cache effects.
+- Piraeus/LINSTOR concurrent sequential read averaged 731.95 MiB/s, but that average came from one remote client at 107 MiB/s and one client on the LINSTOR `InUse` node at 1357 MiB/s.
+- Mayastor-backed NFS concurrent sequential read averaged 88.49 MiB/s, but that average came from one remote client at 42 MiB/s and one client local to the benchmark NFS server at 135 MiB/s.
+
+The current RWX results are valid as functional benchmark artifacts and useful diagnostics, but the read-performance rankings should be treated as **preliminary** until rerun with controlled serving-node placement and cold/warm read separation.
+
 ## Single-client results
 
 | profile | Longhorn RWX throughput / p99 | Piraeus/LINSTOR RWX throughput / p99 | Mayastor-backed NFS throughput / p99 |
@@ -71,26 +83,25 @@ Full generated table: [`combined-summary.md`](combined-summary.md).
 
 ### Longhorn RWX
 
-Longhorn RWX was the strongest all-around choice for latency-sensitive random writes:
+Longhorn RWX was the strongest all-around choice for latency-sensitive random writes in this run:
 
-- Best single-client sequential read: 1829.72 MiB/s with 40.97 ms read p99.
 - Best single-client random-write throughput and p99: 3223.53 write IOPS with 7.35 ms write p99.
 - Best concurrent random-write throughput and p99: 2017.88 write IOPS with 15.83 ms write p99.
 
-Its weak spot was concurrent sequential IO through the RWX/NFS path:
+Its sequential-read result should not be treated as a clean backend ranking because the raw passes were 1004 MiB/s followed by about 2 GiB/s on later passes, indicating likely cache warmth. Its concurrent sequential IO was also remote to the share-manager node and much slower:
 
-- Concurrent sequential read fell to 59.89 MiB/s with 573.57 ms read p99.
-- Concurrent sequential write was 24.07 MiB/s with 2061.50 ms write p99.
+- Concurrent sequential read: 59.89 MiB/s with 573.57 ms read p99.
+- Concurrent sequential write: 24.07 MiB/s with 2061.50 ms write p99.
 
-Longhorn is the safer RWX option when predictable random-write tail latency matters more than concurrent sequential throughput.
+Longhorn remains the safer RWX option when predictable random-write tail latency matters more than peak sequential-read numbers.
 
 ### Piraeus/LINSTOR RWX
 
-Piraeus/LINSTOR was the strongest read-heavy concurrent option:
+Piraeus/LINSTOR had strong random-read numbers in the summary, but the sequential-read audit shows locality contamination:
 
-- Best single-client random-read throughput: 24869.92 read IOPS.
-- Best concurrent sequential read: 731.95 MiB/s with 98.89 ms read p99.
-- Best concurrent random-read throughput and p99: 20066.32 read IOPS with 2.18 ms read p99.
+- Single-client sequential read was consistently about 107 MiB/s.
+- Concurrent sequential read averaged 731.95 MiB/s only because the client on the LINSTOR `InUse` node reached 1357 MiB/s while the remote client stayed at 107 MiB/s.
+- Concurrent random-read throughput and p99 were strong at 20066.32 read IOPS with 2.18 ms read p99, but this should still be rerun with placement controls before using it as a backend ranking.
 
 Its write behavior was weak in this run:
 
@@ -98,7 +109,7 @@ Its write behavior was weak in this run:
 - Concurrent random write was 192.19 write IOPS with 173.02 ms p99.
 - Concurrent sync write was 55.00 write IOPS with 28.84 ms p99.
 
-The Piraeus benchmark also exposed operational rough edges in this cluster: the temporary `LinstorCluster` cleanup twice required manual intervention after foreground deletion became stuck, and stale Piraeus `drbd.linbit.com/lost-quorum` taints later affected Mayastor scheduling. Treat Piraeus RWX as read-attractive but operationally higher-risk here until that lifecycle issue is resolved.
+The Piraeus benchmark also exposed operational rough edges in this cluster: the temporary `LinstorCluster` cleanup twice required manual intervention after foreground deletion became stuck, and stale Piraeus `drbd.linbit.com/lost-quorum` taints later affected Mayastor scheduling. Treat Piraeus RWX as operationally higher-risk here until that lifecycle issue is resolved.
 
 ### Mayastor-backed RWX via NFS/NFS CSI
 
@@ -119,11 +130,13 @@ Caveats:
 
 ## Recommendation
 
-For a write-sensitive RWX app-state trial, use **Mayastor-backed RWX via NFS/NFS CSI** first if the app can accept the explicit NFS-server architecture. It delivered the best sequential write, sync write, and mixed-write results in both single-client and concurrent passes.
+Do not select an RWX backend from the sequential-read or concurrent-read winners in this run. Those numbers are placement- and cache-sensitive, as documented in [`placement-audit.md`](placement-audit.md).
+
+For a write-sensitive RWX app-state trial, **Mayastor-backed RWX via NFS/NFS CSI** remains the most interesting candidate if the app can accept the explicit NFS-server architecture. It delivered the best sequential write, sync write, and mixed-write results in both single-client and concurrent passes, and those write results did not show the same obvious per-client sequential-read outlier pattern.
 
 Use **Longhorn RWX** when random-write p99 latency and operational simplicity are more important than peak write-heavy throughput. It was the best random-write latency path and avoided the Piraeus lifecycle problems.
 
-Use **Piraeus/LINSTOR RWX** selectively for read-heavy RWX shares. It won concurrent read throughput/latency, but write performance and cleanup behavior make it a poor first choice for write-heavy app state in this cluster.
+Do not promote **Piraeus/LINSTOR RWX** as the read-heavy winner from this run alone. Its apparent concurrent sequential-read win is an average of one normal remote client and one much faster client on the LINSTOR `InUse` node. Rerun with controlled placement before making a read-heavy recommendation.
 
 ## Operational follow-ups
 
