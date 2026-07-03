@@ -1,0 +1,14 @@
+| backend | profile | passes | read_iops_avg | write_iops_avg | read_mib_s_avg | write_mib_s_avg | read_p99_ms_avg | write_p99_ms_avg | read_p999_ms_avg | write_p999_ms_avg | errors_total |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| mayastor-rwx-concurrent | rand-read-4k | 2 | 13034.37 | 0.00 | 50.92 | 0.00 | 7.68 | 0.00 | 9.45 | 0.00 | 0 |
+| mayastor-rwx-concurrent | rand-write-4k | 2 | 0.00 | 714.95 | 0.00 | 2.79 | 0.00 | 170.66 | 0.00 | 266.60 | 0 |
+| mayastor-rwx-concurrent | randrw-4k-70r30w | 2 | 8307.52 | 3568.17 | 32.45 | 13.94 | 3.55 | 8.72 | 6.96 | 14.83 | 0 |
+| mayastor-rwx-concurrent | seq-read-1m | 2 | 88.24 | 0.00 | 88.49 | 0.00 | 351.80 | 0.00 | 392.69 | 0.00 | 0 |
+| mayastor-rwx-concurrent | seq-write-1m | 2 | 0.00 | 63.86 | 0.00 | 64.11 | 0.00 | 699.92 | 0.00 | 1092.62 | 0 |
+| mayastor-rwx-concurrent | sync-write-4k | 2 | 0.00 | 1401.45 | 0.00 | 5.47 | 0.00 | 6.66 | 0.00 | 9.36 | 0 |
+| mayastor-rwx-single | rand-read-4k | 5 | 24253.86 | 0.00 | 94.74 | 0.00 | 1.06 | 0.00 | 2.07 | 0.00 | 0 |
+| mayastor-rwx-single | rand-write-4k | 5 | 0.00 | 2714.32 | 0.00 | 10.60 | 0.00 | 148.74 | 0.00 | 583.01 | 0 |
+| mayastor-rwx-single | randrw-4k-70r30w | 5 | 11809.47 | 5064.93 | 46.13 | 19.79 | 1.69 | 1.74 | 2.60 | 2.76 | 0 |
+| mayastor-rwx-single | seq-read-1m | 5 | 42.52 | 0.00 | 42.77 | 0.00 | 473.54 | 0.00 | 646.34 | 0.00 | 0 |
+| mayastor-rwx-single | seq-write-1m | 5 | 0.00 | 106.80 | 0.00 | 107.05 | 0.00 | 171.34 | 0.00 | 235.09 | 0 |
+| mayastor-rwx-single | sync-write-4k | 5 | 0.00 | 1028.00 | 0.00 | 4.02 | 0.00 | 2.21 | 0.00 | 3.29 | 0 |
