@@ -25,6 +25,9 @@ resources:
   - ../../base/kube-prometheus-stack
   - ../../base/grafana-dashboards
   - ../../base/local-path-provisioner
+  - ../../base/openebs-mayastor
+  - ../../base/csi-driver-nfs-rwx-benchmark
+  - ../../base/storage-benchmark-rwx-mayastor
   - ../../base/mosquitto
   - ../../base/kyverno
   - ../../base/longhorn
