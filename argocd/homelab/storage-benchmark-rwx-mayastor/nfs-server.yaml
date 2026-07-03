@@ -43,6 +43,10 @@ spec:
     spec:
       nodeSelector:
         kubernetes.io/hostname: fordyce
+      tolerations:
+        - key: drbd.linbit.com/lost-quorum
+          operator: Exists
+          effect: NoSchedule
       containers:
         - name: nfs-server
           image: itsthenetwork/nfs-server-alpine:latest

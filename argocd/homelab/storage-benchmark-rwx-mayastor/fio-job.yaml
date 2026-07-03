@@ -24,6 +24,10 @@ spec:
         storage.compaan.io/fio-job: mayastor-rwx-fio-run-001
     spec:
       restartPolicy: Never
+      tolerations:
+        - key: drbd.linbit.com/lost-quorum
+          operator: Exists
+          effect: NoSchedule
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
