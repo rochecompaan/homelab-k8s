@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mayastor-rwx-controlled-pvc-run-001
+  namespace: storage-benchmark-rwx
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    app.kubernetes.io/name: storage-benchmark-rwx
+    storage.compaan.io/backend: mayastor-rwx-controlled
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: mayastor-rwx-controlled-nfs-csi
+  resources:
+    requests:
+      storage: 20Gi

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: longhorn-rwx-controlled-serving-anchor
+  namespace: storage-benchmark-rwx
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    app.kubernetes.io/name: storage-benchmark-rwx-controlled
+    storage.compaan.io/benchmark: rwx-controlled
+    storage.compaan.io/backend: longhorn-rwx-controlled
+    storage.compaan.io/role: serving-anchor
+    storage.compaan.io/serving-node: fordyce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: longhorn-rwx-controlled-serving-anchor
+  template:
+    metadata:
+      labels:
+        app: longhorn-rwx-controlled-serving-anchor
+        app.kubernetes.io/name: storage-benchmark-rwx-controlled
+        storage.compaan.io/benchmark: rwx-controlled
+        storage.compaan.io/backend: longhorn-rwx-controlled
+        storage.compaan.io/role: serving-anchor
+        storage.compaan.io/serving-node: fordyce
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: fordyce
+      containers:
+        - name: anchor
+          image: alpine:3.20
+          command: ["sh", "-c", "echo anchored on $(hostname) > /volume/serving-anchor.txt; sleep infinity"]
+          volumeMounts:
+            - name: data
+              mountPath: /volume
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: longhorn-rwx-controlled-pvc-run-001

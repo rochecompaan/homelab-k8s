@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: csi-driver-nfs-rwx-controlled
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '5'
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    chart: csi-driver-nfs
+    repoURL: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
+    targetRevision: 4.13.3
+    helm:
+      releaseName: csi-driver-nfs-rwx-controlled
+      valuesObject:
+        storageClass:
+          create: true
+          name: mayastor-rwx-controlled-nfs-csi
+          parameters:
+            server: mayastor-rwx-controlled-nfs-server.storage-benchmark-rwx.svc.cluster.local
+            share: /
+          reclaimPolicy: Delete
+          volumeBindingMode: Immediate
+          mountOptions:
+            - nfsvers=4.1
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: csi-nfs
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

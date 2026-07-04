@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mayastor-rwx-proof-a
+  namespace: storage-benchmark-rwx
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    app.kubernetes.io/name: storage-benchmark-rwx
+    storage.compaan.io/backend: mayastor-rwx-controlled
+    storage.compaan.io/role: proof
+spec:
+  restartPolicy: Always
+  nodeSelector:
+    kubernetes.io/hostname: dauwalter
+  tolerations:
+    - key: drbd.linbit.com/lost-quorum
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: proof
+      image: alpine:3.20
+      command: ["sh", "-c"]
+      args:
+        - |
+          set -eu
+          echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) proof-a $(hostname)" >> /volume/rwx-proof.txt
+          while true; do echo "--- proof-a sees ---"; cat /volume/rwx-proof.txt; sleep 30; done
+      volumeMounts:
+        - name: data
+          mountPath: /volume
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: mayastor-rwx-controlled-pvc-run-001
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mayastor-rwx-proof-b
+  namespace: storage-benchmark-rwx
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    app.kubernetes.io/name: storage-benchmark-rwx
+    storage.compaan.io/backend: mayastor-rwx-controlled
+    storage.compaan.io/role: proof
+spec:
+  restartPolicy: Always
+  nodeSelector:
+    kubernetes.io/hostname: selassie
+  tolerations:
+    - key: drbd.linbit.com/lost-quorum
+      operator: Exists
+      effect: NoSchedule
+  containers:
+    - name: proof
+      image: alpine:3.20
+      command: ["sh", "-c"]
+      args:
+        - |
+          set -eu
+          echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) proof-b $(hostname)" >> /volume/rwx-proof.txt
+          while true; do echo "--- proof-b sees ---"; cat /volume/rwx-proof.txt; sleep 30; done
+      volumeMounts:
+        - name: data
+          mountPath: /volume
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: mayastor-rwx-controlled-pvc-run-001

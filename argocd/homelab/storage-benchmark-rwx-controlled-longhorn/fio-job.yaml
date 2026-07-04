@@ -1,0 +1,323 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: longhorn-rwx-controlled-remote-single-dauwalter-run-001
+  namespace: storage-benchmark-rwx
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+  labels:
+    app.kubernetes.io/name: storage-benchmark-rwx-controlled
+    storage.compaan.io/benchmark: rwx-controlled
+    storage.compaan.io/backend: longhorn-rwx-controlled
+    storage.compaan.io/role: fio
+    storage.compaan.io/fio-job: longhorn-rwx-controlled-remote-single-dauwalter-run-001
+    storage.compaan.io/client-node: dauwalter
+    storage.compaan.io/serving-node: fordyce
+spec:
+  activeDeadlineSeconds: 21600
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: storage-benchmark-rwx-controlled
+        storage.compaan.io/benchmark: rwx-controlled
+        storage.compaan.io/backend: longhorn-rwx-controlled
+        storage.compaan.io/role: fio
+        storage.compaan.io/fio-job: longhorn-rwx-controlled-remote-single-dauwalter-run-001
+        storage.compaan.io/client-node: dauwalter
+        storage.compaan.io/serving-node: fordyce
+    spec:
+      restartPolicy: Never
+      tolerations:
+        - key: drbd.linbit.com/lost-quorum
+          operator: Exists
+          effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - dauwalter
+      containers:
+        - name: fio
+          image: nixery.dev/shell/fio/jq/coreutils
+          env:
+            - name: BACKEND_BASE
+              value: longhorn-rwx-controlled
+            - name: CLIENT_GROUP
+              value: remote-single-dauwalter
+            - name: CLIENT_NODE
+              value: dauwalter
+            - name: RUN_MODE
+              value: single
+            - name: PASSES
+              value: "5"
+            - name: EXPECTED_CONCURRENT_CLIENTS
+              value: "2"
+            - name: FIO_SIZE
+              value: 16G
+            - name: FIO_RUNTIME
+              value: "60"
+            - name: FIO_RAMP
+              value: "10"
+          command: ["/bin/sh", "/scripts/fio-rwx.sh"]
+          volumeMounts:
+            - name: data
+              mountPath: /volume
+            - name: script
+              mountPath: /scripts
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: longhorn-rwx-controlled-pvc-run-001
+        - name: script
+          configMap:
+            name: longhorn-rwx-fio-script
+            defaultMode: 0555
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: longhorn-rwx-controlled-remote-single-selassie-run-001
+  namespace: storage-benchmark-rwx
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+  labels:
+    app.kubernetes.io/name: storage-benchmark-rwx-controlled
+    storage.compaan.io/benchmark: rwx-controlled
+    storage.compaan.io/backend: longhorn-rwx-controlled
+    storage.compaan.io/role: fio
+    storage.compaan.io/fio-job: longhorn-rwx-controlled-remote-single-selassie-run-001
+    storage.compaan.io/client-node: selassie
+    storage.compaan.io/serving-node: fordyce
+spec:
+  activeDeadlineSeconds: 21600
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: storage-benchmark-rwx-controlled
+        storage.compaan.io/benchmark: rwx-controlled
+        storage.compaan.io/backend: longhorn-rwx-controlled
+        storage.compaan.io/role: fio
+        storage.compaan.io/fio-job: longhorn-rwx-controlled-remote-single-selassie-run-001
+        storage.compaan.io/client-node: selassie
+        storage.compaan.io/serving-node: fordyce
+    spec:
+      restartPolicy: Never
+      tolerations:
+        - key: drbd.linbit.com/lost-quorum
+          operator: Exists
+          effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - selassie
+      containers:
+        - name: fio
+          image: nixery.dev/shell/fio/jq/coreutils
+          env:
+            - name: BACKEND_BASE
+              value: longhorn-rwx-controlled
+            - name: CLIENT_GROUP
+              value: remote-single-selassie
+            - name: CLIENT_NODE
+              value: selassie
+            - name: RUN_MODE
+              value: single
+            - name: PASSES
+              value: "5"
+            - name: EXPECTED_CONCURRENT_CLIENTS
+              value: "2"
+            - name: FIO_SIZE
+              value: 16G
+            - name: FIO_RUNTIME
+              value: "60"
+            - name: FIO_RAMP
+              value: "10"
+          command: ["/bin/sh", "/scripts/fio-rwx.sh"]
+          volumeMounts:
+            - name: data
+              mountPath: /volume
+            - name: script
+              mountPath: /scripts
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: longhorn-rwx-controlled-pvc-run-001
+        - name: script
+          configMap:
+            name: longhorn-rwx-fio-script
+            defaultMode: 0555
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: longhorn-rwx-controlled-remote-concurrent-dauwalter-run-001
+  namespace: storage-benchmark-rwx
+  annotations:
+    argocd.argoproj.io/sync-wave: "6"
+  labels:
+    app.kubernetes.io/name: storage-benchmark-rwx-controlled
+    storage.compaan.io/benchmark: rwx-controlled
+    storage.compaan.io/backend: longhorn-rwx-controlled
+    storage.compaan.io/role: fio
+    storage.compaan.io/fio-job: longhorn-rwx-controlled-remote-concurrent-dauwalter-run-001
+    storage.compaan.io/client-node: dauwalter
+    storage.compaan.io/serving-node: fordyce
+spec:
+  activeDeadlineSeconds: 21600
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: storage-benchmark-rwx-controlled
+        storage.compaan.io/benchmark: rwx-controlled
+        storage.compaan.io/backend: longhorn-rwx-controlled
+        storage.compaan.io/role: fio
+        storage.compaan.io/fio-job: longhorn-rwx-controlled-remote-concurrent-dauwalter-run-001
+        storage.compaan.io/client-node: dauwalter
+        storage.compaan.io/serving-node: fordyce
+    spec:
+      restartPolicy: Never
+      tolerations:
+        - key: drbd.linbit.com/lost-quorum
+          operator: Exists
+          effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - dauwalter
+      containers:
+        - name: fio
+          image: nixery.dev/shell/fio/jq/coreutils
+          env:
+            - name: BACKEND_BASE
+              value: longhorn-rwx-controlled
+            - name: CLIENT_GROUP
+              value: remote-concurrent-dauwalter
+            - name: CLIENT_NODE
+              value: dauwalter
+            - name: RUN_MODE
+              value: concurrent
+            - name: PASSES
+              value: "1"
+            - name: EXPECTED_CONCURRENT_CLIENTS
+              value: "2"
+            - name: FIO_SIZE
+              value: 8G
+            - name: FIO_RUNTIME
+              value: "60"
+            - name: FIO_RAMP
+              value: "10"
+          command: ["/bin/sh", "/scripts/fio-rwx.sh"]
+          volumeMounts:
+            - name: data
+              mountPath: /volume
+            - name: script
+              mountPath: /scripts
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: longhorn-rwx-controlled-pvc-run-001
+        - name: script
+          configMap:
+            name: longhorn-rwx-fio-script
+            defaultMode: 0555
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: longhorn-rwx-controlled-remote-concurrent-selassie-run-001
+  namespace: storage-benchmark-rwx
+  annotations:
+    argocd.argoproj.io/sync-wave: "6"
+  labels:
+    app.kubernetes.io/name: storage-benchmark-rwx-controlled
+    storage.compaan.io/benchmark: rwx-controlled
+    storage.compaan.io/backend: longhorn-rwx-controlled
+    storage.compaan.io/role: fio
+    storage.compaan.io/fio-job: longhorn-rwx-controlled-remote-concurrent-selassie-run-001
+    storage.compaan.io/client-node: selassie
+    storage.compaan.io/serving-node: fordyce
+spec:
+  activeDeadlineSeconds: 21600
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: storage-benchmark-rwx-controlled
+        storage.compaan.io/benchmark: rwx-controlled
+        storage.compaan.io/backend: longhorn-rwx-controlled
+        storage.compaan.io/role: fio
+        storage.compaan.io/fio-job: longhorn-rwx-controlled-remote-concurrent-selassie-run-001
+        storage.compaan.io/client-node: selassie
+        storage.compaan.io/serving-node: fordyce
+    spec:
+      restartPolicy: Never
+      tolerations:
+        - key: drbd.linbit.com/lost-quorum
+          operator: Exists
+          effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - selassie
+      containers:
+        - name: fio
+          image: nixery.dev/shell/fio/jq/coreutils
+          env:
+            - name: BACKEND_BASE
+              value: longhorn-rwx-controlled
+            - name: CLIENT_GROUP
+              value: remote-concurrent-selassie
+            - name: CLIENT_NODE
+              value: selassie
+            - name: RUN_MODE
+              value: concurrent
+            - name: PASSES
+              value: "1"
+            - name: EXPECTED_CONCURRENT_CLIENTS
+              value: "2"
+            - name: FIO_SIZE
+              value: 8G
+            - name: FIO_RUNTIME
+              value: "60"
+            - name: FIO_RAMP
+              value: "10"
+          command: ["/bin/sh", "/scripts/fio-rwx.sh"]
+          volumeMounts:
+            - name: data
+              mountPath: /volume
+            - name: script
+              mountPath: /scripts
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: longhorn-rwx-controlled-pvc-run-001
+        - name: script
+          configMap:
+            name: longhorn-rwx-fio-script
+            defaultMode: 0555

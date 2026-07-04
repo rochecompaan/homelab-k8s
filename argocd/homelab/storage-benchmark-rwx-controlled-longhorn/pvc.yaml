@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: longhorn-rwx-controlled-pvc-run-001
+  namespace: storage-benchmark-rwx
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    app.kubernetes.io/name: storage-benchmark-rwx
+    storage.compaan.io/backend: longhorn-rwx-controlled
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: longhorn-rwx-controlled-nvme-bench-3r
+  resources:
+    requests:
+      storage: 20Gi

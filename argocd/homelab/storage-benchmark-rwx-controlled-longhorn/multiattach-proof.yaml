@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: longhorn-rwx-proof-a-run-002
+  namespace: storage-benchmark-rwx
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    app.kubernetes.io/name: storage-benchmark-rwx
+    storage.compaan.io/backend: longhorn-rwx-controlled
+    storage.compaan.io/role: proof
+spec:
+  restartPolicy: Always
+  nodeSelector:
+    kubernetes.io/hostname: dauwalter
+  containers:
+    - name: proof
+      image: alpine:3.20
+      command: ["sh", "-c"]
+      args:
+        - |
+          set -eu
+          echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) proof-a $(hostname)" >> /volume/rwx-proof.txt
+          while true; do echo "--- proof-a sees ---"; cat /volume/rwx-proof.txt; sleep 30; done
+      volumeMounts:
+        - name: data
+          mountPath: /volume
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: longhorn-rwx-controlled-pvc-run-001
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: longhorn-rwx-proof-b-run-002
+  namespace: storage-benchmark-rwx
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    app.kubernetes.io/name: storage-benchmark-rwx
+    storage.compaan.io/backend: longhorn-rwx-controlled
+    storage.compaan.io/role: proof
+spec:
+  restartPolicy: Always
+  nodeSelector:
+    kubernetes.io/hostname: selassie
+  containers:
+    - name: proof
+      image: alpine:3.20
+      command: ["sh", "-c"]
+      args:
+        - |
+          set -eu
+          echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) proof-b $(hostname)" >> /volume/rwx-proof.txt
+          while true; do echo "--- proof-b sees ---"; cat /volume/rwx-proof.txt; sleep 30; done
+      volumeMounts:
+        - name: data
+          mountPath: /volume
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: longhorn-rwx-controlled-pvc-run-001

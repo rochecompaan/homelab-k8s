@@ -1,0 +1,130 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mayastor-rwx-fio-script
+  namespace: storage-benchmark-rwx
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+data:
+  fio-rwx.sh: |
+    #!/bin/sh
+    set -eu
+
+    BACKEND_BASE="${BACKEND_BASE:?BACKEND_BASE is required}"
+    CLIENT_GROUP="${CLIENT_GROUP:?CLIENT_GROUP is required}"
+    CLIENT_NODE="${CLIENT_NODE:?CLIENT_NODE is required}"
+    RUN_MODE="${RUN_MODE:?RUN_MODE is required}"
+    PASSES="${PASSES:?PASSES is required}"
+    EXPECTED_CONCURRENT_CLIENTS="${EXPECTED_CONCURRENT_CLIENTS:-2}"
+    FIO_SIZE="${FIO_SIZE:-16G}"
+    FIO_RUNTIME="${FIO_RUNTIME:-60}"
+    FIO_RAMP="${FIO_RAMP:-10}"
+
+    backend="${BACKEND_BASE}-${CLIENT_GROUP}"
+    client_id="${CLIENT_NODE}"
+    fio_file="/volume/${CLIENT_GROUP}-fio-test-file"
+    barrier_dir="/volume/barriers/${BACKEND_BASE}-remote-concurrent"
+    mkdir -p /volume/results "${barrier_dir}"
+
+    echo "RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors"
+
+    wait_for_count() {
+      pattern="$1"
+      expected="$2"
+      label="$3"
+      while :; do
+        count="$(ls ${pattern} 2>/dev/null | wc -l | tr -d ' ')"
+        [ "${count}" -ge "${expected}" ] && break
+        echo "waiting for ${label}; ready=${count}/${expected}"
+        sleep 5
+      done
+    }
+
+    run_warmup() {
+      result_dir="/volume/results/${BACKEND_BASE}-warmup/${CLIENT_GROUP}/${client_id}/$(date -u +%Y%m%dT%H%M%SZ)"
+      mkdir -p "${result_dir}"
+      fio \
+        --name=warmup \
+        --filename="${fio_file}" \
+        --rw=write \
+        --bs=1m \
+        --size="${FIO_SIZE}" \
+        --ioengine=libaio \
+        --iodepth=16 \
+        --numjobs=1 \
+        --direct=1 \
+        --time_based \
+        --runtime=30 \
+        --group_reporting \
+        --output-format=json \
+        --output="${result_dir}/warmup.json"
+    }
+
+    run_profile() {
+      profile="$1"
+      pass="$2"
+      rw="$3"
+      bs="$4"
+      rwmixread="${5:-}"
+      iodepth="${6:-16}"
+      result_dir="/volume/results/${backend}/${client_id}/$(date -u +%Y%m%dT%H%M%SZ)"
+      mkdir -p "${result_dir}"
+      output="${result_dir}/${profile}-pass-${pass}.json"
+
+      fio \
+        --name="${profile}" \
+        --filename="${fio_file}" \
+        --rw="${rw}" \
+        --bs="${bs}" \
+        --size="${FIO_SIZE}" \
+        --ioengine=libaio \
+        --iodepth="${iodepth}" \
+        --numjobs=1 \
+        --direct=1 \
+        --time_based \
+        --runtime="${FIO_RUNTIME}" \
+        --ramp_time="${FIO_RAMP}" \
+        --group_reporting \
+        --output-format=json \
+        ${rwmixread:+--rwmixread="${rwmixread}"} \
+        --output="${output}"
+
+      jq -r --arg backend "${backend}" --arg profile "${profile}" --arg pass "${pass}" '
+        .jobs[0] as $job |
+        [
+          "RESULT", $backend, $profile, $pass,
+          ($job.read.iops // 0), ($job.write.iops // 0),
+          (($job.read.bw_bytes // 0) / 1048576), (($job.write.bw_bytes // 0) / 1048576),
+          (($job.read.clat_ns.mean // 0) / 1000000), (($job.write.clat_ns.mean // 0) / 1000000),
+          (($job.read.clat_ns.percentile["95.000000"] // 0) / 1000000),
+          (($job.write.clat_ns.percentile["95.000000"] // 0) / 1000000),
+          (($job.read.clat_ns.percentile["99.000000"] // 0) / 1000000),
+          (($job.write.clat_ns.percentile["99.000000"] // 0) / 1000000),
+          (($job.read.clat_ns.percentile["99.900000"] // 0) / 1000000),
+          (($job.write.clat_ns.percentile["99.900000"] // 0) / 1000000),
+          ($job.error // 0)
+        ] | @csv | sub("^\\\"RESULT\\\","; "RESULT,")
+      ' "${output}"
+    }
+
+    run_all_profiles() {
+      for pass in $(seq 1 "${PASSES}"); do
+        run_profile seq-write-1m "${client_id}-${pass}" write 1m
+        run_profile seq-read-1m "${client_id}-${pass}" read 1m
+        run_profile rand-write-4k "${client_id}-${pass}" randwrite 4k
+        run_profile rand-read-4k "${client_id}-${pass}" randread 4k
+        run_profile randrw-4k-70r30w "${client_id}-${pass}" randrw 4k 70
+        run_profile sync-write-4k "${client_id}-${pass}" write 4k "" 1
+      done
+    }
+
+    if [ "${RUN_MODE}" = "concurrent" ]; then
+      touch "${barrier_dir}/${CLIENT_NODE}.ready"
+      wait_for_count "${barrier_dir}/*.ready" "${EXPECTED_CONCURRENT_CLIENTS}" "all concurrent clients"
+    fi
+
+    echo "controlled ${RUN_MODE} run starting for ${backend} on ${CLIENT_NODE}"
+    run_warmup
+    run_all_profiles
+    rm -f "${fio_file}"
+    echo "controlled ${RUN_MODE} run complete for ${backend} on ${CLIENT_NODE}"
