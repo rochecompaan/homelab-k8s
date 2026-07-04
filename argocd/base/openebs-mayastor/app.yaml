@@ -51,6 +51,15 @@ spec:
               storageClass: local-path
             preUpgradeJob:
               enabled: false
+            tolerations:
+              - key: drbd.linbit.com/lost-quorum
+                operator: Exists
+                effect: NoSchedule
+          nats:
+            tolerations:
+              - key: drbd.linbit.com/lost-quorum
+                operator: Exists
+                effect: NoSchedule
           localpv-provisioner:
             enabled: false
           loki:
