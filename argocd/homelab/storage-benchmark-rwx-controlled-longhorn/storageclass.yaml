@@ -20,5 +20,7 @@ parameters:
   fromBackup: ""
   fsType: ext4
   numberOfReplicas: "3"
+  shareManagerNodeSelector: kubernetes.io/hostname:fordyce
+  shareManagerTolerations: drbd.linbit.com/lost-quorum=:NoSchedule
   staleReplicaTimeout: "30"
   unmapMarkSnapChainRemoved: ignored
