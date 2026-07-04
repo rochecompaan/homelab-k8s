@@ -28,6 +28,10 @@ spec:
     spec:
       nodeSelector:
         kubernetes.io/hostname: fordyce
+      tolerations:
+        - key: drbd.linbit.com/lost-quorum
+          operator: Exists
+          effect: NoSchedule
       containers:
         - name: anchor
           image: alpine:3.20

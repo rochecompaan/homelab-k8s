@@ -13,6 +13,10 @@ spec:
   restartPolicy: Always
   nodeSelector:
     kubernetes.io/hostname: dauwalter
+  tolerations:
+    - key: drbd.linbit.com/lost-quorum
+      operator: Exists
+      effect: NoSchedule
   containers:
     - name: proof
       image: alpine:3.20
@@ -45,6 +49,10 @@ spec:
   restartPolicy: Always
   nodeSelector:
     kubernetes.io/hostname: selassie
+  tolerations:
+    - key: drbd.linbit.com/lost-quorum
+      operator: Exists
+      effect: NoSchedule
   containers:
     - name: proof
       image: alpine:3.20
