@@ -29,6 +29,9 @@ resources:
   - ../../base/kyverno
   - ../../base/longhorn
   - ../../base/longhorn-admission-hooks
+  - ../../base/openebs-mayastor
+  - ../../base/csi-driver-nfs-rwx-controlled
+  - ../../base/storage-benchmark-rwx-controlled-mayastor
   - ../../base/reflector
   - ../../base/sealed-secrets
   - ../../base/speedtest-exporter
