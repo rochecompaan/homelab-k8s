@@ -30,7 +30,6 @@ resources:
   - ../../base/longhorn
   - ../../base/longhorn-admission-hooks
   - ../../base/piraeus-operator
-  - ../../base/storage-benchmark-rwx-controlled-piraeus
   - ../../base/reflector
   - ../../base/sealed-secrets
   - ../../base/speedtest-exporter
