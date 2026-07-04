@@ -62,14 +62,14 @@ data:
 
     run_profile() {
       profile="$1"
-      pass="$2"
+      profile_pass="$2"
       rw="$3"
       bs="$4"
       rwmixread="${5:-}"
       iodepth="${6:-16}"
       result_dir="/volume/results/${backend}/${client_id}/$(date -u +%Y%m%dT%H%M%SZ)"
       mkdir -p "${result_dir}"
-      output="${result_dir}/${profile}-pass-${pass}.json"
+      output="${result_dir}/${profile}-pass-${profile_pass}.json"
 
       fio \
         --name="${profile}" \
@@ -89,7 +89,7 @@ data:
         ${rwmixread:+--rwmixread="${rwmixread}"} \
         --output="${output}"
 
-      jq -r --arg backend "${backend}" --arg profile "${profile}" --arg pass "${pass}" '
+      jq -r --arg backend "${backend}" --arg profile "${profile}" --arg pass "${profile_pass}" '
         .jobs[0] as $job |
         [
           "RESULT", $backend, $profile, $pass,
@@ -108,13 +108,13 @@ data:
     }
 
     run_all_profiles() {
-      for pass in $(seq 1 "${PASSES}"); do
-        run_profile seq-write-1m "${client_id}-${pass}" write 1m
-        run_profile seq-read-1m "${client_id}-${pass}" read 1m
-        run_profile rand-write-4k "${client_id}-${pass}" randwrite 4k
-        run_profile rand-read-4k "${client_id}-${pass}" randread 4k
-        run_profile randrw-4k-70r30w "${client_id}-${pass}" randrw 4k 70
-        run_profile sync-write-4k "${client_id}-${pass}" write 4k "" 1
+      for run_pass in $(seq 1 "${PASSES}"); do
+        run_profile seq-write-1m "${client_id}-${run_pass}" write 1m
+        run_profile seq-read-1m "${client_id}-${run_pass}" read 1m
+        run_profile rand-write-4k "${client_id}-${run_pass}" randwrite 4k
+        run_profile rand-read-4k "${client_id}-${run_pass}" randread 4k
+        run_profile randrw-4k-70r30w "${client_id}-${run_pass}" randrw 4k 70
+        run_profile sync-write-4k "${client_id}-${run_pass}" write 4k "" 1
       done
     }
 
