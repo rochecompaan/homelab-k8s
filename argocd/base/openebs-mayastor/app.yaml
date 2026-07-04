@@ -38,12 +38,28 @@ spec:
         mayastor:
           alloy:
             enabled: false
+          agents:
+            ha:
+              node:
+                tolerations:
+                  - key: drbd.linbit.com/lost-quorum
+                    operator: Exists
+                    effect: NoSchedule
+          io_engine:
+            tolerations:
+              - key: drbd.linbit.com/lost-quorum
+                operator: Exists
+                effect: NoSchedule
           csi:
             node:
               topology:
                 nodeSelector: true
                 segments:
                   openebs.io/engine: mayastor
+              tolerations:
+                - key: drbd.linbit.com/lost-quorum
+                  operator: Exists
+                  effect: NoSchedule
           etcd:
             replicaCount: 3
             podAntiAffinityPreset: soft
