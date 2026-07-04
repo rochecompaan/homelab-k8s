@@ -45,6 +45,7 @@ spec:
                 segments:
                   openebs.io/engine: mayastor
           etcd:
+            replicaCount: 0
             podAntiAffinityPreset: soft
             localpvScConfig:
               enabled: false
