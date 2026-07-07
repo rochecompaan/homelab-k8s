@@ -16,6 +16,17 @@ spec:
       valuesObject:
         configs:
           cm:
+            url: https://argocd.compaan
+            oidc.config: |
+              name: Authentik
+              issuer: https://auth.compaan/application/o/argocd/
+              clientID: argocd
+              clientSecret: $argocd-authentik-oidc:clientSecret
+              requestedScopes:
+                - openid
+                - profile
+                - email
+                - groups
             kustomize.buildOptions: --enable-helm
             resource.customizations: |
               networking.k8s.io/Ingress:
@@ -28,6 +39,11 @@ spec:
             controller.repo.server.timeout.seconds: "300"
             server.insecure: true
             server.repo.server.timeout.seconds: "300"
+          rbac:
+            policy.default: ""
+            policy.csv: |
+              g, homelab-admins, role:admin
+            scopes: "[groups]"
         repoServer:
           env:
             - name: ARGOCD_EXEC_TIMEOUT

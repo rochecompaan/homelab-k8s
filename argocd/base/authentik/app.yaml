@@ -1,0 +1,66 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: authentik
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '2'
+spec:
+  project: default
+  source:
+    chart: authentik
+    repoURL: https://charts.goauthentik.io
+    targetRevision: 2026.5.3
+    helm:
+      releaseName: authentik
+      valuesObject:
+        global:
+          env:
+            - name: AUTHENTIK_POSTGRESQL__HOST
+              value: authentik-postgres-rw.authentik.svc.cluster.local
+            - name: AUTHENTIK_POSTGRESQL__NAME
+              value: authentik
+            - name: AUTHENTIK_POSTGRESQL__USER
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-postgres-app
+                  key: username
+            - name: AUTHENTIK_POSTGRESQL__PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-postgres-app
+                  key: password
+            - name: AUTHENTIK_POSTGRESQL__PORT
+              value: "5432"
+        authentik:
+          existingSecret:
+            secretName: authentik-config
+        postgresql:
+          enabled: false
+        server:
+          ingress:
+            enabled: true
+            annotations:
+              cert-manager.io/cluster-issuer: compaan-ca
+            ingressClassName: traefik
+            hosts:
+              - auth.compaan
+            tls:
+              - secretName: authentik-compaan-tls
+                hosts:
+                  - auth.compaan
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: authentik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+    syncOptions:
+      - CreateNamespace=true

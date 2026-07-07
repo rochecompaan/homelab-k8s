@@ -164,6 +164,12 @@ garage-bucket-create-public bucket key:
 
 mail-secrets: seal-webmutt-secret seal-openclaw-mail-secret
 
+seal-authentik-config-secret:
+  scripts/seal-authentik-secrets.sh authentik-config
+
+seal-argocd-authentik-oidc-secret:
+  scripts/seal-authentik-secrets.sh argocd-oidc
+
 seal-webmutt-secret:
   kubectl create secret generic webmutt-gmail-secret \
     --namespace webmutt \
