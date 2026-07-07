@@ -8,6 +8,8 @@ spec:
   name: authentik
   roleAttributes:
     - authentik
+  router:
+    name: ziti-router
   configs:
     intercept:
       protocols:
