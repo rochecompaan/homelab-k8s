@@ -20,7 +20,7 @@ spec:
             oidc.config: |
               name: Authentik
               issuer: https://auth.compaan/application/o/argocd/
-              clientID: argocd
+              clientID: k46iK9q1AM7Y0bDtPJIdxI3cSALfUkGcyynHV1Sh
               clientSecret: $argocd-authentik-oidc:clientSecret
               requestedScopes:
                 - openid
