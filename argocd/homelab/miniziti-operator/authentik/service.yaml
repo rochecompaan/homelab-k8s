@@ -1,0 +1,23 @@
+---
+apiVersion: ziti.sixfeetup.com/v1alpha1
+kind: ZitiService
+metadata:
+  name: authentik
+  namespace: ziti
+spec:
+  name: authentik
+  roleAttributes:
+    - authentik
+  configs:
+    intercept:
+      protocols:
+        - tcp
+      addresses:
+        - auth.compaan
+      portRanges:
+        - low: 443
+          high: 443
+    host:
+      protocol: tcp
+      address: traefik.kube-system.svc.cluster.local
+      port: 443

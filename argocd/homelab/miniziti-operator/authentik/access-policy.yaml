@@ -1,0 +1,14 @@
+---
+apiVersion: ziti.sixfeetup.com/v1alpha1
+kind: ZitiAccessPolicy
+metadata:
+  name: authentik-dial
+  namespace: ziti
+spec:
+  type: Dial
+  identitySelector:
+    matchRoleAttributes:
+      - admin
+  serviceSelector:
+    matchNames:
+      - authentik
