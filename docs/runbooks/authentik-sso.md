@@ -35,7 +35,7 @@ Create an Authentik OAuth2/OpenID provider and application with these values:
 - Provider/application name: `ArgoCD`
 - Slug: `argocd`
 - Client type: Confidential
-- Client ID: `argocd`
+- Client ID: use the Authentik-generated provider Client ID and keep `argocd/base/argocd/app.yaml` in sync.
 - Redirect URI: `https://argocd.compaan/auth/callback`
 - Signing key: Authentik default signing key
 - Scopes: `openid`, `profile`, `email`, `groups`
@@ -87,6 +87,18 @@ Expected outcomes:
 - ArgoCD local admin login still works.
 - ArgoCD SSO login works for a user in `homelab-admins`.
 - A user outside `homelab-admins` does not receive admin privileges.
+
+## Rollout Notes
+
+2026-07-07 rollout result:
+
+- Authentik is reachable at `https://auth.compaan` over Ziti via Traefik and the `compaan-ca` TLS certificate.
+- ArgoCD SSO login through Authentik was verified by an admin user in `homelab-admins`.
+- The Authentik provider uses an Authentik-generated Client ID; ArgoCD `configs.cm.oidc.config.clientID` must match that generated value.
+- ArgoCD trusts the private `compaan-ca` through `configs.cm.oidc.config.rootCA` so it can query the Authentik OIDC discovery endpoint.
+- The ArgoCD OIDC client secret is stored in `private/login/argocd.compaan-authentik-oidc` and sealed to `argocd/homelab/infra/argocd-authentik-oidc-secret.yaml`.
+- The Authentik Ziti service requires both Dial access and router hosting. `argocd/homelab/miniziti-operator/authentik/service.yaml` sets `spec.router.name: ziti-router`, and `access-policy.yaml` grants Dial access to the `admin` OpenZiti role.
+- Non-admin ArgoCD authorization should still be checked when a suitable non-admin Authentik user is available.
 
 ## Recovery
 
