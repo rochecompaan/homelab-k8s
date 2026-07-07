@@ -27,6 +27,36 @@ spec:
                 - profile
                 - email
                 - groups
+              rootCA: |
+                -----BEGIN CERTIFICATE-----
+                MIIE+jCCAuKgAwIBAgIUP9mAl1URXwHX6UsUrTsX7JxebKYwDQYJKoZIhvcNAQEN
+                BQAwFTETMBEGA1UEAxMKY29tcGFhbi1jYTAeFw0yNjA1MTYxNzQyNDJaFw0zNjA1
+                MTMxNzQyNDJaMBUxEzARBgNVBAMTCmNvbXBhYW4tY2EwggIiMA0GCSqGSIb3DQEB
+                AQUAA4ICDwAwggIKAoICAQDcHW8WPrPHGLAuMR8fO7gaCekYfkcP/44SELzB1THG
+                /+v7jFP+UtONvhoxqIH8FcDGvO8VgHYJpSG6InLMrESaV2TgqpRAJST9wZURuqWp
+                wsyveOZKK5tgQkmHQILJxnGrKMPTZL8QG9QkLALD8+9rmcGEX9vxZB3+tCjJK4lw
+                hD6Z5pUhqmxEQqp8tBkMDlWKHfyaei3lhqccLZ7aB+1RS00liZ8lPzkuL0cy5rHF
+                AJUholv9AHclyUe6u2axuRLCnVRhO6yoWQYxU5kBFwcHPPwxFtUrWbRlDV0oQEt4
+                F+lnx52U1m0o+JaSr4IQgR9XBZJawKZy7h811dTggSDIHak8rJ+RdNeu3K3CfPQ+
+                t1wE2MUxeOs1iK4SIE8CX02B++jx792CoVxtUGkdMtS5E/wo1RJoUwQ8NSYbPLpp
+                rJUWm+csKkawP7wKu1A/ZoikDuQxUMMm1e+rfq5pkDOdoTy5Hrsi9ifRijmOOME2
+                wTlD4fl3RBVkpGDatgGt8Y23PNY2tFWVDiGeD27e/Q7G8X/+VLoOZmrejMw15+gR
+                tmh8z+m5stnQrX/Q29Daoi3iCFLC67g5/zwPQ9BfIDCwl1QCRdd22MkzZ1ejLNsY
+                XCLN1AvU0Zf6UeCT5IS0ohA3AK4I/7LfI9t2SXoUdN7hV+4yahWG4h3JWeilZ5Kx
+                zQIDAQABo0IwQDAOBgNVHQ8BAf8EBAMCAqQwDwYDVR0TAQH/BAUwAwEB/zAdBgNV
+                HQ4EFgQUJYG1G9kem/7zEqd5dI1d7JlY17cwDQYJKoZIhvcNAQENBQADggIBAA8E
+                npR3khGfFrQxT2WqK2IwWFazdrQSrGOKBJBfCBiQyU+g9p7JiVPj7XiRP41KXNp0
+                4UIWwaMpOzlu6DXHrtpyDXRLj5KeSTZWUcsd7hoCGbFIaz9L0wCZhWUaqdVW4k9C
+                faxhpsvdOdr90ELaK1i6Th/Mlah+ff474TU1SsUTNyZoacJh3WMp6ajZFD3YjSFV
+                9m1D3YMfwts3uinN4mGvrd5WysMh5/soLaiTuWvXTsvmIfcUUhUhyKFSn7xZAFdi
+                REPt4phGqjBdRoLamiDsHHdC6JlAj0pZU5IPJGlGhlJmPX5G6gHLGiz3P239fOg/
+                gdCe7nY6bRsZrz9i+B1P6NL+Mw28Zcz5uhQR+PlZL/ILHjVDwh5vrbI/CJdH0eco
+                KOo+7dL/enxLWoFqM2yN1ESlhimUR/oQz0SyBZppz0TMPOyzUL/SGTM/3GRuw38L
+                3/kNfje/V0D1VoetQpd2cSdT1lTNRsyiXysnoe98qYqCXR4Q0bOjAkVmR7MxwJhT
+                2A4DykokPrUtNB74MxyeMA7C3HBA1hRHMuz5H33R5G5pXOePPKEcq6QRb8rDdcTS
+                5HTxQ6d4Vjnw9ciFNltcBkJvaanjUQmZSAyjiB8lvDao1fN2x7UbMwR+aSSOjOjQ
+                psVfj8RC0NCB/pqsOLVbKn7ow274u07+LdIbPkJX
+                -----END CERTIFICATE-----
             kustomize.buildOptions: --enable-helm
             resource.customizations: |
               networking.k8s.io/Ingress:
