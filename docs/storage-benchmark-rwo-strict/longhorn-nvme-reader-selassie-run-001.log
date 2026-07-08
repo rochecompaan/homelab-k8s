@@ -1,0 +1,14 @@
+RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors
+-rw-r--r-- 1 0 0 16G Jul  8 13:48 /volume/fio-test-file
+READER_START,backend=longhorn-nvme,reader_node=selassie,fio_file=/volume/fio-test-file
+RESULT,"longhorn-nvme-rwo-strict-selassie","seq-read-1m","selassie-1",108.087881,0.000000,108.33735179901123,0,148.030406318391,0,471.8592,0,530.579456,0,541.065216,0,0
+RESULT,"longhorn-nvme-rwo-strict-selassie","rand-read-4k","selassie-1",19130.228992,0.000000,74.72843265533447,0,0.826624458882,0,1.417216,0,1.695744,0,2.37568,0,0
+RESULT,"longhorn-nvme-rwo-strict-selassie","seq-read-1m","selassie-2",108.069452,0.000000,108.31891918182373,0,148.018001583908,0,425.721856,0,467.664896,0,492.83072,0,0
+RESULT,"longhorn-nvme-rwo-strict-selassie","rand-read-4k","selassie-2",19195.846736,0.000000,74.98481750488281,0,0.823618712389,0,1.417216,0,1.712128,0,2.37568,0,0
+RESULT,"longhorn-nvme-rwo-strict-selassie","seq-read-1m","selassie-3",108.072592,0.000000,108.32210445404053,0,148.028335609337,0,408.94464,0,442.499072,0,463.470592,0,0
+RESULT,"longhorn-nvme-rwo-strict-selassie","rand-read-4k","selassie-3",19077.448709,0.000000,74.52232551574707,0,0.828881218602,0,1.417216,0,1.695744,0,2.277376,0,0
+RESULT,"longhorn-nvme-rwo-strict-selassie","seq-read-1m","selassie-4",108.075299,0.000000,108.32474136352539,0,148.030847468069,0,467.664896,0,522.190848,0,557.842432,0,0
+RESULT,"longhorn-nvme-rwo-strict-selassie","rand-read-4k","selassie-4",19006.249896,0.000000,74.24413967132568,0,0.8322220324190001,0,1.4336,0,1.712128,0,2.441216,0,0
+RESULT,"longhorn-nvme-rwo-strict-selassie","seq-read-1m","selassie-5",108.077096,0.000000,108.32654190063477,0,148.003546988333,0,471.8592,0,517.996544,0,530.579456,0,0
+RESULT,"longhorn-nvme-rwo-strict-selassie","rand-read-4k","selassie-5",19081.748638,0.000000,74.5390567779541,0,0.82871675773,0,1.417216,0,1.712128,0,2.441216,0,0
+READER_COMPLETE,backend=longhorn-nvme,reader_node=selassie,fio_file=/volume/fio-test-file

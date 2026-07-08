@@ -1,0 +1,2 @@
+NAME                                                     READY   STATUS      RESTARTS   AGE   IP            NODE       NOMINATED NODE   READINESS GATES
+longhorn-nvme-rwo-strict-reader-selassie-run-001-wsp9n   0/1     Completed   0          12m   10.42.2.206   selassie   <none>           <none>

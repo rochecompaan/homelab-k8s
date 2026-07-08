@@ -1,0 +1,2 @@
+NAME                                                      READY   STATUS      RESTARTS   AGE   IP            NODE        NOMINATED NODE   READINESS GATES
+longhorn-nvme-rwo-strict-reader-dauwalter-run-001-52tl7   0/1     Completed   0          12m   10.42.0.174   dauwalter   <none>           <none>

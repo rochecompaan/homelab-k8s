@@ -1,0 +1,2 @@
+NAME                                                    READY   STATUS      RESTARTS   AGE     IP            NODE      NOMINATED NODE   READINESS GATES
+longhorn-nvme-rwo-strict-writer-fordyce-run-001-zdzxs   0/1     Completed   0          8m11s   10.42.3.154   fordyce   <none>           <none>

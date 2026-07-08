@@ -1,0 +1,14 @@
+RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors
+-rw-r--r-- 1 0 0 16G Jul  8 13:48 /volume/fio-test-file
+READER_START,backend=longhorn-nvme,reader_node=dauwalter,fio_file=/volume/fio-test-file
+RESULT,"longhorn-nvme-rwo-strict-dauwalter","seq-read-1m","dauwalter-1",161.052614,0.000000,161.30212688446045,0,99.33886170001,0,308.281344,0,337.641472,0,358.612992,0,0
+RESULT,"longhorn-nvme-rwo-strict-dauwalter","rand-read-4k","dauwalter-1",18976.783720,0.000000,74.12903785705566,0,0.830723161216,0,1.204224,0,1.581056,0,2.441216,0,0
+RESULT,"longhorn-nvme-rwo-strict-dauwalter","seq-read-1m","dauwalter-2",161.483970,0.000000,161.7334041595459,0,99.08804302704101,0,404.750336,0,413.138944,0,463.470592,0,0
+RESULT,"longhorn-nvme-rwo-strict-dauwalter","rand-read-4k","dauwalter-2",17497.241713,0.000000,68.34957695007324,0,0.900849453723,0,1.286144,0,1.662976,0,2.310144,0,0
+RESULT,"longhorn-nvme-rwo-strict-dauwalter","seq-read-1m","dauwalter-3",161.092355,0.000000,161.3418264389038,0,99.307847101742,0,329.252864,0,333.447168,0,346.03008,0,0
+RESULT,"longhorn-nvme-rwo-strict-dauwalter","rand-read-4k","dauwalter-3",16832.602790,0.000000,65.7533311843872,0,0.936167934643,0,1.335296,0,1.744896,0,2.736128,0,0
+RESULT,"longhorn-nvme-rwo-strict-dauwalter","seq-read-1m","dauwalter-4",161.043021,0.000000,161.2924680709839,0,99.312373790494,0,308.281344,0,337.641472,0,383.778816,0,0
+RESULT,"longhorn-nvme-rwo-strict-dauwalter","rand-read-4k","dauwalter-4",16647.178427,0.000000,65.02901649475098,0,0.946416825572,0,1.368064,0,1.777664,0,2.670592,0,0
+RESULT,"longhorn-nvme-rwo-strict-dauwalter","seq-read-1m","dauwalter-5",160.566097,0.000000,160.8155517578125,0,99.660762553051,0,413.138944,0,425.721856,0,480.247808,0,0
+RESULT,"longhorn-nvme-rwo-strict-dauwalter","rand-read-4k","dauwalter-5",16403.836539,0.000000,64.07852745056152,0,0.960360969268,0,1.368064,0,1.794048,0,2.801664,0,0
+READER_COMPLETE,backend=longhorn-nvme,reader_node=dauwalter,fio_file=/volume/fio-test-file
