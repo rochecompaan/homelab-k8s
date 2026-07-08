@@ -8,3 +8,4 @@ resources:
   - fio-script-configmap.yaml
   - writer-job.yaml
   - reader-dauwalter-job.yaml
+  - reader-selassie-job.yaml
