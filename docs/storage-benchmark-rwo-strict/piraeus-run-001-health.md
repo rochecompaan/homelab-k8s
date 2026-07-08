@@ -19,7 +19,7 @@ pvc-e1455cd2-5669-4156-b3d0-4e1bb60a3b26   20Gi       RWO            Delete     
 +----------------------------------------------------------------------------------------------------------------------+
 [1;33mSkipDisk[0m:
   At least one resource has 'DrbdOptions/SkipDisk' enabled. This indicates an IO error on the
-  affected resource(s). Remove this property (using 'linstor resource set-property $node $rsc DrbdOptions/SkipDisk') 
+  affected resource(s). Remove this property (using 'linstor resource set-property $node $rsc DrbdOptions/SkipDisk')
   to instruct LINSTOR and DRBD to adjust (and recreate if necessary) the affected logical volumes again.
   For more information please visit: https://linbit.com/drbd-user-guide/linstor-guide-1_0-en/#s-linstor-drbd-skip-disk
 
@@ -33,7 +33,7 @@ pvc-e1455cd2-5669-4156-b3d0-4e1bb60a3b26   20Gi       RWO            Delete     
 +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 [1;33mSkipDisk[0m:
   At least one resource has 'DrbdOptions/SkipDisk' enabled. This indicates an IO error on the
-  affected resource(s). Remove this property (using 'linstor resource set-property $node $rsc DrbdOptions/SkipDisk') 
+  affected resource(s). Remove this property (using 'linstor resource set-property $node $rsc DrbdOptions/SkipDisk')
   to instruct LINSTOR and DRBD to adjust (and recreate if necessary) the affected logical volumes again.
   For more information please visit: https://linbit.com/drbd-user-guide/linstor-guide-1_0-en/#s-linstor-drbd-skip-disk
 
@@ -72,7 +72,7 @@ pod/piraeus-rwo-strict-writer-fordyce-run-001-pz2xh     0/1     Completed   0   
 +----------------------------------------------------------------------------------------------------------------------+
 [1;33mSkipDisk[0m:
   At least one resource has 'DrbdOptions/SkipDisk' enabled. This indicates an IO error on the
-  affected resource(s). Remove this property (using 'linstor resource set-property $node $rsc DrbdOptions/SkipDisk') 
+  affected resource(s). Remove this property (using 'linstor resource set-property $node $rsc DrbdOptions/SkipDisk')
   to instruct LINSTOR and DRBD to adjust (and recreate if necessary) the affected logical volumes again.
   For more information please visit: https://linbit.com/drbd-user-guide/linstor-guide-1_0-en/#s-linstor-drbd-skip-disk
 
@@ -86,7 +86,7 @@ pod/piraeus-rwo-strict-writer-fordyce-run-001-pz2xh     0/1     Completed   0   
 +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 [1;33mSkipDisk[0m:
   At least one resource has 'DrbdOptions/SkipDisk' enabled. This indicates an IO error on the
-  affected resource(s). Remove this property (using 'linstor resource set-property $node $rsc DrbdOptions/SkipDisk') 
+  affected resource(s). Remove this property (using 'linstor resource set-property $node $rsc DrbdOptions/SkipDisk')
   to instruct LINSTOR and DRBD to adjust (and recreate if necessary) the affected logical volumes again.
   For more information please visit: https://linbit.com/drbd-user-guide/linstor-guide-1_0-en/#s-linstor-drbd-skip-disk
 
