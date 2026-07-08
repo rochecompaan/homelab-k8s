@@ -4,7 +4,7 @@
 
 **Goal:** Build and run a replicated RWO read-after-write benchmark where `fordyce` writes the fio test file and separate reader Jobs on `dauwalter` and `selassie` measure read-only performance.
 
-**Architecture:** Add dormant ArgoCD applications for Piraeus/LINSTOR, Longhorn NVMe, and Mayastor strict RWO benchmarks. Each app owns a PVC, fio script ConfigMap, writer Job, and one reader Job file per reader node so GitOps can activate phases sequentially without RWO multi-attach races. Capture raw logs, placement evidence, summaries, and a final comparison under `docs/storage-benchmark-rwo-strict/`.
+**Architecture:** Add dormant ArgoCD applications for Piraeus/LINSTOR, Longhorn NVMe, and Mayastor strict RWO benchmarks. Each app owns a PVC, fio script ConfigMap, writer Job, and one reader Job file per reader node so GitOps can activate phases sequentially without RWO multi-attach races. Execute Longhorn and Mayastor before Piraeus/LINSTOR so the Piraeus/LINSTOR benchmark runs last. Capture raw logs, placement evidence, summaries, and a final comparison under `docs/storage-benchmark-rwo-strict/`.
 
 **Tech Stack:** Kubernetes batch Jobs, ArgoCD Applications, Kustomize, fio, jq, shell scripts, existing `scripts/summarize-storage-benchmark.py`, Markdown documentation.
 
@@ -17,6 +17,9 @@
 - Writer must fully write `/volume/fio-test-file` with `--direct=1`, `--rw=write`, `--bs=1m`, and `--size=16G`.
 - Reader Jobs must run read-only profiles only: `seq-read-1m` and `rand-read-4k`.
 - Reader results are different-consumer-node reads with locality allowed, not cold remote/no-replica reads.
+- Run benchmark execution in this backend order: Longhorn NVMe, Mayastor, then Piraeus/LINSTOR last.
+- ArgoCD sync/prune polling must stop after at most 5 minutes to inspect Application status. If sync is stuck, stop polling, make Git fixes, and only then terminate the stuck ArgoCD operation through approved ArgoCD controls.
+- Benchmark Job polling must stop after at most 10 minutes to inspect Job, pod, and log progress before starting another polling interval.
 - Do not run direct-write cluster commands such as `kubectl apply`, `kubectl patch`, `kubectl delete`, or `helm upgrade`.
 - Cluster state changes must be made in this repo and delivered through Git so ArgoCD reconciles them.
 - New ArgoCD Applications stay dormant by default; do not add them to `argocd/homelab/apps/kustomization.yaml` in the manifest implementation commits.
@@ -703,21 +706,52 @@ cat > docs/storage-benchmark-rwo-strict/runbook.md <<'EOF'
 - Run one backend app at a time.
 - Run one reader node at a time for each backend so the RWO PVC is mounted by only one reader consumer.
 - Do not run legacy `storage-benchmark-v2-*` or `storage-benchmark-rwx-*` benchmark apps at the same time as the strict RWO benchmark.
+- Run backends in this order: Longhorn NVMe, Mayastor, then Piraeus/LINSTOR last.
+- Stop ArgoCD sync/prune polling after 5 minutes, inspect Application status, make any Git fixes, and only then terminate a stuck ArgoCD operation through approved ArgoCD controls.
+- Stop benchmark Job polling after 10 minutes, inspect Job/pod/log progress, and only start another 10-minute polling interval after recording what changed or what is still running.
+
+## Run order
+
+Run strict RWO backends in this order:
+
+1. Longhorn NVMe
+2. Mayastor
+3. Piraeus/LINSTOR last
+
+Piraeus/LINSTOR runs last because it is the backend whose original v2 read result motivated this strict-placement benchmark.
 
 ## Backend map
 
 | Backend | ArgoCD app base path | Homelab path | PVC | Writer Job | Dauwalter reader Job | Selassie reader Job |
 | --- | --- | --- | --- | --- | --- | --- |
-| Piraeus/LINSTOR | `argocd/base/storage-benchmark-rwo-strict-piraeus` | `argocd/homelab/storage-benchmark-rwo-strict-piraeus` | `piraeus-rwo-strict-pvc-run-001` | `piraeus-rwo-strict-writer-fordyce-run-001` | `piraeus-rwo-strict-reader-dauwalter-run-001` | `piraeus-rwo-strict-reader-selassie-run-001` |
 | Longhorn NVMe | `argocd/base/storage-benchmark-rwo-strict-longhorn` | `argocd/homelab/storage-benchmark-rwo-strict-longhorn` | `longhorn-nvme-rwo-strict-pvc-run-001` | `longhorn-nvme-rwo-strict-writer-fordyce-run-001` | `longhorn-nvme-rwo-strict-reader-dauwalter-run-001` | `longhorn-nvme-rwo-strict-reader-selassie-run-001` |
 | Mayastor | `argocd/base/storage-benchmark-rwo-strict-mayastor` | `argocd/homelab/storage-benchmark-rwo-strict-mayastor` | `mayastor-rwo-strict-pvc-run-001` | `mayastor-rwo-strict-writer-fordyce-run-001` | `mayastor-rwo-strict-reader-dauwalter-run-001` | `mayastor-rwo-strict-reader-selassie-run-001` |
+| Piraeus/LINSTOR | `argocd/base/storage-benchmark-rwo-strict-piraeus` | `argocd/homelab/storage-benchmark-rwo-strict-piraeus` | `piraeus-rwo-strict-pvc-run-001` | `piraeus-rwo-strict-writer-fordyce-run-001` | `piraeus-rwo-strict-reader-dauwalter-run-001` | `piraeus-rwo-strict-reader-selassie-run-001` |
+
+## ArgoCD polling checkpoint
+
+Use this 5-minute ArgoCD polling checkpoint after every activation, reader-enable, and cleanup commit. Replace `APP` with the active ArgoCD Application name. Do not poll longer than 5 minutes without checking status.
+
+```bash
+app=APP
+for attempt in $(seq 1 30); do
+  kubectl -n argocd get application "${app}" -o jsonpath='{.status.sync.status} {.status.health.status}{"\n"}' || true
+  sleep 10
+done
+kubectl -n argocd describe application "${app}"
+kubectl -n argocd get application "${app}" -o yaml > "docs/storage-benchmark-rwo-strict/${app}-argocd-timeout.yaml"
+echo "Reached 5-minute ArgoCD polling checkpoint for ${app}; inspect status, make Git fixes, and only then terminate a stuck operation through approved ArgoCD controls." >&2
+exit 1
+```
+
+If the app syncs before the 5-minute checkpoint, continue to the benchmark Job checks. If the app is stuck, stop and fix the Git state before any operation termination.
 
 ## Activate writer phase for one backend
 
 1. Add one app base path to `argocd/homelab/apps/kustomization.yaml`.
 2. Commit with a subject such as `chore(storage): activate piraeus strict RWO writer`.
 3. Merge or fast-forward the commit onto the branch ArgoCD tracks.
-4. Wait for ArgoCD automated sync to create the Application and writer Job.
+4. Poll ArgoCD for at most 5 minutes using the ArgoCD polling checkpoint below; if the app is still stuck, inspect and fix before continuing.
 5. Confirm the writer Job completed with read-only commands:
 
 ```bash
@@ -726,6 +760,21 @@ kubectl -n storage-benchmark-rwo-strict logs job/piraeus-rwo-strict-writer-fordy
 ```
 
 For Longhorn and Mayastor, replace the Job name with the name from the backend map.
+
+## Benchmark Job polling checkpoint
+
+Every benchmark Job wait uses a 10-minute checkpoint. If a Job is still running after 10 minutes, inspect Job state, pod placement, and recent logs before starting another wait interval. Do not let an agent poll a benchmark Job for more than 10 minutes without checking progress.
+
+```bash
+job=JOB_NAME
+backend=BACKEND_LABEL
+kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete "job/${job}" --timeout=10m || {
+  kubectl -n storage-benchmark-rwo-strict get jobs,pods -o wide -l "storage.compaan.io/backend=${backend}"
+  kubectl -n storage-benchmark-rwo-strict logs "job/${job}" --tail=80 || true
+  echo "Reached 10-minute benchmark polling checkpoint for ${job}; inspect progress before continuing." >&2
+  exit 1
+}
+```
 
 ## Capture writer evidence
 
@@ -813,7 +862,7 @@ python3 scripts/summarize-storage-benchmark.py \
 1. Remove the active strict RWO app path from `argocd/homelab/apps/kustomization.yaml`.
 2. Commit with a subject such as `chore(storage): deactivate piraeus strict RWO benchmark`.
 3. Merge or fast-forward the cleanup commit onto the branch ArgoCD tracks.
-4. Wait for ArgoCD automated prune to remove the benchmark resources.
+4. Poll ArgoCD prune for at most 5 minutes using the ArgoCD polling checkpoint; if prune is stuck, inspect and fix before continuing.
 5. Capture post-cleanup app and namespace status in the backend health document.
 EOF
 ```
@@ -984,7 +1033,300 @@ Expected when fixes were needed: commit succeeds and contains only validation-dr
 
 ---
 
-### Task 4: Run Piraeus strict RWO benchmark and capture artifacts
+### Task 4: Run Longhorn and Mayastor strict RWO benchmarks and capture artifacts
+
+**Files:**
+- Modify during activation: `argocd/homelab/apps/kustomization.yaml`
+- Modify during reader phases: `argocd/homelab/storage-benchmark-rwo-strict-longhorn/kustomization.yaml`
+- Modify during reader phases: `argocd/homelab/storage-benchmark-rwo-strict-mayastor/kustomization.yaml`
+- Create after Longhorn run: `docs/storage-benchmark-rwo-strict/longhorn-nvme-writer-fordyce-run-001.log`
+- Create after Longhorn run: `docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-dauwalter-run-001.log`
+- Create after Longhorn run: `docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-selassie-run-001.log`
+- Create after Longhorn run: `docs/storage-benchmark-rwo-strict/longhorn-nvme-run-001-health.md`
+- Create after Longhorn run: `docs/storage-benchmark-rwo-strict/longhorn-nvme-run-001-summary.md`
+- Create after Mayastor run: `docs/storage-benchmark-rwo-strict/mayastor-writer-fordyce-run-001.log`
+- Create after Mayastor run: `docs/storage-benchmark-rwo-strict/mayastor-reader-dauwalter-run-001.log`
+- Create after Mayastor run: `docs/storage-benchmark-rwo-strict/mayastor-reader-selassie-run-001.log`
+- Create after Mayastor run: `docs/storage-benchmark-rwo-strict/mayastor-run-001-health.md`
+- Create after Mayastor run: `docs/storage-benchmark-rwo-strict/mayastor-run-001-summary.md`
+
+**Interfaces:**
+- Consumes: dormant Longhorn and Mayastor manifests from Task 1.
+- Produces: Longhorn and Mayastor strict RWO results and placement evidence used by the final comparison.
+
+- [ ] **Step 1: Activate the Longhorn writer through GitOps**
+
+Run:
+
+```bash
+python3 - <<'PY'
+from pathlib import Path
+path = Path('argocd/homelab/apps/kustomization.yaml')
+text = path.read_text()
+line = '  - ../../base/storage-benchmark-rwo-strict-longhorn\n'
+if line not in text:
+    marker = '  - ../../base/longhorn-admission-hooks\n'
+    text = text.replace(marker, marker + line)
+path.write_text(text)
+PY
+git add argocd/homelab/apps/kustomization.yaml
+git commit -m "chore(storage): activate longhorn strict RWO writer"
+```
+
+Expected: commit succeeds. Deliver this commit through the normal signed Git flow to the branch ArgoCD tracks.
+
+- [ ] **Step 2: Wait for Longhorn writer completion and capture evidence**
+
+After the activation commit, poll ArgoCD for at most 5 minutes before checking the Job. Then run:
+
+```bash
+kubectl -n storage-benchmark-rwo-strict get jobs,pods -o wide -l storage.compaan.io/backend=longhorn-nvme
+kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/longhorn-nvme-rwo-strict-writer-fordyce-run-001 --timeout=10m || {
+  kubectl -n storage-benchmark-rwo-strict get jobs,pods -o wide -l storage.compaan.io/backend=longhorn-nvme
+  kubectl -n storage-benchmark-rwo-strict logs job/longhorn-nvme-rwo-strict-writer-fordyce-run-001 --tail=80 || true
+  echo "Reached 10-minute benchmark polling checkpoint for longhorn-nvme-rwo-strict-writer-fordyce-run-001; inspect progress before continuing." >&2
+  exit 1
+}
+kubectl -n storage-benchmark-rwo-strict logs job/longhorn-nvme-rwo-strict-writer-fordyce-run-001 > docs/storage-benchmark-rwo-strict/longhorn-nvme-writer-fordyce-run-001.log
+{
+  echo '# Longhorn NVMe strict RWO run 001 health'
+  echo
+  echo '## Pod placement'
+  kubectl -n storage-benchmark-rwo-strict get pod -o wide -l storage.compaan.io/backend=longhorn-nvme
+  echo
+  echo '## PVC and PV identity'
+  kubectl -n storage-benchmark-rwo-strict get pvc longhorn-nvme-rwo-strict-pvc-run-001 -o wide
+  kubectl get pv -o wide | grep longhorn-nvme-rwo-strict-pvc-run-001 || true
+  echo
+  echo '## Longhorn volumes'
+  kubectl -n longhorn-system get volumes.longhorn.io -o wide
+  echo
+  echo '## Longhorn replicas'
+  kubectl -n longhorn-system get replicas.longhorn.io -o wide
+  echo
+  echo '## Longhorn engines'
+  kubectl -n longhorn-system get engines.longhorn.io -o wide
+} > docs/storage-benchmark-rwo-strict/longhorn-nvme-run-001-health.md
+grep 'WRITER_COMPLETE' docs/storage-benchmark-rwo-strict/longhorn-nvme-writer-fordyce-run-001.log
+```
+
+Expected: wait exits 0, writer log contains `WRITER_COMPLETE`, and the writer pod `NODE` column is `fordyce`.
+
+- [ ] **Step 3: Enable and run the Longhorn `dauwalter` reader**
+
+Run:
+
+```bash
+python3 - <<'PY'
+from pathlib import Path
+path = Path('argocd/homelab/storage-benchmark-rwo-strict-longhorn/kustomization.yaml')
+text = path.read_text()
+line = '  - reader-dauwalter-job.yaml\n'
+if line not in text:
+    text = text.replace('  - writer-job.yaml\n', '  - writer-job.yaml\n' + line)
+path.write_text(text)
+PY
+git add argocd/homelab/storage-benchmark-rwo-strict-longhorn/kustomization.yaml
+git commit -m "chore(storage): activate longhorn strict RWO dauwalter reader"
+```
+
+Deliver the commit through Git. Poll ArgoCD for at most 5 minutes before checking the Job. Then run:
+
+```bash
+kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/longhorn-nvme-rwo-strict-reader-dauwalter-run-001 --timeout=10m || {
+  kubectl -n storage-benchmark-rwo-strict get jobs,pods -o wide -l storage.compaan.io/backend=longhorn-nvme
+  kubectl -n storage-benchmark-rwo-strict logs job/longhorn-nvme-rwo-strict-reader-dauwalter-run-001 --tail=80 || true
+  echo "Reached 10-minute benchmark polling checkpoint for longhorn-nvme-rwo-strict-reader-dauwalter-run-001; inspect progress before continuing." >&2
+  exit 1
+}
+kubectl -n storage-benchmark-rwo-strict logs job/longhorn-nvme-rwo-strict-reader-dauwalter-run-001 > docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-dauwalter-run-001.log
+grep '^RESULT,' docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-dauwalter-run-001.log
+```
+
+Expected: wait exits 0 and the log has `RESULT` rows for `seq-read-1m` and `rand-read-4k`.
+
+- [ ] **Step 4: Enable and run the Longhorn `selassie` reader, summarize, and commit**
+
+Run:
+
+```bash
+python3 - <<'PY'
+from pathlib import Path
+path = Path('argocd/homelab/storage-benchmark-rwo-strict-longhorn/kustomization.yaml')
+text = path.read_text()
+line = '  - reader-selassie-job.yaml\n'
+if line not in text:
+    text = text.replace('  - reader-dauwalter-job.yaml\n', '  - reader-dauwalter-job.yaml\n' + line)
+path.write_text(text)
+PY
+git add argocd/homelab/storage-benchmark-rwo-strict-longhorn/kustomization.yaml
+git commit -m "chore(storage): activate longhorn strict RWO selassie reader"
+```
+
+Deliver the commit through Git. Poll ArgoCD for at most 5 minutes before checking the Job. Then run:
+
+```bash
+kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/longhorn-nvme-rwo-strict-reader-selassie-run-001 --timeout=10m || {
+  kubectl -n storage-benchmark-rwo-strict get jobs,pods -o wide -l storage.compaan.io/backend=longhorn-nvme
+  kubectl -n storage-benchmark-rwo-strict logs job/longhorn-nvme-rwo-strict-reader-selassie-run-001 --tail=80 || true
+  echo "Reached 10-minute benchmark polling checkpoint for longhorn-nvme-rwo-strict-reader-selassie-run-001; inspect progress before continuing." >&2
+  exit 1
+}
+kubectl -n storage-benchmark-rwo-strict logs job/longhorn-nvme-rwo-strict-reader-selassie-run-001 > docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-selassie-run-001.log
+grep '^RESULT,' docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-selassie-run-001.log
+python3 scripts/summarize-storage-benchmark.py \
+  docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-dauwalter-run-001.log \
+  docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-selassie-run-001.log \
+  > docs/storage-benchmark-rwo-strict/longhorn-nvme-run-001-summary.md
+git add \
+  docs/storage-benchmark-rwo-strict/longhorn-nvme-writer-fordyce-run-001.log \
+  docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-dauwalter-run-001.log \
+  docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-selassie-run-001.log \
+  docs/storage-benchmark-rwo-strict/longhorn-nvme-run-001-health.md \
+  docs/storage-benchmark-rwo-strict/longhorn-nvme-run-001-summary.md
+git commit -m "docs(storage): add longhorn strict RWO benchmark results"
+```
+
+Expected: summary contains only `longhorn-nvme-rwo-strict-dauwalter` and `longhorn-nvme-rwo-strict-selassie` read rows.
+
+- [ ] **Step 5: Activate the Mayastor writer through GitOps**
+
+Run:
+
+```bash
+python3 - <<'PY'
+from pathlib import Path
+path = Path('argocd/homelab/apps/kustomization.yaml')
+text = path.read_text()
+line = '  - ../../base/storage-benchmark-rwo-strict-mayastor\n'
+if line not in text:
+    marker = '  - ../../base/longhorn-admission-hooks\n'
+    text = text.replace(marker, marker + line)
+path.write_text(text)
+PY
+git add argocd/homelab/apps/kustomization.yaml
+git commit -m "chore(storage): activate mayastor strict RWO writer"
+```
+
+Expected: commit succeeds. Deliver this commit through the normal signed Git flow to the branch ArgoCD tracks.
+
+- [ ] **Step 6: Wait for Mayastor writer completion and capture evidence**
+
+After the activation commit, poll ArgoCD for at most 5 minutes before checking the Job. Then run:
+
+```bash
+kubectl -n storage-benchmark-rwo-strict get jobs,pods -o wide -l storage.compaan.io/backend=mayastor
+kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/mayastor-rwo-strict-writer-fordyce-run-001 --timeout=10m || {
+  kubectl -n storage-benchmark-rwo-strict get jobs,pods -o wide -l storage.compaan.io/backend=mayastor
+  kubectl -n storage-benchmark-rwo-strict logs job/mayastor-rwo-strict-writer-fordyce-run-001 --tail=80 || true
+  echo "Reached 10-minute benchmark polling checkpoint for mayastor-rwo-strict-writer-fordyce-run-001; inspect progress before continuing." >&2
+  exit 1
+}
+kubectl -n storage-benchmark-rwo-strict logs job/mayastor-rwo-strict-writer-fordyce-run-001 > docs/storage-benchmark-rwo-strict/mayastor-writer-fordyce-run-001.log
+{
+  echo '# Mayastor strict RWO run 001 health'
+  echo
+  echo '## Pod placement'
+  kubectl -n storage-benchmark-rwo-strict get pod -o wide -l storage.compaan.io/backend=mayastor
+  echo
+  echo '## PVC and PV identity'
+  kubectl -n storage-benchmark-rwo-strict get pvc mayastor-rwo-strict-pvc-run-001 -o wide
+  kubectl get pv -o wide | grep mayastor-rwo-strict-pvc-run-001 || true
+  echo
+  echo '## Mayastor disk pools'
+  kubectl -n openebs get diskpools.openebs.io -o wide
+  echo
+  echo '## Mayastor volumes'
+  kubectl get volumes.openebs.io -A -o wide || true
+  echo
+  echo '## Mayastor replicas'
+  kubectl get replicas.openebs.io -A -o wide || true
+} > docs/storage-benchmark-rwo-strict/mayastor-run-001-health.md
+grep 'WRITER_COMPLETE' docs/storage-benchmark-rwo-strict/mayastor-writer-fordyce-run-001.log
+```
+
+Expected: wait exits 0, writer log contains `WRITER_COMPLETE`, and the writer pod `NODE` column is `fordyce`.
+
+- [ ] **Step 7: Enable and run the Mayastor `dauwalter` reader**
+
+Run:
+
+```bash
+python3 - <<'PY'
+from pathlib import Path
+path = Path('argocd/homelab/storage-benchmark-rwo-strict-mayastor/kustomization.yaml')
+text = path.read_text()
+line = '  - reader-dauwalter-job.yaml\n'
+if line not in text:
+    text = text.replace('  - writer-job.yaml\n', '  - writer-job.yaml\n' + line)
+path.write_text(text)
+PY
+git add argocd/homelab/storage-benchmark-rwo-strict-mayastor/kustomization.yaml
+git commit -m "chore(storage): activate mayastor strict RWO dauwalter reader"
+```
+
+Deliver the commit through Git. Poll ArgoCD for at most 5 minutes before checking the Job. Then run:
+
+```bash
+kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/mayastor-rwo-strict-reader-dauwalter-run-001 --timeout=10m || {
+  kubectl -n storage-benchmark-rwo-strict get jobs,pods -o wide -l storage.compaan.io/backend=mayastor
+  kubectl -n storage-benchmark-rwo-strict logs job/mayastor-rwo-strict-reader-dauwalter-run-001 --tail=80 || true
+  echo "Reached 10-minute benchmark polling checkpoint for mayastor-rwo-strict-reader-dauwalter-run-001; inspect progress before continuing." >&2
+  exit 1
+}
+kubectl -n storage-benchmark-rwo-strict logs job/mayastor-rwo-strict-reader-dauwalter-run-001 > docs/storage-benchmark-rwo-strict/mayastor-reader-dauwalter-run-001.log
+grep '^RESULT,' docs/storage-benchmark-rwo-strict/mayastor-reader-dauwalter-run-001.log
+```
+
+Expected: wait exits 0 and the log has `RESULT` rows for `seq-read-1m` and `rand-read-4k`.
+
+- [ ] **Step 8: Enable and run the Mayastor `selassie` reader, summarize, and commit**
+
+Run:
+
+```bash
+python3 - <<'PY'
+from pathlib import Path
+path = Path('argocd/homelab/storage-benchmark-rwo-strict-mayastor/kustomization.yaml')
+text = path.read_text()
+line = '  - reader-selassie-job.yaml\n'
+if line not in text:
+    text = text.replace('  - reader-dauwalter-job.yaml\n', '  - reader-dauwalter-job.yaml\n' + line)
+path.write_text(text)
+PY
+git add argocd/homelab/storage-benchmark-rwo-strict-mayastor/kustomization.yaml
+git commit -m "chore(storage): activate mayastor strict RWO selassie reader"
+```
+
+Deliver the commit through Git. Poll ArgoCD for at most 5 minutes before checking the Job. Then run:
+
+```bash
+kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/mayastor-rwo-strict-reader-selassie-run-001 --timeout=10m || {
+  kubectl -n storage-benchmark-rwo-strict get jobs,pods -o wide -l storage.compaan.io/backend=mayastor
+  kubectl -n storage-benchmark-rwo-strict logs job/mayastor-rwo-strict-reader-selassie-run-001 --tail=80 || true
+  echo "Reached 10-minute benchmark polling checkpoint for mayastor-rwo-strict-reader-selassie-run-001; inspect progress before continuing." >&2
+  exit 1
+}
+kubectl -n storage-benchmark-rwo-strict logs job/mayastor-rwo-strict-reader-selassie-run-001 > docs/storage-benchmark-rwo-strict/mayastor-reader-selassie-run-001.log
+grep '^RESULT,' docs/storage-benchmark-rwo-strict/mayastor-reader-selassie-run-001.log
+python3 scripts/summarize-storage-benchmark.py \
+  docs/storage-benchmark-rwo-strict/mayastor-reader-dauwalter-run-001.log \
+  docs/storage-benchmark-rwo-strict/mayastor-reader-selassie-run-001.log \
+  > docs/storage-benchmark-rwo-strict/mayastor-run-001-summary.md
+git add \
+  docs/storage-benchmark-rwo-strict/mayastor-writer-fordyce-run-001.log \
+  docs/storage-benchmark-rwo-strict/mayastor-reader-dauwalter-run-001.log \
+  docs/storage-benchmark-rwo-strict/mayastor-reader-selassie-run-001.log \
+  docs/storage-benchmark-rwo-strict/mayastor-run-001-health.md \
+  docs/storage-benchmark-rwo-strict/mayastor-run-001-summary.md
+git commit -m "docs(storage): add mayastor strict RWO benchmark results"
+```
+
+Expected: summary contains only `mayastor-rwo-strict-dauwalter` and `mayastor-rwo-strict-selassie` read rows.
+
+---
+
+### Task 5: Run Piraeus strict RWO benchmark and capture artifacts
 
 **Files:**
 - Modify during activation: `argocd/homelab/apps/kustomization.yaml`
@@ -1022,11 +1364,16 @@ Expected: commit succeeds. Deliver this commit through the normal signed Git flo
 
 - [ ] **Step 2: Wait for Piraeus writer completion with read-only commands**
 
-Run after ArgoCD reconciles the activation commit:
+After the activation commit, poll ArgoCD for at most 5 minutes before checking the Job. Then run:
 
 ```bash
 kubectl -n storage-benchmark-rwo-strict get jobs,pods -o wide -l storage.compaan.io/backend=piraeus
-kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/piraeus-rwo-strict-writer-fordyce-run-001 --timeout=8h
+kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/piraeus-rwo-strict-writer-fordyce-run-001 --timeout=10m || {
+  kubectl -n storage-benchmark-rwo-strict get jobs,pods -o wide -l storage.compaan.io/backend=piraeus
+  kubectl -n storage-benchmark-rwo-strict logs job/piraeus-rwo-strict-writer-fordyce-run-001 --tail=80 || true
+  echo "Reached 10-minute benchmark polling checkpoint for piraeus-rwo-strict-writer-fordyce-run-001; inspect progress before continuing." >&2
+  exit 1
+}
 kubectl -n storage-benchmark-rwo-strict get pod -o wide -l storage.compaan.io/phase=writer,storage.compaan.io/backend=piraeus
 ```
 
@@ -1077,10 +1424,15 @@ git add argocd/homelab/storage-benchmark-rwo-strict-piraeus/kustomization.yaml
 git commit -m "chore(storage): activate piraeus strict RWO dauwalter reader"
 ```
 
-Deliver the commit through Git. Then run read-only checks:
+Deliver the commit through Git. Poll ArgoCD for at most 5 minutes before checking the Job. Then run read-only checks:
 
 ```bash
-kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/piraeus-rwo-strict-reader-dauwalter-run-001 --timeout=8h
+kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/piraeus-rwo-strict-reader-dauwalter-run-001 --timeout=10m || {
+  kubectl -n storage-benchmark-rwo-strict get jobs,pods -o wide -l storage.compaan.io/backend=piraeus
+  kubectl -n storage-benchmark-rwo-strict logs job/piraeus-rwo-strict-reader-dauwalter-run-001 --tail=80 || true
+  echo "Reached 10-minute benchmark polling checkpoint for piraeus-rwo-strict-reader-dauwalter-run-001; inspect progress before continuing." >&2
+  exit 1
+}
 kubectl -n storage-benchmark-rwo-strict logs job/piraeus-rwo-strict-reader-dauwalter-run-001 > docs/storage-benchmark-rwo-strict/piraeus-reader-dauwalter-run-001.log
 grep '^RESULT,' docs/storage-benchmark-rwo-strict/piraeus-reader-dauwalter-run-001.log
 ```
@@ -1105,10 +1457,15 @@ git add argocd/homelab/storage-benchmark-rwo-strict-piraeus/kustomization.yaml
 git commit -m "chore(storage): activate piraeus strict RWO selassie reader"
 ```
 
-Deliver the commit through Git. Then run read-only checks:
+Deliver the commit through Git. Poll ArgoCD for at most 5 minutes before checking the Job. Then run read-only checks:
 
 ```bash
-kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/piraeus-rwo-strict-reader-selassie-run-001 --timeout=8h
+kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/piraeus-rwo-strict-reader-selassie-run-001 --timeout=10m || {
+  kubectl -n storage-benchmark-rwo-strict get jobs,pods -o wide -l storage.compaan.io/backend=piraeus
+  kubectl -n storage-benchmark-rwo-strict logs job/piraeus-rwo-strict-reader-selassie-run-001 --tail=80 || true
+  echo "Reached 10-minute benchmark polling checkpoint for piraeus-rwo-strict-reader-selassie-run-001; inspect progress before continuing." >&2
+  exit 1
+}
 kubectl -n storage-benchmark-rwo-strict logs job/piraeus-rwo-strict-reader-selassie-run-001 > docs/storage-benchmark-rwo-strict/piraeus-reader-selassie-run-001.log
 grep '^RESULT,' docs/storage-benchmark-rwo-strict/piraeus-reader-selassie-run-001.log
 ```
@@ -1134,269 +1491,6 @@ git commit -m "docs(storage): add piraeus strict RWO benchmark results"
 ```
 
 Expected: summary contains only `piraeus-rwo-strict-dauwalter` and `piraeus-rwo-strict-selassie` read rows.
-
----
-
-### Task 5: Run Longhorn and Mayastor strict RWO benchmarks and capture artifacts
-
-**Files:**
-- Modify during activation: `argocd/homelab/apps/kustomization.yaml`
-- Modify during reader phases: `argocd/homelab/storage-benchmark-rwo-strict-longhorn/kustomization.yaml`
-- Modify during reader phases: `argocd/homelab/storage-benchmark-rwo-strict-mayastor/kustomization.yaml`
-- Create after Longhorn run: `docs/storage-benchmark-rwo-strict/longhorn-nvme-writer-fordyce-run-001.log`
-- Create after Longhorn run: `docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-dauwalter-run-001.log`
-- Create after Longhorn run: `docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-selassie-run-001.log`
-- Create after Longhorn run: `docs/storage-benchmark-rwo-strict/longhorn-nvme-run-001-health.md`
-- Create after Longhorn run: `docs/storage-benchmark-rwo-strict/longhorn-nvme-run-001-summary.md`
-- Create after Mayastor run: `docs/storage-benchmark-rwo-strict/mayastor-writer-fordyce-run-001.log`
-- Create after Mayastor run: `docs/storage-benchmark-rwo-strict/mayastor-reader-dauwalter-run-001.log`
-- Create after Mayastor run: `docs/storage-benchmark-rwo-strict/mayastor-reader-selassie-run-001.log`
-- Create after Mayastor run: `docs/storage-benchmark-rwo-strict/mayastor-run-001-health.md`
-- Create after Mayastor run: `docs/storage-benchmark-rwo-strict/mayastor-run-001-summary.md`
-
-**Interfaces:**
-- Consumes: dormant Longhorn and Mayastor manifests from Task 1.
-- Produces: Longhorn and Mayastor strict RWO results and placement evidence used by the final comparison.
-
-- [ ] **Step 1: Activate the Longhorn writer through GitOps**
-
-Run:
-
-```bash
-python3 - <<'PY'
-from pathlib import Path
-path = Path('argocd/homelab/apps/kustomization.yaml')
-text = path.read_text()
-line = '  - ../../base/storage-benchmark-rwo-strict-longhorn\n'
-if line not in text:
-    marker = '  - ../../base/longhorn-admission-hooks\n'
-    text = text.replace(marker, marker + line)
-path.write_text(text)
-PY
-git add argocd/homelab/apps/kustomization.yaml
-git commit -m "chore(storage): activate longhorn strict RWO writer"
-```
-
-Expected: commit succeeds. Deliver this commit through the normal signed Git flow to the branch ArgoCD tracks.
-
-- [ ] **Step 2: Wait for Longhorn writer completion and capture evidence**
-
-Run after ArgoCD reconciles the activation commit:
-
-```bash
-kubectl -n storage-benchmark-rwo-strict get jobs,pods -o wide -l storage.compaan.io/backend=longhorn-nvme
-kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/longhorn-nvme-rwo-strict-writer-fordyce-run-001 --timeout=8h
-kubectl -n storage-benchmark-rwo-strict logs job/longhorn-nvme-rwo-strict-writer-fordyce-run-001 > docs/storage-benchmark-rwo-strict/longhorn-nvme-writer-fordyce-run-001.log
-{
-  echo '# Longhorn NVMe strict RWO run 001 health'
-  echo
-  echo '## Pod placement'
-  kubectl -n storage-benchmark-rwo-strict get pod -o wide -l storage.compaan.io/backend=longhorn-nvme
-  echo
-  echo '## PVC and PV identity'
-  kubectl -n storage-benchmark-rwo-strict get pvc longhorn-nvme-rwo-strict-pvc-run-001 -o wide
-  kubectl get pv -o wide | grep longhorn-nvme-rwo-strict-pvc-run-001 || true
-  echo
-  echo '## Longhorn volumes'
-  kubectl -n longhorn-system get volumes.longhorn.io -o wide
-  echo
-  echo '## Longhorn replicas'
-  kubectl -n longhorn-system get replicas.longhorn.io -o wide
-  echo
-  echo '## Longhorn engines'
-  kubectl -n longhorn-system get engines.longhorn.io -o wide
-} > docs/storage-benchmark-rwo-strict/longhorn-nvme-run-001-health.md
-grep 'WRITER_COMPLETE' docs/storage-benchmark-rwo-strict/longhorn-nvme-writer-fordyce-run-001.log
-```
-
-Expected: wait exits 0, writer log contains `WRITER_COMPLETE`, and the writer pod `NODE` column is `fordyce`.
-
-- [ ] **Step 3: Enable and run the Longhorn `dauwalter` reader**
-
-Run:
-
-```bash
-python3 - <<'PY'
-from pathlib import Path
-path = Path('argocd/homelab/storage-benchmark-rwo-strict-longhorn/kustomization.yaml')
-text = path.read_text()
-line = '  - reader-dauwalter-job.yaml\n'
-if line not in text:
-    text = text.replace('  - writer-job.yaml\n', '  - writer-job.yaml\n' + line)
-path.write_text(text)
-PY
-git add argocd/homelab/storage-benchmark-rwo-strict-longhorn/kustomization.yaml
-git commit -m "chore(storage): activate longhorn strict RWO dauwalter reader"
-```
-
-Deliver the commit through Git. Then run:
-
-```bash
-kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/longhorn-nvme-rwo-strict-reader-dauwalter-run-001 --timeout=8h
-kubectl -n storage-benchmark-rwo-strict logs job/longhorn-nvme-rwo-strict-reader-dauwalter-run-001 > docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-dauwalter-run-001.log
-grep '^RESULT,' docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-dauwalter-run-001.log
-```
-
-Expected: wait exits 0 and the log has `RESULT` rows for `seq-read-1m` and `rand-read-4k`.
-
-- [ ] **Step 4: Enable and run the Longhorn `selassie` reader, summarize, and commit**
-
-Run:
-
-```bash
-python3 - <<'PY'
-from pathlib import Path
-path = Path('argocd/homelab/storage-benchmark-rwo-strict-longhorn/kustomization.yaml')
-text = path.read_text()
-line = '  - reader-selassie-job.yaml\n'
-if line not in text:
-    text = text.replace('  - reader-dauwalter-job.yaml\n', '  - reader-dauwalter-job.yaml\n' + line)
-path.write_text(text)
-PY
-git add argocd/homelab/storage-benchmark-rwo-strict-longhorn/kustomization.yaml
-git commit -m "chore(storage): activate longhorn strict RWO selassie reader"
-```
-
-Deliver the commit through Git. Then run:
-
-```bash
-kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/longhorn-nvme-rwo-strict-reader-selassie-run-001 --timeout=8h
-kubectl -n storage-benchmark-rwo-strict logs job/longhorn-nvme-rwo-strict-reader-selassie-run-001 > docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-selassie-run-001.log
-grep '^RESULT,' docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-selassie-run-001.log
-python3 scripts/summarize-storage-benchmark.py \
-  docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-dauwalter-run-001.log \
-  docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-selassie-run-001.log \
-  > docs/storage-benchmark-rwo-strict/longhorn-nvme-run-001-summary.md
-git add \
-  docs/storage-benchmark-rwo-strict/longhorn-nvme-writer-fordyce-run-001.log \
-  docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-dauwalter-run-001.log \
-  docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-selassie-run-001.log \
-  docs/storage-benchmark-rwo-strict/longhorn-nvme-run-001-health.md \
-  docs/storage-benchmark-rwo-strict/longhorn-nvme-run-001-summary.md
-git commit -m "docs(storage): add longhorn strict RWO benchmark results"
-```
-
-Expected: summary contains only `longhorn-nvme-rwo-strict-dauwalter` and `longhorn-nvme-rwo-strict-selassie` read rows.
-
-- [ ] **Step 5: Activate the Mayastor writer through GitOps**
-
-Run:
-
-```bash
-python3 - <<'PY'
-from pathlib import Path
-path = Path('argocd/homelab/apps/kustomization.yaml')
-text = path.read_text()
-line = '  - ../../base/storage-benchmark-rwo-strict-mayastor\n'
-if line not in text:
-    marker = '  - ../../base/longhorn-admission-hooks\n'
-    text = text.replace(marker, marker + line)
-path.write_text(text)
-PY
-git add argocd/homelab/apps/kustomization.yaml
-git commit -m "chore(storage): activate mayastor strict RWO writer"
-```
-
-Expected: commit succeeds. Deliver this commit through the normal signed Git flow to the branch ArgoCD tracks.
-
-- [ ] **Step 6: Wait for Mayastor writer completion and capture evidence**
-
-Run after ArgoCD reconciles the activation commit:
-
-```bash
-kubectl -n storage-benchmark-rwo-strict get jobs,pods -o wide -l storage.compaan.io/backend=mayastor
-kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/mayastor-rwo-strict-writer-fordyce-run-001 --timeout=8h
-kubectl -n storage-benchmark-rwo-strict logs job/mayastor-rwo-strict-writer-fordyce-run-001 > docs/storage-benchmark-rwo-strict/mayastor-writer-fordyce-run-001.log
-{
-  echo '# Mayastor strict RWO run 001 health'
-  echo
-  echo '## Pod placement'
-  kubectl -n storage-benchmark-rwo-strict get pod -o wide -l storage.compaan.io/backend=mayastor
-  echo
-  echo '## PVC and PV identity'
-  kubectl -n storage-benchmark-rwo-strict get pvc mayastor-rwo-strict-pvc-run-001 -o wide
-  kubectl get pv -o wide | grep mayastor-rwo-strict-pvc-run-001 || true
-  echo
-  echo '## Mayastor disk pools'
-  kubectl -n openebs get diskpools.openebs.io -o wide
-  echo
-  echo '## Mayastor volumes'
-  kubectl get volumes.openebs.io -A -o wide || true
-  echo
-  echo '## Mayastor replicas'
-  kubectl get replicas.openebs.io -A -o wide || true
-} > docs/storage-benchmark-rwo-strict/mayastor-run-001-health.md
-grep 'WRITER_COMPLETE' docs/storage-benchmark-rwo-strict/mayastor-writer-fordyce-run-001.log
-```
-
-Expected: wait exits 0, writer log contains `WRITER_COMPLETE`, and the writer pod `NODE` column is `fordyce`.
-
-- [ ] **Step 7: Enable and run the Mayastor `dauwalter` reader**
-
-Run:
-
-```bash
-python3 - <<'PY'
-from pathlib import Path
-path = Path('argocd/homelab/storage-benchmark-rwo-strict-mayastor/kustomization.yaml')
-text = path.read_text()
-line = '  - reader-dauwalter-job.yaml\n'
-if line not in text:
-    text = text.replace('  - writer-job.yaml\n', '  - writer-job.yaml\n' + line)
-path.write_text(text)
-PY
-git add argocd/homelab/storage-benchmark-rwo-strict-mayastor/kustomization.yaml
-git commit -m "chore(storage): activate mayastor strict RWO dauwalter reader"
-```
-
-Deliver the commit through Git. Then run:
-
-```bash
-kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/mayastor-rwo-strict-reader-dauwalter-run-001 --timeout=8h
-kubectl -n storage-benchmark-rwo-strict logs job/mayastor-rwo-strict-reader-dauwalter-run-001 > docs/storage-benchmark-rwo-strict/mayastor-reader-dauwalter-run-001.log
-grep '^RESULT,' docs/storage-benchmark-rwo-strict/mayastor-reader-dauwalter-run-001.log
-```
-
-Expected: wait exits 0 and the log has `RESULT` rows for `seq-read-1m` and `rand-read-4k`.
-
-- [ ] **Step 8: Enable and run the Mayastor `selassie` reader, summarize, and commit**
-
-Run:
-
-```bash
-python3 - <<'PY'
-from pathlib import Path
-path = Path('argocd/homelab/storage-benchmark-rwo-strict-mayastor/kustomization.yaml')
-text = path.read_text()
-line = '  - reader-selassie-job.yaml\n'
-if line not in text:
-    text = text.replace('  - reader-dauwalter-job.yaml\n', '  - reader-dauwalter-job.yaml\n' + line)
-path.write_text(text)
-PY
-git add argocd/homelab/storage-benchmark-rwo-strict-mayastor/kustomization.yaml
-git commit -m "chore(storage): activate mayastor strict RWO selassie reader"
-```
-
-Deliver the commit through Git. Then run:
-
-```bash
-kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete job/mayastor-rwo-strict-reader-selassie-run-001 --timeout=8h
-kubectl -n storage-benchmark-rwo-strict logs job/mayastor-rwo-strict-reader-selassie-run-001 > docs/storage-benchmark-rwo-strict/mayastor-reader-selassie-run-001.log
-grep '^RESULT,' docs/storage-benchmark-rwo-strict/mayastor-reader-selassie-run-001.log
-python3 scripts/summarize-storage-benchmark.py \
-  docs/storage-benchmark-rwo-strict/mayastor-reader-dauwalter-run-001.log \
-  docs/storage-benchmark-rwo-strict/mayastor-reader-selassie-run-001.log \
-  > docs/storage-benchmark-rwo-strict/mayastor-run-001-summary.md
-git add \
-  docs/storage-benchmark-rwo-strict/mayastor-writer-fordyce-run-001.log \
-  docs/storage-benchmark-rwo-strict/mayastor-reader-dauwalter-run-001.log \
-  docs/storage-benchmark-rwo-strict/mayastor-reader-selassie-run-001.log \
-  docs/storage-benchmark-rwo-strict/mayastor-run-001-health.md \
-  docs/storage-benchmark-rwo-strict/mayastor-run-001-summary.md
-git commit -m "docs(storage): add mayastor strict RWO benchmark results"
-```
-
-Expected: summary contains only `mayastor-rwo-strict-dauwalter` and `mayastor-rwo-strict-selassie` read rows.
 
 ---
 
