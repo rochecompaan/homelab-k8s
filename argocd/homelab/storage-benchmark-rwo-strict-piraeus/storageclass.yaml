@@ -1,0 +1,16 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: piraeus-rwo-strict-3r
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    storage.compaan.io/benchmark: rwo-strict
+    storage.compaan.io/backend: piraeus
+provisioner: linstor.csi.linbit.com
+allowVolumeExpansion: false
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  linstor.csi.linbit.com/storagePool: linstor-bench
+  linstor.csi.linbit.com/placementCount: "3"

@@ -1,0 +1,74 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: longhorn-nvme-rwo-strict-reader-selassie-run-001
+  namespace: storage-benchmark-rwo-strict
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+  labels:
+    app.kubernetes.io/name: storage-benchmark-rwo-strict
+    storage.compaan.io/benchmark: rwo-strict
+    storage.compaan.io/backend: longhorn-nvme
+    storage.compaan.io/phase: reader
+    storage.compaan.io/writer-node: fordyce
+    storage.compaan.io/reader-node: selassie
+spec:
+  activeDeadlineSeconds: 21600
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+            app.kubernetes.io/name: storage-benchmark-rwo-strict
+            storage.compaan.io/benchmark: rwo-strict
+            storage.compaan.io/backend: longhorn-nvme
+            storage.compaan.io/phase: reader
+            storage.compaan.io/writer-node: fordyce
+            storage.compaan.io/reader-node: selassie
+    spec:
+      restartPolicy: Never
+      tolerations:
+        - key: drbd.linbit.com/lost-quorum
+          operator: Exists
+          effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - selassie
+      containers:
+        - name: fio
+          image: nixery.dev/shell/fio/jq/coreutils
+          env:
+            - name: BACKEND
+              value: longhorn-nvme
+            - name: PASSES
+              value: "5"
+            - name: FIO_SIZE
+              value: 16G
+            - name: FIO_RUNTIME
+              value: "60"
+            - name: FIO_RAMP
+              value: "10"
+            - name: ROLE
+              value: reader
+            - name: READER_NODE
+              value: selassie
+          command: ["/bin/sh", "/scripts/fio-rwo-strict.sh"]
+          volumeMounts:
+            - name: data
+              mountPath: /volume
+            - name: script
+              mountPath: /scripts
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: longhorn-nvme-rwo-strict-pvc-run-001
+        - name: script
+          configMap:
+            name: longhorn-nvme-rwo-strict-fio-script
+            defaultMode: 0555

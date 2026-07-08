@@ -1,0 +1,137 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: piraeus-rwo-strict-fio-script
+  namespace: storage-benchmark-rwo-strict
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  labels:
+    app.kubernetes.io/name: storage-benchmark-rwo-strict
+    storage.compaan.io/benchmark: rwo-strict
+    storage.compaan.io/backend: piraeus
+data:
+  fio-rwo-strict.sh: |
+    #!/bin/sh
+    set -eu
+
+    ROLE="${ROLE:?ROLE is required}"
+    BACKEND="${BACKEND:?BACKEND is required}"
+    PASSES="${PASSES:-5}"
+    FIO_SIZE="${FIO_SIZE:-16G}"
+    FIO_RUNTIME="${FIO_RUNTIME:-60}"
+    FIO_RAMP="${FIO_RAMP:-10}"
+    FIO_FILE="/volume/fio-test-file"
+
+    mkdir -p /volume/results
+
+    echo "RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors"
+
+    run_writer() {
+      writer_node="${WRITER_NODE:?WRITER_NODE is required}"
+      result_dir="/volume/results/${BACKEND}-writer/${writer_node}/$(date -u +%Y%m%dT%H%M%SZ)"
+      mkdir -p "${result_dir}"
+
+      echo "WRITER,backend=${BACKEND},writer_node=${writer_node},fio_file=${FIO_FILE},fio_size=${FIO_SIZE},result_dir=${result_dir}"
+
+      fio \
+        --name=precondition-write \
+        --filename="${FIO_FILE}" \
+        --rw=write \
+        --bs=1m \
+        --size="${FIO_SIZE}" \
+        --ioengine=libaio \
+        --iodepth=16 \
+        --numjobs=1 \
+        --direct=1 \
+        --group_reporting \
+        --output-format=json \
+        --output="${result_dir}/precondition-write.json"
+
+      sync
+      ls -lh "${FIO_FILE}"
+      echo "WRITER_COMPLETE,backend=${BACKEND},writer_node=${writer_node},fio_file=${FIO_FILE}"
+    }
+
+    run_profile() {
+      profile="$1"
+      profile_pass="$2"
+      rw="$3"
+      bs="$4"
+      reader_node="${READER_NODE:?READER_NODE is required}"
+      result_backend="${BACKEND}-rwo-strict-${reader_node}"
+      result_dir="/volume/results/${result_backend}/$(date -u +%Y%m%dT%H%M%SZ)"
+      mkdir -p "${result_dir}"
+      output="${result_dir}/${profile}-pass-${profile_pass}.json"
+
+      fio \
+        --name="${profile}" \
+        --filename="${FIO_FILE}" \
+        --rw="${rw}" \
+        --bs="${bs}" \
+        --size="${FIO_SIZE}" \
+        --ioengine=libaio \
+        --iodepth=16 \
+        --numjobs=1 \
+        --direct=1 \
+        --time_based \
+        --runtime="${FIO_RUNTIME}" \
+        --ramp_time="${FIO_RAMP}" \
+        --group_reporting \
+        --output-format=json \
+        --output="${output}"
+
+      jq -r --arg backend "${result_backend}" --arg profile "${profile}" --arg pass "${profile_pass}" '
+        .jobs[0] as $job |
+        [
+          "RESULT",
+          $backend,
+          $profile,
+          $pass,
+          ($job.read.iops // 0),
+          ($job.write.iops // 0),
+          (($job.read.bw_bytes // 0) / 1048576),
+          (($job.write.bw_bytes // 0) / 1048576),
+          (($job.read.clat_ns.mean // 0) / 1000000),
+          (($job.write.clat_ns.mean // 0) / 1000000),
+          (($job.read.clat_ns.percentile["95.000000"] // 0) / 1000000),
+          (($job.write.clat_ns.percentile["95.000000"] // 0) / 1000000),
+          (($job.read.clat_ns.percentile["99.000000"] // 0) / 1000000),
+          (($job.write.clat_ns.percentile["99.000000"] // 0) / 1000000),
+          (($job.read.clat_ns.percentile["99.900000"] // 0) / 1000000),
+          (($job.write.clat_ns.percentile["99.900000"] // 0) / 1000000),
+          ($job.error // 0)
+        ] | @csv | sub("^\\\"RESULT\\\","; "RESULT,")
+      ' "${output}"
+    }
+
+    run_reader() {
+      reader_node="${READER_NODE:?READER_NODE is required}"
+
+      if [ ! -f "${FIO_FILE}" ]; then
+        echo "missing preconditioned fio file: ${FIO_FILE}" >&2
+        exit 1
+      fi
+
+      ls -lh "${FIO_FILE}"
+      echo "READER_START,backend=${BACKEND},reader_node=${reader_node},fio_file=${FIO_FILE}"
+
+      for run_pass in $(seq 1 "${PASSES}"); do
+        run_profile seq-read-1m "${reader_node}-${run_pass}" read 1m
+        run_profile rand-read-4k "${reader_node}-${run_pass}" randread 4k
+      done
+
+      echo "READER_COMPLETE,backend=${BACKEND},reader_node=${reader_node},fio_file=${FIO_FILE}"
+    }
+
+    case "${ROLE}" in
+      writer)
+        run_writer
+        ;;
+      reader)
+        run_reader
+        ;;
+      *)
+        echo "ROLE must be writer or reader; got ${ROLE}" >&2
+        exit 1
+        ;;
+    esac
