@@ -89,3 +89,18 @@ pod/piraeus-rwo-strict-writer-fordyce-run-001-pz2xh     0/1     Completed   0   
   affected resource(s). Remove this property (using 'linstor resource set-property $node $rsc DrbdOptions/SkipDisk') 
   to instruct LINSTOR and DRBD to adjust (and recreate if necessary) the affected logical volumes again.
   For more information please visit: https://linbit.com/drbd-user-guide/linstor-guide-1_0-en/#s-linstor-drbd-skip-disk
+
+## Residual risk and acceptance caveat
+
+The Piraeus run completed all required writer and reader Jobs and produced valid
+`RESULT` rows for both required read-only profiles on both reader nodes. However,
+LINSTOR reported the `dauwalter` resource as `Diskless, SkipDisk (R)` before and
+after the reader phase, and LINSTOR describes `SkipDisk` as indicating an IO
+error on the affected resource.
+
+This means the `piraeus-rwo-strict-dauwalter` read result must not be interpreted
+as a normal local-replica or up-to-date-local-resource read on `dauwalter`. It is
+accepted for this benchmark run only with this caveat recorded, because repairing
+that LINSTOR resource would require direct LINSTOR/cluster mutation outside the
+GitOps-only benchmark workflow. The final comparison and placement audit must
+carry this caveat forward.
