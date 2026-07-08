@@ -23,7 +23,22 @@
 - Do not run direct-write cluster commands such as `kubectl apply`, `kubectl patch`, `kubectl delete`, or `helm upgrade`.
 - Cluster state changes must be made in this repo and delivered through Git so ArgoCD reconciles them.
 - New ArgoCD Applications stay dormant by default; do not add them to `argocd/homelab/apps/kustomization.yaml` in the manifest implementation commits.
+- All dormant manifest, validation, and runbook work happens first in the `strict-placement-rwo-benchmark` worktree branch and then pauses for review.
+- Do not point ArgoCD at the worktree branch. Keep every generated `Application.spec.source.targetRevision` set to `main`.
+- After review approval, merge the reviewed dormant app/runbook commits to `main` while the apps remain dormant.
+- Only after the dormant apps are on `main`, run activation, reader-enable, artifact, and cleanup commits directly on `main` so ArgoCD reconciles the branch it already tracks.
 - Use direct validation instead of new automated tests for static Kubernetes manifest content.
+
+---
+
+## Branch integration and ArgoCD target
+
+Implementation has two phases:
+
+1. **Review phase in the worktree:** create dormant benchmark apps, validation changes, and docs in the `strict-placement-rwo-benchmark` worktree branch. Stop after Task 3 for review. Do not activate ArgoCD apps from the worktree branch.
+2. **GitOps execution phase on `main`:** after review approval, merge the dormant-app work into `main` while the new apps remain absent from `argocd/homelab/apps/kustomization.yaml`. Perform Task 4 and later as signed commits on `main`, because every generated ArgoCD `Application` keeps `targetRevision: main`.
+
+Do not change `targetRevision` to the worktree branch. Branch-targeted ArgoCD testing would require a separate explicit plan and cleanup step.
 
 ---
 
@@ -750,7 +765,7 @@ If the app syncs before the 5-minute checkpoint, continue to the benchmark Job c
 
 1. Add one app base path to `argocd/homelab/apps/kustomization.yaml`.
 2. Commit with a subject such as `chore(storage): activate piraeus strict RWO writer`.
-3. Merge or fast-forward the commit onto the branch ArgoCD tracks.
+3. Merge or fast-forward the commit onto `main`, the branch ArgoCD tracks.
 4. Poll ArgoCD for at most 5 minutes using the ArgoCD polling checkpoint below; if the app is still stuck, inspect and fix before continuing.
 5. Confirm the writer Job completed with read-only commands:
 
@@ -794,7 +809,7 @@ Only run the `kubectl logs` command for the backend currently active.
 1. Edit the active backend `kustomization.yaml` and add exactly one reader file after `writer-job.yaml`.
 2. For the first reader, add `reader-dauwalter-job.yaml`.
 3. Commit with a subject such as `chore(storage): activate piraeus strict RWO dauwalter reader`.
-4. Merge or fast-forward the commit onto the branch ArgoCD tracks.
+4. Merge or fast-forward the commit onto `main`, the branch ArgoCD tracks.
 5. Wait for the reader Job to complete before enabling the next reader.
 6. Repeat the edit with `reader-selassie-job.yaml` after the `dauwalter` reader completes.
 
@@ -861,7 +876,7 @@ python3 scripts/summarize-storage-benchmark.py \
 
 1. Remove the active strict RWO app path from `argocd/homelab/apps/kustomization.yaml`.
 2. Commit with a subject such as `chore(storage): deactivate piraeus strict RWO benchmark`.
-3. Merge or fast-forward the cleanup commit onto the branch ArgoCD tracks.
+3. Merge or fast-forward the cleanup commit onto `main`, the branch ArgoCD tracks.
 4. Poll ArgoCD prune for at most 5 minutes using the ArgoCD polling checkpoint; if prune is stuck, inspect and fix before continuing.
 5. Capture post-cleanup app and namespace status in the backend health document.
 EOF
@@ -899,7 +914,9 @@ Expected: commit succeeds with only `docs/storage-benchmark-rwo-strict/` staged.
 
 ---
 
-### Task 3: Validate manifests and scripts before cluster activation
+### Task 3: Validate manifests and scripts before review handoff
+
+Stop after this task and request human review. Do not activate ArgoCD apps from the worktree branch. After review approval, merge the dormant manifest and runbook commits to `main`; only then continue with benchmark activation tasks on `main`.
 
 **Files:**
 - Read: `argocd/homelab/storage-benchmark-rwo-strict-piraeus/kustomization.yaml`
@@ -1031,9 +1048,22 @@ git commit -m "fix(storage): validate strict RWO benchmark manifests"
 
 Expected when fixes were needed: commit succeeds and contains only validation-driven corrections.
 
+- [ ] **Step 6: Pause for review and merge dormant work to `main` after approval**
+
+Run before handing off for review:
+
+```bash
+git status --short
+git log --oneline --decorate main..HEAD
+```
+
+Expected: `git status --short` is empty, and the commit list contains the dormant manifest, runbook, and validation-fix commits. Request review at this point. After review approval, merge those commits to `main` with normal signed Git workflow while the strict RWO apps remain dormant. Do not change any generated `targetRevision: main` fields, and do not add strict RWO apps to `argocd/homelab/apps/kustomization.yaml` during the merge.
+
 ---
 
 ### Task 4: Run Longhorn and Mayastor strict RWO benchmarks and capture artifacts
+
+Start this task only after review approval and merge of dormant apps to `main`. Perform activation and reader-enable commits on `main`, not on the worktree branch, because ArgoCD Applications use `targetRevision: main`.
 
 **Files:**
 - Modify during activation: `argocd/homelab/apps/kustomization.yaml`
@@ -1073,7 +1103,7 @@ git add argocd/homelab/apps/kustomization.yaml
 git commit -m "chore(storage): activate longhorn strict RWO writer"
 ```
 
-Expected: commit succeeds. Deliver this commit through the normal signed Git flow to the branch ArgoCD tracks.
+Expected: commit succeeds on `main` after dormant app review/merge. Deliver this commit through the normal signed Git flow to `main`, the branch ArgoCD tracks.
 
 - [ ] **Step 2: Wait for Longhorn writer completion and capture evidence**
 
@@ -1208,7 +1238,7 @@ git add argocd/homelab/apps/kustomization.yaml
 git commit -m "chore(storage): activate mayastor strict RWO writer"
 ```
 
-Expected: commit succeeds. Deliver this commit through the normal signed Git flow to the branch ArgoCD tracks.
+Expected: commit succeeds on `main` after dormant app review/merge. Deliver this commit through the normal signed Git flow to `main`, the branch ArgoCD tracks.
 
 - [ ] **Step 6: Wait for Mayastor writer completion and capture evidence**
 
@@ -1328,6 +1358,8 @@ Expected: summary contains only `mayastor-rwo-strict-dauwalter` and `mayastor-rw
 
 ### Task 5: Run Piraeus strict RWO benchmark and capture artifacts
 
+Run Piraeus/LINSTOR last. Start this task only after Longhorn and Mayastor artifacts are captured and committed on `main`. Perform activation and reader-enable commits on `main`, not on the worktree branch.
+
 **Files:**
 - Modify during activation: `argocd/homelab/apps/kustomization.yaml`
 - Modify during reader phase: `argocd/homelab/storage-benchmark-rwo-strict-piraeus/kustomization.yaml`
@@ -1360,7 +1392,7 @@ git add argocd/homelab/apps/kustomization.yaml
 git commit -m "chore(storage): activate piraeus strict RWO writer"
 ```
 
-Expected: commit succeeds. Deliver this commit through the normal signed Git flow to the branch ArgoCD tracks.
+Expected: commit succeeds on `main` after dormant app review/merge. Deliver this commit through the normal signed Git flow to `main`, the branch ArgoCD tracks.
 
 - [ ] **Step 2: Wait for Piraeus writer completion with read-only commands**
 
