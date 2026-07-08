@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: storage-benchmark-rwo-strict
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  labels:
+    app.kubernetes.io/name: storage-benchmark-rwo-strict
+    storage.compaan.io/benchmark: rwo-strict
