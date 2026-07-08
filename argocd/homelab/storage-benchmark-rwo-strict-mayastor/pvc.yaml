@@ -4,7 +4,7 @@ metadata:
   name: mayastor-rwo-strict-pvc-run-001
   namespace: storage-benchmark-rwo-strict
   annotations:
-    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-wave: "4"
   labels:
     app.kubernetes.io/name: storage-benchmark-rwo-strict
     storage.compaan.io/benchmark: rwo-strict
