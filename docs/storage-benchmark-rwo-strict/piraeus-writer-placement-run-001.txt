@@ -1,0 +1,2 @@
+NAME                                              READY   STATUS      RESTARTS   AGE     IP            NODE      NOMINATED NODE   READINESS GATES
+piraeus-rwo-strict-writer-fordyce-run-001-pz2xh   0/1     Completed   0          3m45s   10.42.3.163   fordyce   <none>           <none>

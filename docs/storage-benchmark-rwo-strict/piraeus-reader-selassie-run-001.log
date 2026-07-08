@@ -1,0 +1,14 @@
+RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors
+-rw-r--r-- 1 0 0 16G Jul  8 17:26 /volume/fio-test-file
+READER_START,backend=piraeus,reader_node=selassie,fio_file=/volume/fio-test-file
+RESULT,"piraeus-rwo-strict-selassie","seq-read-1m","selassie-1",2434.618141,0.000000,2434.8681030273438,0,6.495028269543,0,10.551296,0,17.956864,0,19.529728,0,0
+RESULT,"piraeus-rwo-strict-selassie","rand-read-4k","selassie-1",99156.580724,0.000000,387.3313694000244,0,0.15411753399,0,0.280576,0,0.391168,0,1.253376,0,0
+RESULT,"piraeus-rwo-strict-selassie","seq-read-1m","selassie-2",1659.312092,0.000000,1659.5620574951172,0,9.561213191802,0,16.908288,0,18.743296,0,20.840448,0,0
+RESULT,"piraeus-rwo-strict-selassie","rand-read-4k","selassie-2",98837.552707,0.000000,386.08523178100586,0,0.154474171099,0,0.280576,0,0.391168,0,1.26976,0,0
+RESULT,"piraeus-rwo-strict-selassie","seq-read-1m","selassie-3",1547.243701,0.000000,1547.4936666488647,0,10.260385513913,0,17.956864,0,18.743296,0,20.578304,0,0
+RESULT,"piraeus-rwo-strict-selassie","rand-read-4k","selassie-3",99239.996000,0.000000,387.6572103500366,0,0.153945092097,0,0.280576,0,0.387072,0,1.236992,0,0
+RESULT,"piraeus-rwo-strict-selassie","seq-read-1m","selassie-4",1541.161179,0.000000,1541.4111442565918,0,10.298862253089,0,17.956864,0,19.00544,0,30.539776,0,0
+RESULT,"piraeus-rwo-strict-selassie","rand-read-4k","selassie-4",99160.680655,0.000000,387.3473844528198,0,0.154090187711,0,0.280576,0,0.391168,0,1.253376,0,0
+RESULT,"piraeus-rwo-strict-selassie","seq-read-1m","selassie-5",1528.259131,0.000000,1528.5090637207031,0,10.389179953104,0,17.956864,0,19.00544,0,21.102592,0,0
+RESULT,"piraeus-rwo-strict-selassie","rand-read-4k","selassie-5",99215.113081,0.000000,387.560076713562,0,0.15407493093,0,0.280576,0,0.391168,0,1.253376,0,0
+READER_COMPLETE,backend=piraeus,reader_node=selassie,fio_file=/volume/fio-test-file

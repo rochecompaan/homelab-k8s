@@ -1,0 +1,14 @@
+RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors
+-rw-r--r-- 1 0 0 16G Jul  8 17:26 /volume/fio-test-file
+READER_START,backend=piraeus,reader_node=dauwalter,fio_file=/volume/fio-test-file
+RESULT,"piraeus-rwo-strict-dauwalter","seq-read-1m","dauwalter-1",107.576942,0.000000,107.8263463973999,0,148.50057127155,0,179.306496,0,185.597952,0,221.249536,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","rand-read-4k","dauwalter-1",22373.310445,0.000000,87.39671993255615,0,0.708141036765,0,0.978944,0,2.113536,0,3.6864,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","seq-read-1m","dauwalter-2",107.674914,0.000000,107.92431449890137,0,148.353835254199,0,189.792256,0,193.98656,0,231.735296,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","rand-read-4k","dauwalter-2",22513.958101,0.000000,87.94612503051758,0,0.7037947705690001,0,0.970752,0,2.113536,0,3.620864,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","seq-read-1m","dauwalter-3",107.669028,0.000000,107.91845417022705,0,148.363721261325,0,196.083712,0,204.47232,0,221.249536,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","rand-read-4k","dauwalter-3",22452.775787,0.000000,87.70713138580322,0,0.705695166573,0,0.987136,0,2.113536,0,3.620864,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","seq-read-1m","dauwalter-4",107.635771,0.000000,107.88519668579102,0,148.404247166461,0,204.47232,0,208.666624,0,244.318208,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","rand-read-4k","dauwalter-4",22824.902918,0.000000,89.16075325012207,0,0.693925209897,0,0.946176,0,2.179072,0,3.948544,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","seq-read-1m","dauwalter-5",107.558526,0.000000,107.80792713165283,0,148.521747608113,0,202.375168,0,204.47232,0,244.318208,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","rand-read-4k","dauwalter-5",22771.903802,0.000000,88.95372486114502,0,0.6956354751,0,0.978944,0,2.179072,0,3.948544,0,0
+READER_COMPLETE,backend=piraeus,reader_node=dauwalter,fio_file=/volume/fio-test-file
