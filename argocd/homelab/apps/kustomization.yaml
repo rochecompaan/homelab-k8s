@@ -31,6 +31,7 @@ resources:
   - ../../base/kyverno
   - ../../base/longhorn
   - ../../base/longhorn-admission-hooks
+  - ../../base/piraeus-operator
   - ../../base/storage-benchmark-rwo-strict-piraeus
   - ../../base/openebs-mayastor
   - ../../base/storage-benchmark-rwo-strict-mayastor
