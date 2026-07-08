@@ -162,3 +162,22 @@ persistentvolumeclaim/longhorn-nvme-rwo-strict-pvc-run-001   Bound    pvc-1c6a99
 persistentvolumeclaim/mayastor-rwo-strict-pvc-run-001        Bound    pvc-b58a44fa-ec8b-4bea-a957-911ad57ed2b2   20Gi       RWO            mayastor-rwo-strict-3r        <unset>                 3h48m
 persistentvolumeclaim/piraeus-rwo-strict-pvc-run-001         Bound    pvc-e1455cd2-5669-4156-b3d0-4e1bb60a3b26   20Gi       RWO            piraeus-rwo-strict-3r         <unset>                 89m
 ```
+
+Follow-up validation after cleanup evidence commit:
+
+Captured: 2026-07-08T20:19:29+02:00
+
+Strict RWO Applications still listed:
+```text
+storage-benchmark-rwo-strict-piraeus   OutOfSync     Missing
+```
+
+Remaining strict RWO Application detail:
+```text
+storage-benchmark-rwo-strict-piraeus	deletionTimestamp=2026-07-08T18:18:58Z	finalizers=["resources-finalizer.argocd.argoproj.io"]	sync=OutOfSync	health=Missing
+```
+
+Namespace resources:
+```text
+No resources found in storage-benchmark-rwo-strict namespace.
+```
