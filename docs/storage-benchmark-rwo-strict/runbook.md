@@ -36,7 +36,12 @@ Use this 5-minute ArgoCD polling checkpoint after every activation, reader-enabl
 ```bash
 app=APP
 for attempt in $(seq 1 30); do
-  kubectl -n argocd get application "${app}" -o jsonpath='{.status.sync.status} {.status.health.status}{"\n"}' || true
+  status="$(kubectl -n argocd get application "${app}" -o jsonpath='{.status.sync.status} {.status.health.status}' || true)"
+  echo "${status}"
+  if [ "${status}" = "Synced Healthy" ]; then
+    echo "${app} is Synced/Healthy; continue to the benchmark Job checks."
+    exit 0
+  fi
   sleep 10
 done
 kubectl -n argocd describe application "${app}"
@@ -79,16 +84,24 @@ kubectl -n storage-benchmark-rwo-strict wait --for=condition=complete "job/${job
 
 ## Capture writer evidence
 
+Set `backend` and `writer_job` for the active backend, then capture backend-specific writer placement, PVC/PV, and log artifacts so later backend runs do not overwrite earlier evidence.
+
 ```bash
 mkdir -p docs/storage-benchmark-rwo-strict
-kubectl -n storage-benchmark-rwo-strict get pods -o wide -l storage.compaan.io/benchmark=rwo-strict > docs/storage-benchmark-rwo-strict/pods-run-001.txt
-kubectl -n storage-benchmark-rwo-strict get pvc,pv -o wide > docs/storage-benchmark-rwo-strict/pvc-pv-run-001.txt
-kubectl -n storage-benchmark-rwo-strict logs job/piraeus-rwo-strict-writer-fordyce-run-001 > docs/storage-benchmark-rwo-strict/piraeus-writer-fordyce-run-001.log
-kubectl -n storage-benchmark-rwo-strict logs job/longhorn-nvme-rwo-strict-writer-fordyce-run-001 > docs/storage-benchmark-rwo-strict/longhorn-nvme-writer-fordyce-run-001.log
-kubectl -n storage-benchmark-rwo-strict logs job/mayastor-rwo-strict-writer-fordyce-run-001 > docs/storage-benchmark-rwo-strict/mayastor-writer-fordyce-run-001.log
+backend=BACKEND_LABEL
+writer_job=WRITER_JOB_NAME
+kubectl -n storage-benchmark-rwo-strict get jobs,pods -o wide -l "storage.compaan.io/backend=${backend}" > "docs/storage-benchmark-rwo-strict/${backend}-writer-jobs-pods-run-001.txt"
+kubectl -n storage-benchmark-rwo-strict get pvc,pv -o wide > "docs/storage-benchmark-rwo-strict/${backend}-writer-pvc-pv-run-001.txt"
+kubectl -n storage-benchmark-rwo-strict logs "job/${writer_job}" > "docs/storage-benchmark-rwo-strict/${backend}-writer-fordyce-run-001.log"
 ```
 
-Only run the `kubectl logs` command for the backend currently active.
+Use these backend/job pairs:
+
+| Backend | `backend` | `writer_job` |
+| --- | --- | --- |
+| Longhorn NVMe | `longhorn-nvme` | `longhorn-nvme-rwo-strict-writer-fordyce-run-001` |
+| Mayastor | `mayastor` | `mayastor-rwo-strict-writer-fordyce-run-001` |
+| Piraeus/LINSTOR | `piraeus` | `piraeus-rwo-strict-writer-fordyce-run-001` |
 
 ## Enable one reader node
 
@@ -99,18 +112,29 @@ Only run the `kubectl logs` command for the backend currently active.
 5. Wait for the reader Job to complete before enabling the next reader.
 6. Repeat the edit with `reader-selassie-job.yaml` after the `dauwalter` reader completes.
 
-## Capture reader logs
+## Capture reader placement evidence and logs
+
+After each reader Job completes, capture a reader-specific `jobs,pods -o wide` artifact before enabling the next reader. Set `backend`, `reader_node`, and `reader_job` for the completed reader.
 
 ```bash
-kubectl -n storage-benchmark-rwo-strict logs job/piraeus-rwo-strict-reader-dauwalter-run-001 > docs/storage-benchmark-rwo-strict/piraeus-reader-dauwalter-run-001.log
-kubectl -n storage-benchmark-rwo-strict logs job/piraeus-rwo-strict-reader-selassie-run-001 > docs/storage-benchmark-rwo-strict/piraeus-reader-selassie-run-001.log
-kubectl -n storage-benchmark-rwo-strict logs job/longhorn-nvme-rwo-strict-reader-dauwalter-run-001 > docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-dauwalter-run-001.log
-kubectl -n storage-benchmark-rwo-strict logs job/longhorn-nvme-rwo-strict-reader-selassie-run-001 > docs/storage-benchmark-rwo-strict/longhorn-nvme-reader-selassie-run-001.log
-kubectl -n storage-benchmark-rwo-strict logs job/mayastor-rwo-strict-reader-dauwalter-run-001 > docs/storage-benchmark-rwo-strict/mayastor-reader-dauwalter-run-001.log
-kubectl -n storage-benchmark-rwo-strict logs job/mayastor-rwo-strict-reader-selassie-run-001 > docs/storage-benchmark-rwo-strict/mayastor-reader-selassie-run-001.log
+mkdir -p docs/storage-benchmark-rwo-strict
+backend=BACKEND_LABEL
+reader_node=READER_NODE
+reader_job=READER_JOB_NAME
+kubectl -n storage-benchmark-rwo-strict get jobs,pods -o wide -l "storage.compaan.io/backend=${backend}" > "docs/storage-benchmark-rwo-strict/${backend}-reader-${reader_node}-jobs-pods-run-001.txt"
+kubectl -n storage-benchmark-rwo-strict logs "job/${reader_job}" > "docs/storage-benchmark-rwo-strict/${backend}-reader-${reader_node}-run-001.log"
 ```
 
-Run only the commands for Jobs that exist and have completed.
+Use these backend/reader/job combinations and run only the commands for Jobs that exist and have completed:
+
+| Backend | `backend` | `reader_node` | `reader_job` |
+| --- | --- | --- | --- |
+| Longhorn NVMe | `longhorn-nvme` | `dauwalter` | `longhorn-nvme-rwo-strict-reader-dauwalter-run-001` |
+| Longhorn NVMe | `longhorn-nvme` | `selassie` | `longhorn-nvme-rwo-strict-reader-selassie-run-001` |
+| Mayastor | `mayastor` | `dauwalter` | `mayastor-rwo-strict-reader-dauwalter-run-001` |
+| Mayastor | `mayastor` | `selassie` | `mayastor-rwo-strict-reader-selassie-run-001` |
+| Piraeus/LINSTOR | `piraeus` | `dauwalter` | `piraeus-rwo-strict-reader-dauwalter-run-001` |
+| Piraeus/LINSTOR | `piraeus` | `selassie` | `piraeus-rwo-strict-reader-selassie-run-001` |
 
 ## Backend placement evidence commands
 
