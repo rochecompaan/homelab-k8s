@@ -1,0 +1,2 @@
+NAME                                               READY   STATUS      RESTARTS   AGE    IP            NODE      NOMINATED NODE   READINESS GATES
+mayastor-rwo-strict-writer-fordyce-run-001-m2jtt   0/1     Completed   0          116m   10.42.3.158   fordyce   <none>           <none>

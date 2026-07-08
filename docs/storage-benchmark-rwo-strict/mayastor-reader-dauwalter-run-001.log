@@ -1,0 +1,14 @@
+RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors
+-rw-r--r-- 1 0 0 16G Jul  8 16:10 /volume/fio-test-file
+READER_START,backend=mayastor,reader_node=dauwalter,fio_file=/volume/fio-test-file
+RESULT,"mayastor-rwo-strict-dauwalter","seq-read-1m","dauwalter-1",167.527233,0.000000,167.7937297821045,0,89.469245024819,0,110.624768,0,120.061952,0,130.547712,0,0
+RESULT,"mayastor-rwo-strict-dauwalter","rand-read-4k","dauwalter-1",34538.857686,0.000000,134.91838932037354,0,0.45689371311800003,0,0.741376,0,1.028096,0,1.744896,0,0
+RESULT,"mayastor-rwo-strict-dauwalter","seq-read-1m","dauwalter-2",167.369035,0.000000,167.63554573059082,0,89.556749254199,0,114.819072,0,129.499136,0,139.460608,0,0
+RESULT,"mayastor-rwo-strict-dauwalter","rand-read-4k","dauwalter-2",34279.578674,0.000000,133.9056453704834,0,0.45979816701799997,0,0.741376,0,1.028096,0,1.67936,0,0
+RESULT,"mayastor-rwo-strict-dauwalter","seq-read-1m","dauwalter-3",167.080218,0.000000,167.34666633605957,0,89.71641382115801,0,114.819072,0,127.401984,0,141.55776,0,0
+RESULT,"mayastor-rwo-strict-dauwalter","rand-read-4k","dauwalter-3",34182.980284,0.000000,133.52824306488037,0,0.46160684653,0,0.741376,0,1.056768,0,1.810432,0,0
+RESULT,"mayastor-rwo-strict-dauwalter","seq-read-1m","dauwalter-4",167.596649,0.000000,167.86315059661865,0,89.441291050213,0,115.867648,0,131.596288,0,143.654912,0,0
+RESULT,"mayastor-rwo-strict-dauwalter","rand-read-4k","dauwalter-4",34344.305190,0.000000,134.15848350524902,0,0.45924609902999997,0,0.741376,0,1.056768,0,1.712128,0,0
+RESULT,"mayastor-rwo-strict-dauwalter","seq-read-1m","dauwalter-5",167.158063,0.000000,167.42458248138428,0,89.697297915721,0,117.9648,0,132.644864,0,143.654912,0,0
+RESULT,"mayastor-rwo-strict-dauwalter","rand-read-4k","dauwalter-5",33864.704510,0.000000,132.28497791290283,0,0.465958424347,0,0.749568,0,1.10592,0,2.21184,0,0
+READER_COMPLETE,backend=mayastor,reader_node=dauwalter,fio_file=/volume/fio-test-file

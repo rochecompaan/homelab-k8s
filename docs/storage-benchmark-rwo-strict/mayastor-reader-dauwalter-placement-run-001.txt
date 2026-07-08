@@ -1,0 +1,2 @@
+NAME                                                 READY   STATUS      RESTARTS   AGE   IP            NODE        NOMINATED NODE   READINESS GATES
+mayastor-rwo-strict-reader-dauwalter-run-001-r7ssc   0/1     Completed   0          11m   10.42.0.178   dauwalter   <none>           <none>

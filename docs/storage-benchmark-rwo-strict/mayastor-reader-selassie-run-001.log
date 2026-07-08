@@ -1,0 +1,14 @@
+RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors
+-rw-r--r-- 1 0 0 16G Jul  8 16:10 /volume/fio-test-file
+READER_START,backend=mayastor,reader_node=selassie,fio_file=/volume/fio-test-file
+RESULT,"mayastor-rwo-strict-selassie","seq-read-1m","selassie-1",167.990409,0.000000,168.25682258605957,0,89.63352028949,0,127.401984,0,137.363456,0,145.752064,0,0
+RESULT,"mayastor-rwo-strict-selassie","rand-read-4k","selassie-1",31608.523191,0.000000,123.47176933288574,0,0.495559981316,0,1.056768,0,1.286144,0,2.637824,0,0
+RESULT,"mayastor-rwo-strict-selassie","seq-read-1m","selassie-2",167.993737,0.000000,168.26026058197021,0,89.688445420198,0,127.401984,0,139.460608,0,145.752064,0,0
+RESULT,"mayastor-rwo-strict-selassie","rand-read-4k","selassie-2",31543.740938,0.000000,123.21871376037598,0,0.496758791699,0,1.056768,0,1.26976,0,2.801664,0,0
+RESULT,"mayastor-rwo-strict-selassie","seq-read-1m","selassie-3",168.051970,0.000000,168.31848049163818,0,89.722143790677,0,127.401984,0,137.363456,0,145.752064,0,0
+RESULT,"mayastor-rwo-strict-selassie","rand-read-4k","selassie-3",31543.640939,0.000000,123.21838855743408,0,0.49682271111799997,0,1.056768,0,1.286144,0,2.965504,0,0
+RESULT,"mayastor-rwo-strict-selassie","seq-read-1m","selassie-4",167.965498,0.000000,168.23192405700684,0,89.76732561720499,0,125.304832,0,137.363456,0,143.654912,0,0
+RESULT,"mayastor-rwo-strict-selassie","rand-read-4k","selassie-4",31800.436659,0.000000,124.22143173217773,0,0.492728169047,0,1.04448,0,1.26976,0,2.056192,0,0
+RESULT,"mayastor-rwo-strict-selassie","seq-read-1m","selassie-5",168.035313,0.000000,168.30182361602783,0,89.730272604375,0,126.353408,0,137.363456,0,145.752064,0,0
+RESULT,"mayastor-rwo-strict-selassie","rand-read-4k","selassie-5",31580.606990,0.000000,123.3627872467041,0,0.49631716123999997,0,1.056768,0,1.286144,0,2.21184,0,0
+READER_COMPLETE,backend=mayastor,reader_node=selassie,fio_file=/volume/fio-test-file
