@@ -31,7 +31,6 @@ resources:
   - ../../base/kyverno
   - ../../base/longhorn
   - ../../base/longhorn-admission-hooks
-  - ../../base/piraeus-operator
   - ../../base/openebs-mayastor
   - ../../base/reflector
   - ../../base/sealed-secrets
