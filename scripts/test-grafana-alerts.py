@@ -20,6 +20,19 @@ def test_log_errors_alert_groups_by_message() -> None:
     assert "homelab_log_errors" in content
 
 
+def test_log_errors_alert_trusts_structured_severity_before_message_fallback() -> None:
+    content = LOG_ERRORS.read_text(encoding="utf-8")
+
+    assert 'log.level:* AND log.level:~"(?i)^(error|fatal|panic)$"' in content
+    assert (
+        'log.record.error_severity:* AND log.record.error_severity:~"(?i)^(error|fatal|panic)$"'
+        in content
+    )
+    assert "NOT log.level:* AND NOT log.record.error_severity:*" in content
+    assert '_msg:~"(?i)(^| )level=(error|fatal|panic)( |$)"' in content
+    assert 'NOT _msg:~"(?i)(^| )level=(trace|debug|info|warn|warning)( |$)"' in content
+
+
 def test_log_errors_alert_excludes_synapse_preview_404_noise() -> None:
     content = LOG_ERRORS.read_text(encoding="utf-8")
 
@@ -106,6 +119,7 @@ def test_matrix_webhook_configmap_changes_roll_deployment() -> None:
 def main() -> None:
     tests = [
         test_log_errors_alert_groups_by_message,
+        test_log_errors_alert_trusts_structured_severity_before_message_fallback,
         test_log_errors_alert_excludes_synapse_preview_404_noise,
         test_log_errors_alert_excludes_grafana_provisioning_file_noise,
         test_log_errors_alert_excludes_transient_gmail_imap_noise,
