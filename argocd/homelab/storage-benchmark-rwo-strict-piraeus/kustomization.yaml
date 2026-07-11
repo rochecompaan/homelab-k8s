@@ -4,8 +4,4 @@ resources:
   - namespace.yaml
   - linstor-cluster.yaml
   - storageclass.yaml
-  - pvc.yaml
   - fio-script-configmap.yaml
-  - writer-job.yaml
-  - reader-dauwalter-job.yaml
-  - reader-selassie-job.yaml
