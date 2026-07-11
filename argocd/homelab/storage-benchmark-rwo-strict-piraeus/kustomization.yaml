@@ -4,8 +4,4 @@ resources:
   - namespace.yaml
   - linstor-cluster.yaml
   - storageclass.yaml
-  - cleanup-stale-lvs-configmap.yaml
-  - cleanup-stale-lvs-jobs.yaml
-  - pvc.yaml
   - fio-script-configmap.yaml
-  - writer-job.yaml
