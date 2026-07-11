@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: piraeus-rwo-strict-pvc-run-002
+  name: piraeus-rwo-strict-pvc-run-003
   namespace: storage-benchmark-rwo-strict
   annotations:
     argocd.argoproj.io/sync-wave: "4"

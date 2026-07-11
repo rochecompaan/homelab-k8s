@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: piraeus-rwo-strict-writer-fordyce-run-002
+  name: piraeus-rwo-strict-writer-fordyce-run-003
   namespace: storage-benchmark-rwo-strict
   annotations:
     argocd.argoproj.io/sync-wave: "4"
@@ -65,7 +65,7 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: piraeus-rwo-strict-pvc-run-002
+            claimName: piraeus-rwo-strict-pvc-run-003
         - name: script
           configMap:
             name: piraeus-rwo-strict-fio-script
