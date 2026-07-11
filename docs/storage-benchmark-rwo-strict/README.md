@@ -14,10 +14,12 @@ This directory contains artifacts for the replicated RWO read-after-write benchm
 
 ## Artifact naming
 
-- Raw logs: `piraeus-writer-fordyce-run-001.log`, `longhorn-nvme-reader-dauwalter-run-001.log`, and `mayastor-reader-selassie-run-001.log` show the naming pattern.
-- Health and placement evidence: `piraeus-run-001-health.md`, `longhorn-nvme-run-001-health.md`, and `mayastor-run-001-health.md`.
-- Per-backend summaries: `piraeus-run-001-summary.md`, `longhorn-nvme-run-001-summary.md`, and `mayastor-run-001-summary.md`.
+- Raw logs: `piraeus-writer-fordyce-run-003.log`, `longhorn-nvme-reader-dauwalter-run-001.log`, and `mayastor-reader-selassie-run-001.log` show the naming pattern.
+- Health and placement evidence: `piraeus-run-003-health.md`, `longhorn-nvme-run-001-health.md`, and `mayastor-run-001-health.md`.
+- Per-backend summaries: `piraeus-run-003-summary.md`, `longhorn-nvme-run-001-summary.md`, and `mayastor-run-001-summary.md`.
 - Cross-backend placement audit: `placement-audit.md`.
 - Final comparison: `final-comparison.md`.
+
+Piraeus run 003 supersedes Piraeus run 001. Run 001 is retained as historical evidence because LINSTOR reported `Diskless, SkipDisk (R)` for the `dauwalter` resource.
 
 Use `runbook.md` for the GitOps activation, evidence capture, summary, and cleanup procedure.

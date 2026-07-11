@@ -84,6 +84,10 @@ The first default-`longhorn` run was discarded because Longhorn placed 2/3 repli
 
 Longhorn NVMe did not beat Mayastor on write throughput in this workload. It landed between Mayastor and Piraeus for random, mixed, and single-depth writes, but behind both on sequential writes.
 
+## Strict RWO Read Cross-Check
+
+The corrected strict-placement RWO rerun in `docs/storage-benchmark-rwo-strict/piraeus-run-003-summary.md` validates Piraeus's read strength with healthy `UpToDate` LINSTOR resources and no `SkipDisk` caveat. It does not change the write-sensitive recommendation below because that rerun intentionally measured read-only profiles after the writer Job exited.
+
 ## Recommendation
 
 Proceed with one non-critical app trial on Mayastor.

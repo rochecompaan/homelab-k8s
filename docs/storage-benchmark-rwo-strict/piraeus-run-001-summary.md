@@ -1,3 +1,7 @@
+# Superseded Piraeus strict RWO run 001 summary
+
+This run is retained as historical evidence only. It is superseded by `piraeus-run-003-summary.md` because LINSTOR reported `Diskless, SkipDisk (R)` for the `dauwalter` resource during run 001.
+
 | backend | profile | passes | read_iops_avg | write_iops_avg | read_mib_s_avg | write_mib_s_avg | read_p99_ms_avg | write_p99_ms_avg | read_p999_ms_avg | write_p999_ms_avg | errors_total |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | piraeus-rwo-strict-dauwalter | rand-read-4k | 5 | 22587.37 | 0.00 | 88.23 | 0.00 | 2.14 | 0.00 | 3.77 | 0.00 | 0 |
