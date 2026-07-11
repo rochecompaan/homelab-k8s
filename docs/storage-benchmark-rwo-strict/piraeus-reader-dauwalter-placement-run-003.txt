@@ -1,0 +1,2 @@
+NAME                                                READY   STATUS      RESTARTS   AGE   IP            NODE        NOMINATED NODE   READINESS GATES
+piraeus-rwo-strict-reader-dauwalter-run-003-59cg8   0/1     Completed   0          12m   10.42.0.178   dauwalter   <none>           <none>

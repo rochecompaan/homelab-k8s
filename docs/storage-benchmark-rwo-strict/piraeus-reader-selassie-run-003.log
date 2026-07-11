@@ -1,0 +1,14 @@
+RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors
+-rw-r--r-- 1 0 0 16G Jul 11 12:21 /volume/fio-test-file
+READER_START,backend=piraeus,reader_node=selassie,fio_file=/volume/fio-test-file
+RESULT,"piraeus-rwo-strict-selassie","seq-read-1m","selassie-1",2556.566515,0.000000,2556.8331413269043,0,6.181995515185999,0,10.289152,0,16.580608,0,19.791872,0,0
+RESULT,"piraeus-rwo-strict-selassie","rand-read-4k","selassie-1",98860.552324,0.000000,386.1750736236572,0,0.154618591167,0,0.280576,0,0.391168,0,1.253376,0,0
+RESULT,"piraeus-rwo-strict-selassie","seq-read-1m","selassie-2",1494.100983,0.000000,1494.3676052093506,0,10.628867374415002,0,17.956864,0,19.00544,0,21.102592,0,0
+RESULT,"piraeus-rwo-strict-selassie","rand-read-4k","selassie-2",99043.082615,0.000000,386.88808250427246,0,0.154315133956,0,0.280576,0,0.391168,0,1.236992,0,0
+RESULT,"piraeus-rwo-strict-selassie","seq-read-1m","selassie-3",1598.370217,0.000000,1598.6201839447021,0,9.929902145356,0,17.956864,0,19.00544,0,21.364736,0,0
+RESULT,"piraeus-rwo-strict-selassie","rand-read-4k","selassie-3",98282.228630,0.000000,383.9159965515137,0,0.155502401216,0,0.280576,0,0.395264,0,1.26976,0,0
+RESULT,"piraeus-rwo-strict-selassie","seq-read-1m","selassie-4",1528.900145,0.000000,1529.150074005127,0,10.386486698208001,0,17.956864,0,19.00544,0,21.102592,0,0
+RESULT,"piraeus-rwo-strict-selassie","rand-read-4k","selassie-4",99276.812053,0.000000,387.8010883331299,0,0.153950022333,0,0.280576,0,0.391168,0,1.253376,0,0
+RESULT,"piraeus-rwo-strict-selassie","seq-read-1m","selassie-5",1552.917458,0.000000,1553.1673822402954,0,10.221198151375999,0,17.956864,0,19.00544,0,21.102592,0,0
+RESULT,"piraeus-rwo-strict-selassie","rand-read-4k","selassie-5",98272.795453,0.000000,383.87914848327637,0,0.155586314661,0,0.280576,0,0.395264,0,1.286144,0,0
+READER_COMPLETE,backend=piraeus,reader_node=selassie,fio_file=/volume/fio-test-file

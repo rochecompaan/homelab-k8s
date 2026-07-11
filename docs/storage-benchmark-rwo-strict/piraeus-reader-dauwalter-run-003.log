@@ -1,0 +1,14 @@
+RESULT_HEADER,backend,profile,pass,read_iops,write_iops,read_mib_s,write_mib_s,read_mean_ms,write_mean_ms,read_p95_ms,write_p95_ms,read_p99_ms,write_p99_ms,read_p999_ms,write_p999_ms,errors
+-rw-r--r-- 1 0 0 16G Jul 11 12:21 /volume/fio-test-file
+READER_START,backend=piraeus,reader_node=dauwalter,fio_file=/volume/fio-test-file
+RESULT,"piraeus-rwo-strict-dauwalter","seq-read-1m","dauwalter-1",2932.623759,0.000000,2932.8736085891724,0,5.357543041487,0,6.520832,0,7.634944,0,35.38944,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","rand-read-4k","dauwalter-1",85373.260446,0.000000,333.4903402328491,0,0.177502826716,0,0.2304,0,0.292864,0,1.302528,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","seq-read-1m","dauwalter-2",2290.057135,0.000000,2290.323655128479,0,6.880390845222,0,33.816576,0,34.865152,0,41.680896,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","rand-read-4k","dauwalter-2",87023.666272,0.000000,339.937237739563,0,0.174119206256,0,0.226304,0,0.292864,0,1.286144,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","seq-read-1m","dauwalter-3",2252.508083,0.000000,2252.758056640625,0,6.995354248086,0,33.816576,0,35.38944,0,41.680896,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","rand-read-4k","dauwalter-3",86935.334411,0.000000,339.5921907424927,0,0.174327381043,0,0.2304,0,0.292864,0,1.26976,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","seq-read-1m","dauwalter-4",1173.598614,0.000000,1173.848563194275,0,13.531565480645,0,15.40096,0,16.318464,0,18.219008,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","rand-read-4k","dauwalter-4",84795.903402,0.000000,331.2350387573242,0,0.178862113889,0,0.280576,0,0.346112,0,1.695744,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","seq-read-1m","dauwalter-5",2275.648393,0.000000,2275.8982553482056,0,6.927321664229,0,33.816576,0,34.865152,0,41.156608,0,0
+RESULT,"piraeus-rwo-strict-dauwalter","rand-read-4k","dauwalter-5",82932.684455,0.000000,323.9568395614624,0,0.182847909389,0,0.234496,0,0.301056,0,1.302528,0,0
+READER_COMPLETE,backend=piraeus,reader_node=dauwalter,fio_file=/volume/fio-test-file
