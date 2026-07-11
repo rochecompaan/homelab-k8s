@@ -33,6 +33,7 @@ resources:
   - ../../base/longhorn-admission-hooks
   - ../../base/openebs-mayastor
   - ../../base/piraeus-operator
+  - ../../base/storage-benchmark-rwo-strict-piraeus
   - ../../base/reflector
   - ../../base/sealed-secrets
   - ../../base/speedtest-exporter
