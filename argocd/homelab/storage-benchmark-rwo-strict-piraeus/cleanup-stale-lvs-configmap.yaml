@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: piraeus-rwo-strict-stale-lv-cleanup-script
+  namespace: piraeus-datastore
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    app.kubernetes.io/name: piraeus-rwo-strict-stale-lv-cleanup
+    storage.compaan.io/benchmark: rwo-strict
+    storage.compaan.io/backend: piraeus
+data:
+  cleanup-stale-piraeus-lvs.sh: |
+    #!/bin/sh
+    set -eu
+
+    PATH=/usr/sbin:/usr/bin:/sbin:/bin
+    export PATH
+
+    expected="remove known stale piraeus benchmark lvs"
+    if [ "${CONFIRM_LVREMOVE:-}" != "${expected}" ]; then
+      echo "Refusing to run: CONFIRM_LVREMOVE must be '${expected}'" >&2
+      exit 1
+    fi
+
+    if [ -z "${STALE_LVS:-}" ]; then
+      echo "Refusing to run: STALE_LVS is empty" >&2
+      exit 1
+    fi
+
+    echo "Starting stale Piraeus benchmark LV cleanup on ${NODE_NAME:-unknown-node}"
+    echo "Target VG: ${VG_NAME:-vg-nvme}"
+    echo "Target LVs: ${STALE_LVS}"
+
+    echo "LVM state before cleanup:"
+    lvs -a -o lv_name,vg_name,lv_size,data_percent,metadata_percent,pool_lv,lv_attr || true
+    vgs -o vg_name,vg_size,vg_free,pv_count,lv_count || true
+
+    for lv in ${STALE_LVS}; do
+      case "${lv}" in
+        pvc-4103d321-aaab-4c25-86aa-2dae2ffa7930_00000|\
+        pvc-4103d321-aaab-4c25-86aa-2dae2ffa7930_00001|\
+        pvc-494b412e-d23f-44c5-8996-caff4a09ec4c_00000|\
+        pvc-494b412e-d23f-44c5-8996-caff4a09ec4c_00001|\
+        pvc-e1455cd2-5669-4156-b3d0-4e1bb60a3b26_00000)
+          ;;
+        *)
+          echo "Refusing unexpected LV name: ${lv}" >&2
+          exit 1
+          ;;
+      esac
+
+      path="${VG_NAME:-vg-nvme}/${lv}"
+      if lvs --noheadings -o lv_name "${path}" >/dev/null 2>&1; then
+        echo "Removing stale benchmark LV ${path}"
+        lvremove -y "${path}"
+      else
+        echo "Skipping missing LV ${path}"
+      fi
+    done
+
+    echo "LVM state after cleanup:"
+    lvs -a -o lv_name,vg_name,lv_size,data_percent,metadata_percent,pool_lv,lv_attr || true
+    vgs -o vg_name,vg_size,vg_free,pv_count,lv_count || true
+
+    echo "Stale Piraeus benchmark LV cleanup complete"
