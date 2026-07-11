@@ -32,8 +32,6 @@ resources:
   - ../../base/longhorn
   - ../../base/longhorn-admission-hooks
   - ../../base/openebs-mayastor
-  - ../../base/piraeus-operator
-  - ../../base/piraeus-finalizer-cleanup
   - ../../base/reflector
   - ../../base/sealed-secrets
   - ../../base/speedtest-exporter
