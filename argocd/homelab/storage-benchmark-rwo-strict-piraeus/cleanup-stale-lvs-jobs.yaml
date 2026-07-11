@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: piraeus-rwo-strict-cleanup-stale-lvs-dauwalter-run-002
+  name: piraeus-rwo-strict-cleanup-stale-lvs-dauwalter-run-003
   namespace: piraeus-datastore
   annotations:
     argocd.argoproj.io/sync-wave: "2"
@@ -11,7 +11,7 @@ metadata:
     storage.compaan.io/backend: piraeus
     storage.compaan.io/cleanup-node: dauwalter
 spec:
-  activeDeadlineSeconds: 300
+  activeDeadlineSeconds: 600
   backoffLimit: 0
   ttlSecondsAfterFinished: 86400
   template:
@@ -54,6 +54,7 @@ spec:
               value: >-
                 pvc-4103d321-aaab-4c25-86aa-2dae2ffa7930_00000
                 pvc-4103d321-aaab-4c25-86aa-2dae2ffa7930_00001
+                pvc-3def644f-9caa-40c7-89ce-a66d7c9748e2_00000
                 pvc-494b412e-d23f-44c5-8996-caff4a09ec4c_00000
                 pvc-494b412e-d23f-44c5-8996-caff4a09ec4c_00001
                 pvc-e1455cd2-5669-4156-b3d0-4e1bb60a3b26_00000
@@ -127,7 +128,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: piraeus-rwo-strict-cleanup-stale-lvs-fordyce-run-002
+  name: piraeus-rwo-strict-cleanup-stale-lvs-fordyce-run-003
   namespace: piraeus-datastore
   annotations:
     argocd.argoproj.io/sync-wave: "2"
@@ -137,7 +138,7 @@ metadata:
     storage.compaan.io/backend: piraeus
     storage.compaan.io/cleanup-node: fordyce
 spec:
-  activeDeadlineSeconds: 300
+  activeDeadlineSeconds: 600
   backoffLimit: 0
   ttlSecondsAfterFinished: 86400
   template:
@@ -180,6 +181,7 @@ spec:
               value: >-
                 pvc-4103d321-aaab-4c25-86aa-2dae2ffa7930_00000
                 pvc-4103d321-aaab-4c25-86aa-2dae2ffa7930_00001
+                pvc-3def644f-9caa-40c7-89ce-a66d7c9748e2_00000
           securityContext:
             privileged: true
             readOnlyRootFilesystem: true
@@ -250,7 +252,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: piraeus-rwo-strict-cleanup-stale-lvs-selassie-run-002
+  name: piraeus-rwo-strict-cleanup-stale-lvs-selassie-run-003
   namespace: piraeus-datastore
   annotations:
     argocd.argoproj.io/sync-wave: "2"
@@ -260,7 +262,7 @@ metadata:
     storage.compaan.io/backend: piraeus
     storage.compaan.io/cleanup-node: selassie
 spec:
-  activeDeadlineSeconds: 300
+  activeDeadlineSeconds: 600
   backoffLimit: 0
   ttlSecondsAfterFinished: 86400
   template:
@@ -303,6 +305,7 @@ spec:
               value: >-
                 pvc-4103d321-aaab-4c25-86aa-2dae2ffa7930_00000
                 pvc-4103d321-aaab-4c25-86aa-2dae2ffa7930_00001
+                pvc-3def644f-9caa-40c7-89ce-a66d7c9748e2_00000
           securityContext:
             privileged: true
             readOnlyRootFilesystem: true

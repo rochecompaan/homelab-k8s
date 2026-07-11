@@ -16,6 +16,19 @@ data:
 
     PATH=/usr/sbin:/usr/bin:/sbin:/bin
     export PATH
+    LVM_SUPPRESS_FD_WARNINGS=1
+    DM_DISABLE_UDEV=1
+    export LVM_SUPPRESS_FD_WARNINGS DM_DISABLE_UDEV
+
+    lvm_config='activation { udev_sync=0 udev_rules=0 }'
+
+    run_lvm() {
+      if command -v timeout >/dev/null 2>&1; then
+        timeout 45 "$@"
+      else
+        "$@"
+      fi
+    }
 
     expected="remove known stale piraeus benchmark lvs"
     if [ "${CONFIRM_LVREMOVE:-}" != "${expected}" ]; then
@@ -40,6 +53,7 @@ data:
       case "${lv}" in
         pvc-4103d321-aaab-4c25-86aa-2dae2ffa7930_00000|\
         pvc-4103d321-aaab-4c25-86aa-2dae2ffa7930_00001|\
+        pvc-3def644f-9caa-40c7-89ce-a66d7c9748e2_00000|\
         pvc-494b412e-d23f-44c5-8996-caff4a09ec4c_00000|\
         pvc-494b412e-d23f-44c5-8996-caff4a09ec4c_00001|\
         pvc-e1455cd2-5669-4156-b3d0-4e1bb60a3b26_00000)
@@ -53,7 +67,16 @@ data:
       path="${VG_NAME:-vg-nvme}/${lv}"
       if lvs --noheadings -o lv_name "${path}" >/dev/null 2>&1; then
         echo "Removing stale benchmark LV ${path}"
-        lvremove -y "${path}"
+        run_lvm lvchange --config "${lvm_config}" --noudevsync -an -y "${path}" || true
+        set +e
+        run_lvm lvremove --config "${lvm_config}" --noudevsync -ff -y "${path}"
+        rc=$?
+        set -e
+        if lvs --noheadings -o lv_name "${path}" >/dev/null 2>&1; then
+          echo "Failed to remove ${path}; lvremove exit code was ${rc}" >&2
+          exit 1
+        fi
+        echo "Removed stale benchmark LV ${path}; lvremove exit code was ${rc}"
       else
         echo "Skipping missing LV ${path}"
       fi
