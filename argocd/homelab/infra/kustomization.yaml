@@ -4,7 +4,6 @@ resources:
   - openclaw-secret.yaml
   - matrix-postgresql-secret.yaml
   - matrix-secret.yaml
-  - matrix-whatsapp-secret.yaml
   - argocd-authentik-oidc-secret.yaml
   - cert-manager-issuer.yaml
   - coredns-configmap.yaml

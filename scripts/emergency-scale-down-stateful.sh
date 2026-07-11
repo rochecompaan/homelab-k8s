@@ -16,7 +16,6 @@ DEFAULT_APPS=(
   jellyfin
   mosquitto
   coturn
-  matrix-whatsapp
   matrix
   nextcloud
   forgejo-runner

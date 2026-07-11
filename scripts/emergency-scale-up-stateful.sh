@@ -16,7 +16,6 @@ DEFAULT_APPS=(
   container-registry
   nextcloud-db
   nextcloud
-  matrix-whatsapp
   matrix
   forgejo
   forgejo-runner

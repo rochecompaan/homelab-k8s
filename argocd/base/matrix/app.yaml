@@ -18,8 +18,6 @@ spec:
           server_name: matrix.compaan
           public_baseurl: https://matrix.compaan/
           web_client_location: https://matrix.compaan/
-          app_service_config_files:
-            - /etc/synapse/appservices/whatsapp-registration.yaml
           email:
             app_name: Matrix
             client_base_url: https://matrix.compaan/
@@ -37,17 +35,6 @@ spec:
         secret:
           name: matrix
           generate: false
-        extraVolumes:
-          - name: whatsapp-appservice
-            secret:
-              secretName: matrix-whatsapp-appservice
-              items:
-                - key: registration.yaml
-                  path: whatsapp-registration.yaml
-        extraVolumeMounts:
-          - name: whatsapp-appservice
-            mountPath: /etc/synapse/appservices
-            readOnly: true
         ingress:
           enabled: true
           exposeWellKnown: false

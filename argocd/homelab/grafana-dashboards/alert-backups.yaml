@@ -34,7 +34,7 @@ data:
             to: 0
           datasourceUid: prometheus
           model:
-            expr: time() - max by (namespace, job) (cnpg_collector_last_available_backup_timestamp{namespace=~"nextcloud-db|matrix",job=~"nextcloud-db/postgres|matrix/matrix-whatsapp-postgres"}) > bool 86400
+            expr: time() - max by (namespace, job) (cnpg_collector_last_available_backup_timestamp{namespace="nextcloud-db",job="nextcloud-db/postgres"}) > bool 86400
             intervalMs: 1000
             maxDataPoints: 43200
             refId: A
