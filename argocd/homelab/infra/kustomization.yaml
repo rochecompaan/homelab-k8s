@@ -12,6 +12,7 @@ resources:
   - home-assistant-ingress.yaml
   - longhorn-sata-storageclass.yaml
   - private-ca.yaml
+  - traefik-private-mqtt-nodeport.yaml
   - ziti-router-ingress.yaml
 kind: Kustomization
 patches:
