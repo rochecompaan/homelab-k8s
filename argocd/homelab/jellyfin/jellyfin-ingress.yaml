@@ -7,7 +7,7 @@ metadata:
     cert-manager.io/cluster-issuer: compaan-ca
     argocd.argoproj.io/sync-wave: "2"
 spec:
-  ingressClassName: traefik
+  ingressClassName: traefik-private
   tls:
     - hosts:
         - jellyfin.compaan

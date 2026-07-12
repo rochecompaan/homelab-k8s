@@ -386,7 +386,7 @@ spec:
           ingress:
             main:
               enabled: true
-              className: traefik
+              className: traefik-private
               annotations:
                 cert-manager.io/cluster-issuer: compaan-ca
               tls:

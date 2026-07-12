@@ -26,7 +26,7 @@ spec:
               maxUnavailable: 1
           ingress:
             enabled: true
-            ingressClassName: traefik
+            ingressClassName: traefik-private
             annotations:
               cert-manager.io/cluster-issuer: compaan-ca
             hosts:

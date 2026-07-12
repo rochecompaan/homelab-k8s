@@ -19,7 +19,7 @@ data:
           fallthrough
         }
         rewrite stop {
-          name regex ^.*\.compaan\.$ traefik.kube-system.svc.cluster.local.
+          name regex ^.*\.compaan\.$ traefik-private.kube-system.svc.cluster.local.
           answer auto
         }
         prometheus :9153

@@ -83,7 +83,7 @@ spec:
         server:
           ingress:
             enabled: true
-            ingressClassName: traefik
+            ingressClassName: traefik-private
             hostname: argocd.compaan
             annotations:
               cert-manager.io/cluster-issuer: compaan-ca

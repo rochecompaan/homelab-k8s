@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: traefik
+  name: traefik-private
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: '0'
@@ -12,38 +12,34 @@ spec:
     repoURL: https://traefik.github.io/charts
     targetRevision: 37.4.0
     helm:
-      releaseName: traefik
+      releaseName: traefik-private
       valuesObject:
         ingressClass:
           enabled: true
           isDefaultClass: false
-          name: traefik-public
+          name: traefik-private
         service:
-          type: NodePort
+          type: ClusterIP
         ports:
-          web:
-            nodePort: 30080
           websecure:
-            nodePort: 30443
             transport:
               respondingTimeouts:
                 idleTimeout: 300s
                 readTimeout: 300s
                 writeTimeout: 300s
-        deployment:
-          kind: DaemonSet
+          mqtt:
+            port: 1883
+            expose:
+              default: true
+            exposedPort: 1883
+            protocol: TCP
         providers:
           kubernetesCRD:
-            labelSelector: ingress-scope=public
-            namespaces:
-              - openziti
+            labelSelector: ingress-scope=private
           kubernetesIngress:
-            ingressClass: traefik-public
-            namespaces:
-              - forgejo
-              - garage
+            ingressClass: traefik-private
             ingressEndpoint:
-              hostname: traefik-public.compaan.cloud
+              hostname: traefik-private.compaan
             publishedService:
               enabled: false
   destination:

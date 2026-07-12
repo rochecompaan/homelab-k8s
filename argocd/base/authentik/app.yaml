@@ -42,7 +42,7 @@ spec:
             enabled: true
             annotations:
               cert-manager.io/cluster-issuer: compaan-ca
-            ingressClassName: traefik
+            ingressClassName: traefik-private
             hosts:
               - auth.compaan
             tls:

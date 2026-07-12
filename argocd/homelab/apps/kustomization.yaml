@@ -36,6 +36,7 @@ resources:
   - ../../base/sealed-secrets
   - ../../base/speedtest-exporter
   - ../../base/traefik
+  - ../../base/traefik-private
   - ../../base/trust-manager
   - ../../base/victoria-logs
   - ../../base/ziti-controller

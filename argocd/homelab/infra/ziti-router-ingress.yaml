@@ -3,6 +3,8 @@ kind: IngressRouteTCP
 metadata:
   name: openziti-router
   namespace: openziti
+  labels:
+    ingress-scope: public
 spec:
   entryPoints:
     - websecure
