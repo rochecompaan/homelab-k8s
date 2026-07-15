@@ -69,6 +69,27 @@ def test_log_errors_alert_excludes_transient_gmail_imap_noise() -> None:
         assert excluded.search(message), message
 
 
+def test_log_errors_alert_excludes_known_transient_homelab_noise() -> None:
+    excluded = _log_errors_exclusion_regex()
+
+    transient_messages = [
+        "Error: failed to set write deadline, connection is fully closed",
+        'Error: time="2026-07-14T20:13:13Z" level=error msg="DiffFromCache error: error getting managed resources for app openebs-mayastor: cache: key is missing"',
+        "Error: no edge forwarder found for edge circuit",
+        'Error: time=2026-07-13T22:42:43.494Z level=ERROR source=collector.go:168 msg="collector failed" name=powersupplyclass duration_seconds=0.088315239 err="could not get power_supply class info: error obtaining power_supply class info: failed to read file "/host/sys/class/power_supply/BAT0/charge_types": input/output error"',
+        'Error: 2026-07-13T16:13:11.877201Z ERROR pstor::etcd_watcher: Polling watch stream error, error: grpc request error: status: Unknown, message: "h2 protocol error: error reading a body from connection", details: [], metadata: MetadataMap { headers: {} }',
+        "Error: 2026-07-13T16:13:24.133685Z ERROR pstor::etcd_keep_alive: error: Reconnect(Reconnect(1s))",
+        "Error: 2026-07-13T16:13:25.138301Z ERROR pstor::etcd_keep_alive: error: LeaseGrant(LeaseGrant)",
+        "Error: payload buffer closed",
+        'Error: 2026-07-13T09:44:03Z WRN Error checking new version error="GET https://api.github.com/repos/traefik/traefik/releases: 403 API rate limit exceeded for 102.218.60.202. (But here\'s the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.) [rate reset in 3m31s]"',
+        'Error: 2026-07-13T09:44:03Z WRN Error checking new version error="GET https://api.github.com/repos/traefik/traefik/releases: 403 API rate limit exceeded for 102.218.60.202. (But here\'s the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.) [rate reset in 3m32s]"',
+        "Error: 2026-07-13T00:10:15.201635Z INFO garage_api_common::generic_server: Response: error 403 Forbidden, Forbidden: Garage does not support anonymous access yet",
+    ]
+
+    for message in transient_messages:
+        assert excluded.search(message), message
+
+
 def test_matrix_notification_message_uses_log_message_template() -> None:
     content = NOTIFICATIONS.read_text(encoding="utf-8")
 
@@ -123,6 +144,7 @@ def main() -> None:
         test_log_errors_alert_excludes_synapse_preview_404_noise,
         test_log_errors_alert_excludes_grafana_provisioning_file_noise,
         test_log_errors_alert_excludes_transient_gmail_imap_noise,
+        test_log_errors_alert_excludes_known_transient_homelab_noise,
         test_matrix_notification_message_uses_log_message_template,
         test_matrix_webhook_configmap_changes_roll_deployment,
     ]
