@@ -13,11 +13,16 @@ LOG_ERRORS = GRAFANA_DASHBOARDS / "alert-log-errors.yaml"
 NOTIFICATIONS = GRAFANA_DASHBOARDS / "grafana-alert-notifications.yaml"
 
 
-def test_log_errors_alert_groups_by_message() -> None:
+def test_log_errors_alert_groups_by_normalized_fingerprint() -> None:
     content = LOG_ERRORS.read_text(encoding="utf-8")
 
-    assert "| stats by (_msg) count()" in content
     assert "homelab_log_errors" in content
+    assert "| copy _msg as error_fingerprint" in content
+    assert "| collapse_nums at error_fingerprint" in content
+    assert 'replace_regexp ("[a-f0-9]{8,}", "<hex>") at error_fingerprint' in content
+    assert 'replace_regexp ("[a-z0-9-]+-[a-f0-9]{8,10}-[a-z0-9]{5}", "<pod>") at error_fingerprint' in content
+    assert "| stats by (error_fingerprint) count() errors" in content
+    assert "| stats by (_msg) count()" not in content
 
 
 def test_log_errors_alert_trusts_structured_severity_before_message_fallback() -> None:
@@ -54,6 +59,17 @@ def _log_errors_exclusion_regex() -> re.Pattern[str]:
     return re.compile(match.group(1).replace("''", "'"))
 
 
+def _log_errors_threshold_value() -> int:
+    content = LOG_ERRORS.read_text(encoding="utf-8")
+    match = re.search(
+        r"refId: C.*?evaluator:\n\s+params:\n\s+- ([0-9]+)\n\s+type: gt",
+        content,
+        re.S,
+    )
+    assert match is not None
+    return int(match.group(1))
+
+
 def test_log_errors_alert_excludes_transient_gmail_imap_noise() -> None:
     excluded = _log_errors_exclusion_regex()
 
@@ -67,6 +83,15 @@ def test_log_errors_alert_excludes_transient_gmail_imap_noise() -> None:
 
     for message in transient_messages:
         assert excluded.search(message), message
+
+
+def test_log_errors_alert_uses_logsql_safe_literal_brackets() -> None:
+    content = LOG_ERRORS.read_text(encoding="utf-8")
+
+    assert r"\[ERROR\]" not in content
+    assert r"\[metno\]" not in content
+    assert "[[]ERROR[]]" in content
+    assert "[[]metno[]]" in content
 
 
 def test_log_errors_alert_excludes_known_transient_homelab_noise() -> None:
@@ -90,13 +115,19 @@ def test_log_errors_alert_excludes_known_transient_homelab_noise() -> None:
         assert excluded.search(message), message
 
 
+def test_log_errors_alert_requires_repeated_fingerprint() -> None:
+    assert _log_errors_threshold_value() == 2
+
+
 def test_matrix_notification_message_uses_log_message_template() -> None:
     content = NOTIFICATIONS.read_text(encoding="utf-8")
 
     assert '{{ template "default.message" . }}' not in content
     assert '<span data-mx-color="#D50000"><strong>🚨 Firing</strong></span>' in content
     assert '<span data-mx-color="#00C853"><strong>✅ Resolved</strong></span>' in content
-    assert "{{ if .Labels._msg }}" in content
+    assert "{{ if .Labels.error_fingerprint }}" in content
+    assert "Error fingerprint: {{ .Labels.error_fingerprint }}" in content
+    assert "{{ else if .Labels._msg }}" in content
     assert "Error: {{ .Labels._msg }}" in content
 
 
@@ -139,12 +170,14 @@ def test_matrix_webhook_configmap_changes_roll_deployment() -> None:
 
 def main() -> None:
     tests = [
-        test_log_errors_alert_groups_by_message,
+        test_log_errors_alert_groups_by_normalized_fingerprint,
         test_log_errors_alert_trusts_structured_severity_before_message_fallback,
         test_log_errors_alert_excludes_synapse_preview_404_noise,
         test_log_errors_alert_excludes_grafana_provisioning_file_noise,
         test_log_errors_alert_excludes_transient_gmail_imap_noise,
+        test_log_errors_alert_uses_logsql_safe_literal_brackets,
         test_log_errors_alert_excludes_known_transient_homelab_noise,
+        test_log_errors_alert_requires_repeated_fingerprint,
         test_matrix_notification_message_uses_log_message_template,
         test_matrix_webhook_configmap_changes_roll_deployment,
     ]
