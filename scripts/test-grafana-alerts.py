@@ -94,6 +94,16 @@ def test_log_errors_alert_uses_logsql_safe_literal_brackets() -> None:
     assert "[[]metno[]]" in content
 
 
+def test_log_errors_alert_canonicalizes_victorialogs_plugin_logfmt_order() -> None:
+    content = LOG_ERRORS.read_text(encoding="utf-8")
+
+    assert "| unpack_logfmt fields (logger, level, msg, dsName, dsUid, endpoint, status, statusSource, uname, pluginId)" in content
+    assert "format if (logger:=plugin.victoriametrics-logs-datasource" in content
+    assert "msg:=\"Plugin Request Completed\"" in content
+    assert "status:=error" in content
+    assert '"logger=<logger> level=<level> msg=\\"<msg>\\" dsName=<dsName> dsUid=<dsUid> endpoint=<endpoint> status=<status> statusSource=<statusSource> uname=<uname> pluginId=<pluginId>" as error_fingerprint' in content
+
+
 def test_log_errors_alert_excludes_known_transient_homelab_noise() -> None:
     excluded = _log_errors_exclusion_regex()
 
@@ -176,6 +186,7 @@ def main() -> None:
         test_log_errors_alert_excludes_grafana_provisioning_file_noise,
         test_log_errors_alert_excludes_transient_gmail_imap_noise,
         test_log_errors_alert_uses_logsql_safe_literal_brackets,
+        test_log_errors_alert_canonicalizes_victorialogs_plugin_logfmt_order,
         test_log_errors_alert_excludes_known_transient_homelab_noise,
         test_log_errors_alert_requires_repeated_fingerprint,
         test_matrix_notification_message_uses_log_message_template,
