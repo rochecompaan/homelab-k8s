@@ -83,7 +83,6 @@ spec:
             ruleSelectorNilUsesHelmValues: false
             serviceMonitorSelectorNilUsesHelmValues: false
             probeSelectorNilUsesHelmValues: false
-            replicas: 0
             retention: 60d
             retentionSize: 130GB
             storageSpec:
