@@ -83,17 +83,18 @@ spec:
             ruleSelectorNilUsesHelmValues: false
             serviceMonitorSelectorNilUsesHelmValues: false
             probeSelectorNilUsesHelmValues: false
+            replicas: 0
             retention: 60d
-            retentionSize: 16GB
+            retentionSize: 130GB
             storageSpec:
               volumeClaimTemplate:
                 spec:
-                  storageClassName: longhorn
+                  storageClassName: longhorn-sata
                   accessModes:
                     - ReadWriteOnce
                   resources:
                     requests:
-                      storage: 20Gi
+                      storage: 160Gi
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
