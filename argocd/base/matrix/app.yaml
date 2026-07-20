@@ -60,6 +60,15 @@ spec:
               enabled: true
               storageClass: longhorn
               size: 8Gi
+            resources:
+              limits:
+                cpu: 500m
+                ephemeral-storage: 2Gi
+                memory: 192Mi
+              requests:
+                cpu: 100m
+                ephemeral-storage: 50Mi
+                memory: 128Mi
   destination:
     server: https://kubernetes.default.svc
     namespace: matrix

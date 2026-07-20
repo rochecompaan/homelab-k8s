@@ -66,6 +66,12 @@ spec:
               access: proxy
               url: http://victoria-logs-victoria-logs-single-server.victoria-logs.svc.cluster.local:9428
               isDefault: false
+        kubeControllerManager:
+          enabled: false
+        kubeProxy:
+          enabled: false
+        kubeScheduler:
+          enabled: false
         prometheusOperator:
           resources:
             limits:
