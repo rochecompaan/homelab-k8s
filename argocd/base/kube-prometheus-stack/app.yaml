@@ -104,7 +104,9 @@ spec:
     server: https://kubernetes.default.svc
     namespace: monitoring
   syncPolicy:
-    automated: {}
+    automated:
+      prune: true
+      selfHeal: true
     retry:
       limit: 5
       backoff:
