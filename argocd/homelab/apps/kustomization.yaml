@@ -39,6 +39,7 @@ resources:
   - ../../base/traefik-private
   - ../../base/trust-manager
   - ../../base/victoria-logs
+  - ../../base/voice-assistant
   - ../../base/ziti-controller
   - ../../base/ziti-router
 kind: Kustomization
