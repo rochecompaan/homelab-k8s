@@ -112,13 +112,32 @@ def test_log_errors_alert_excludes_known_transient_homelab_noise() -> None:
         'Error: time="2026-07-14T20:13:13Z" level=error msg="DiffFromCache error: error getting managed resources for app openebs-mayastor: cache: key is missing"',
         "Error: no edge forwarder found for edge circuit",
         'Error: time=2026-07-13T22:42:43.494Z level=ERROR source=collector.go:168 msg="collector failed" name=powersupplyclass duration_seconds=0.088315239 err="could not get power_supply class info: error obtaining power_supply class info: failed to read file "/host/sys/class/power_supply/BAT0/charge_types": input/output error"',
+        'Error: time=2026-07-13T22:42:43.494Z level=ERROR source=collector.go:172 msg="collector failed" name=powersupplyclass duration_seconds=0.088315239 err="could not get power_supply class info: error obtaining power_supply class info: failed to read file "/host/sys/class/power_supply/BAT0/charge_types": input/output error"',
         'Error: 2026-07-13T16:13:11.877201Z ERROR pstor::etcd_watcher: Polling watch stream error, error: grpc request error: status: Unknown, message: "h2 protocol error: error reading a body from connection", details: [], metadata: MetadataMap { headers: {} }',
+        (
+            "Error: \x1b[2m2026-07-13T16:13:11.877201Z\x1b[0m "
+            "\x1b[31mERROR\x1b[0m \x1b[1;31mpstor::etcd_watcher\x1b[0m"
+            "\x1b[31m: Polling watch stream error, \x1b[1;31merror\x1b[0m: "
+            'grpc request error: status: Unknown, message: "h2 protocol error: '
+            'error reading a body from connection", details: [], metadata: MetadataMap { headers: {} }'
+        ),
         "Error: 2026-07-13T16:13:24.133685Z ERROR pstor::etcd_keep_alive: error: Reconnect(Reconnect(1s))",
         "Error: 2026-07-13T16:13:25.138301Z ERROR pstor::etcd_keep_alive: error: LeaseGrant(LeaseGrant)",
+        (
+            "Error: \x1b[2m2026-07-13T16:13:25.138301Z\x1b[0m "
+            "\x1b[31mERROR\x1b[0m \x1b[1;31mpstor::etcd_keep_alive\x1b[0m"
+            "\x1b[31m: \x1b[1;31merror\x1b[0m: LeaseGrant(LeaseGrant)"
+        ),
         "Error: payload buffer closed",
         'Error: 2026-07-13T09:44:03Z WRN Error checking new version error="GET https://api.github.com/repos/traefik/traefik/releases: 403 API rate limit exceeded for 102.218.60.202. (But here\'s the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.) [rate reset in 3m31s]"',
         'Error: 2026-07-13T09:44:03Z WRN Error checking new version error="GET https://api.github.com/repos/traefik/traefik/releases: 403 API rate limit exceeded for 102.218.60.202. (But here\'s the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.) [rate reset in 3m32s]"',
         "Error: 2026-07-13T00:10:15.201635Z INFO garage_api_common::generic_server: Response: error 403 Forbidden, Forbidden: Garage does not support anonymous access yet",
+        (
+            "Error: \x1b[2m2026-07-13T00:10:15.201635Z\x1b[0m "
+            "\x1b[32mINFO\x1b[0m \x1b[2mgarage_api_common::generic_server\x1b[0m"
+            "\x1b[2m:\x1b[0m Response: error 403 Forbidden, Forbidden: "
+            "Garage does not support anonymous acce\x1b[0mss yet"
+        ),
     ]
 
     for message in transient_messages:
