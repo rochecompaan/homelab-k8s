@@ -240,6 +240,7 @@ seal-forgejo-admin-secret:
     '  - oci-repository.yaml' \
     '  - admin-secret.yaml' \
     '  - runner-init-secret.yaml' \
+    '  - forgejo-runner-recreate-policy.yaml' \
     '  - runner-oci-repository.yaml' \
     > argocd/homelab/forgejo/bootstrap/kustomization.yaml; \
   kubectl create secret generic forgejo-admin \
