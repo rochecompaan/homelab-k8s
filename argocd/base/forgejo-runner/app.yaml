@@ -6,6 +6,13 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: '5'
 spec:
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      name: forgejo-runner
+      namespace: forgejo
+      jsonPointers:
+        - /spec/strategy
   project: default
   source:
     repoURL: codeberg.org/wrenix/helm-charts
@@ -16,6 +23,13 @@ spec:
       valuesObject:
         knownLastVersion: true
         replicaCount: 1
+        volumeMounts:
+          - name: nix-store
+            mountPath: /nix
+        volumes:
+          - name: nix-store
+            persistentVolumeClaim:
+              claimName: forgejo-runner-nix-store
         runner:
           config:
             create: true
@@ -37,9 +51,10 @@ spec:
                   - docker:docker://docker:29-cli
               container:
                 network: host
-                options: -v /certs/client:/certs/client
+                options: -v /certs/client:/certs/client -v /nix:/nix
                 valid_volumes:
                   - /certs/client
+                  - /nix
   destination:
     server: https://kubernetes.default.svc
     namespace: forgejo
@@ -55,3 +70,4 @@ spec:
         maxDuration: 3m
     syncOptions:
       - CreateNamespace=true
+      - RespectIgnoreDifferences=true
