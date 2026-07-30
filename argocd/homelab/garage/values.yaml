@@ -177,6 +177,20 @@ ingress:
         - secretName: garage-s3-api-croprun-com-tls
           hosts:
             - s3-api.croprun.com
+      private:
+        enabled: true
+        className: traefik-private
+        annotations: {}
+        labels: {}
+        hosts:
+          - host: "s3.compaan"
+            paths:
+              - path: /
+                pathType: Prefix
+          - host: "*.s3.compaan"
+            paths:
+              - path: /
+                pathType: Prefix
     web:
       enabled: true
       # -- Rely _either_ on the className or the annotation below but not both!
