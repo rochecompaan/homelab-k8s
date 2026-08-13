@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - oci-repository.yaml
   - admin-secret.yaml
+  - mailer-secret.yaml
   - runner-init-secret.yaml
   - runner-nix-store-pvc.yaml
   - forgejo-runner-recreate-policy.yaml

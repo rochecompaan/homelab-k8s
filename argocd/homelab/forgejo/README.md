@@ -20,6 +20,32 @@ The recipe writes:
 - `argocd/homelab/forgejo/bootstrap/admin-secret.yaml`
 - `argocd/homelab/forgejo/bootstrap/kustomization.yaml`
 
+## Email notifications
+
+Forgejo submits account and repository notification mail through
+`mail.upfronthosting.co.za:587` with STARTTLS. The external certificate,
+renewal, sender-authentication, and recovery procedure is documented in
+[`docs/runbooks/forgejo-email.md`](../../../docs/runbooks/forgejo-email.md).
+
+Generate the sealed SMTP password Secret with:
+
+```sh
+just seal-forgejo-mailer-secret
+```
+
+The recipe reads only the first line from:
+
+- `pass show FORGEJO_SMTP_PASSWORD`
+
+It writes:
+
+- `argocd/homelab/forgejo/bootstrap/mailer-secret.yaml`
+
+When rotating the password, commit the regenerated SealedSecret and increment
+`homelab.compaan.cloud/forgejo-mailer-secret-revision` in the Forgejo Helm
+values in the same change. ArgoCD performs the rollout; do not restart the
+Deployment directly.
+
 ## Forgejo Actions runner
 
 Forgejo Actions are enabled in the Forgejo Helm values. Generate the sealed

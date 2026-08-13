@@ -18,6 +18,7 @@ github_deploy_key_title := "homelab-k8s ArgoCD GitHub Deploy Key"
 argocd_github_deploy_key_entry := "private/git/homelab-k8s-argocd-deploy-key"
 forgejo_admin_username := "roche"
 forgejo_admin_password_entry := "private/login/git.compaan-admin"
+forgejo_smtp_password_entry := "FORGEJO_SMTP_PASSWORD"
 forgejo_action_runner_token_entry := "FORGEJO_ACTION_RUNNER_TOKEN"
 openziti_controller_url := "https://ctrl.compaan.cloud/edge/management/v1"
 openziti_login_controller := "ctrl.compaan.cloud:443"
@@ -239,6 +240,7 @@ seal-forgejo-admin-secret:
     'resources:' \
     '  - oci-repository.yaml' \
     '  - admin-secret.yaml' \
+    '  - mailer-secret.yaml' \
     '  - runner-init-secret.yaml' \
     '  - runner-nix-store-pvc.yaml' \
     '  - forgejo-runner-recreate-policy.yaml' \
@@ -252,6 +254,29 @@ seal-forgejo-admin-secret:
     -o yaml \
     | kubeseal --format=yaml \
     > argocd/homelab/forgejo/bootstrap/admin-secret.yaml
+
+seal-forgejo-mailer-secret:
+  mkdir -p argocd/homelab/forgejo/bootstrap; \
+  tmpdir="$(mktemp -d)"; \
+  tmpfile="$(mktemp argocd/homelab/forgejo/bootstrap/.mailer-secret.yaml.XXXXXX)"; \
+  trap 'rm -rf "$tmpdir"; rm -f "$tmpfile"' EXIT; \
+  umask 077; \
+  pass show {{forgejo_smtp_password_entry}} \
+    | head -n1 \
+    | tr -d '\r\n' \
+    > "$tmpdir/password"; \
+  [[ -s "$tmpdir/password" ]] \
+    || { echo "Refusing to seal empty Forgejo SMTP password" >&2; exit 1; }; \
+  kubectl create secret generic forgejo-mailer \
+    --namespace forgejo \
+    --from-file=password="$tmpdir/password" \
+    --dry-run=client \
+    -o yaml \
+    | kubeseal \
+        --kubeconfig "${KUBECONFIG:-./.kubeconfig}" \
+        --format=yaml \
+    > "$tmpfile"; \
+  mv "$tmpfile" argocd/homelab/forgejo/bootstrap/mailer-secret.yaml
 
 seal-forgejo-action-runner-secret:
   mkdir -p argocd/homelab/forgejo/bootstrap; \

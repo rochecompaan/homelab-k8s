@@ -34,16 +34,35 @@ spec:
                 hosts:
                   - git.compaan.cloud
           gitea:
+            additionalConfigFromEnvs:
+              - name: FORGEJO__MAILER__PASSWD
+                valueFrom:
+                  secretKeyRef:
+                    name: forgejo-mailer
+                    key: password
             admin:
               existingSecret: forgejo-admin
               username: roche
               email: roche@compaan.cloud
+            podAnnotations:
+              homelab.compaan.cloud/forgejo-mailer-secret-revision: '1'
             config:
               APP_NAME: Forgejo
               actions:
                 ENABLED: true
+              admin:
+                DEFAULT_EMAIL_NOTIFICATIONS: enabled
+              mailer:
+                ENABLED: true
+                ENVELOPE_FROM: forgejo@git.compaan.cloud
+                FROM: 'Forgejo <forgejo@git.compaan.cloud>'
+                PROTOCOL: smtp+starttls
+                SMTP_ADDR: mail.upfronthosting.co.za
+                SMTP_PORT: 587
+                USER: forgejo
               service:
                 DISABLE_REGISTRATION: true
+                ENABLE_NOTIFY_MAIL: true
               session:
                 PROVIDER: db
     - repoURL: git@github.com:rochecompaan/homelab-k8s.git
