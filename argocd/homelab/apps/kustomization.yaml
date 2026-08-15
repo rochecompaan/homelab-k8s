@@ -8,6 +8,7 @@ resources:
   - ../../base/authentik
   - ../../base/csi-snapshot-crds
   - ../../base/csi-snapshot-controller
+  - ../../base/container-registry
   - ../../base/coturn
   - ../../base/nextcloud-db
   - ../../base/nextcloud
@@ -26,12 +27,14 @@ resources:
   - ../../base/grafana-postgres
   - ../../base/kube-prometheus-stack
   - ../../base/grafana-dashboards
+  - ../../base/harbor
   - ../../base/local-path-provisioner
   - ../../base/mosquitto
   - ../../base/kyverno
   - ../../base/longhorn
   - ../../base/longhorn-admission-hooks
   - ../../base/openebs-mayastor
+  - ../../base/redis-harbor
   - ../../base/reflector
   - ../../base/sealed-secrets
   - ../../base/speedtest-exporter

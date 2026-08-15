@@ -20,6 +20,7 @@ forgejo_admin_username := "roche"
 forgejo_admin_password_entry := "private/login/git.compaan-admin"
 forgejo_smtp_password_entry := "FORGEJO_SMTP_PASSWORD"
 forgejo_action_runner_token_entry := "FORGEJO_ACTION_RUNNER_TOKEN"
+harbor_admin_password_entry := "private/login/harbor.compaan-admin"
 openziti_controller_url := "https://ctrl.compaan.cloud/edge/management/v1"
 openziti_login_controller := "ctrl.compaan.cloud:443"
 openziti_username := "admin"
@@ -159,6 +160,24 @@ garage-bucket-create-public bucket key:
   just garage-exec bucket create "$bucket"; \
   just garage-bucket-create-key "$bucket" {{ quote(key) }}; \
   just garage-exec bucket website --allow "$bucket"
+
+seal-harbor-secrets:
+  @reg_pass="$$(openssl rand -hex 16)"; \
+  reg_htpasswd="harbor_registry_user:$$(openssl passwd -apr1 "$$reg_pass")"; \
+  kubectl create secret generic harbor-secrets \
+    --namespace harbor \
+    --from-literal=HARBOR_ADMIN_PASSWORD="$$(pass show {{harbor_admin_password_entry}} | head -n1 | tr -d '[:space:]')" \
+    --from-literal=secretKey="$$(openssl rand -hex 8)" \
+    --from-literal=secret="$$(openssl rand -hex 16)" \
+    --from-literal=CSRF_KEY="$$(openssl rand -hex 16)" \
+    --from-literal=JOBSERVICE_SECRET="$$(openssl rand -hex 16)" \
+    --from-literal=REGISTRY_HTTP_SECRET="$$(openssl rand -hex 16)" \
+    --from-literal=REGISTRY_PASSWD="$$reg_pass" \
+    --from-literal=REGISTRY_HTPASSWD="$$reg_htpasswd" \
+    --dry-run=client \
+    -o yaml \
+  | kubeseal --format=yaml \
+  > argocd/homelab/harbor/harbor-secrets.yaml
 
 mail-secrets: seal-webmutt-secret seal-openclaw-mail-secret
 

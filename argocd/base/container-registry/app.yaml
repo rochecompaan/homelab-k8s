@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: git@github.com:rochecompaan/homelab-k8s.git
     targetRevision: main
-    path: argocd/harbor
+    path: argocd/homelab/harbor
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: harbor

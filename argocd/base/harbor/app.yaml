@@ -14,30 +14,49 @@ spec:
     helm:
       releaseName: harbor
       valuesObject:
-        externalURL: https://harbor.rochecompaan
+        externalURL: https://harbor.compaan
         expose:
           type: clusterIP
           tls:
-            enabled: true
-            certSource: secret
-            secret:
-              secretName: harbor-tls
+            enabled: false
           ingress: {}
         portal:
-          replicas: 2
+          replicas: 1
         core:
-          replicas: 2
+          replicas: 1
+          existingSecret: harbor-secrets
+          existingXsrfSecret: harbor-secrets
+          existingXsrfSecretKey: CSRF_KEY
         jobservice:
-          replicas: 2
+          replicas: 1
+          existingSecret: harbor-secrets
+          existingSecretKey: JOBSERVICE_SECRET
         registry:
-          replicas: 2
+          replicas: 1
+          existingSecret: harbor-secrets
+          existingSecretKey: REGISTRY_HTTP_SECRET
+          credentials:
+            existingSecret: harbor-secrets
         trivy:
-          replicas: 2
+          enabled: true
+          replicas: 1
+        existingSecretAdminPassword: harbor-secrets
+        existingSecretAdminPasswordKey: HARBOR_ADMIN_PASSWORD
+        existingSecretSecretKey: harbor-secrets
+        updateStrategy:
+          type: Recreate
         persistence:
           enabled: true
           persistentVolumeClaim:
             registry:
               existingClaim: harbor-registry
+            jobservice:
+              jobLog:
+                storageClass: longhorn
+                size: 1Gi
+            trivy:
+              storageClass: longhorn
+              size: 5Gi
         redis:
           type: external
           external:
