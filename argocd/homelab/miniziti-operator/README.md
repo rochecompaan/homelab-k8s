@@ -57,3 +57,16 @@ That service:
 - intercepts `turn.matrix.compaan:3478/tcp`
 - forwards to `coturn.matrix.svc.cluster.local:3478`
 - allows dial access for identities with the `matrix` role attribute
+
+## Harbor registry service
+
+The Harbor container registry uses the declarative OpenZiti resources in:
+
+- `argocd/homelab/miniziti-operator/harbor/service.yaml`
+- `argocd/homelab/miniziti-operator/harbor/access-policy.yaml`
+
+That service:
+
+- intercepts `harbor.compaan:443/tcp`
+- forwards to `traefik-private.kube-system.svc.cluster.local:443`
+- allows dial access for identities with the `admin` role attribute

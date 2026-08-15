@@ -1,0 +1,25 @@
+---
+apiVersion: ziti.sixfeetup.com/v1alpha1
+kind: ZitiService
+metadata:
+  name: harbor
+  namespace: ziti
+spec:
+  name: harbor
+  roleAttributes:
+    - harbor
+  router:
+    name: ziti-router
+  configs:
+    intercept:
+      protocols:
+        - tcp
+      addresses:
+        - harbor.compaan
+      portRanges:
+        - low: 443
+          high: 443
+    host:
+      protocol: tcp
+      address: traefik-private.kube-system.svc.cluster.local
+      port: 443
