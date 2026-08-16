@@ -1,5 +1,5 @@
 # Sourced from:
-# https://raw.githubusercontent.com/sixfeetup/miniziti-operator/d4857499fc55dcf937b5443d5be81a163079c976/dist/install.yaml
+# https://raw.githubusercontent.com/sixfeetup/miniziti-operator/585f13236bd9dc5a29fcb496c7641a7c65fbb327/dist/install.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -810,7 +810,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: sixfeetup/miniziti-operator@sha256:d3265c7c18b1e08ca5d17de81ca5e231a9909c388037c268802552b131b338a6
+        image: sixfeetup/miniziti-operator@sha256:412ca12d1ed1fd1291fd1a6c10e111d1ba06431e62a9d38cd70b740b7e53b7d0
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
