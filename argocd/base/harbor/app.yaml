@@ -25,7 +25,8 @@ spec:
         core:
           replicas: 1
           podAnnotations:
-            homelab.compaan.cloud/secrets-revision: '4'
+            homelab.compaan.cloud/secrets-revision: '5'
+          secretName: harbor-token
           existingSecret: harbor-secrets
           existingXsrfSecret: harbor-secrets
           existingXsrfSecretKey: CSRF_KEY

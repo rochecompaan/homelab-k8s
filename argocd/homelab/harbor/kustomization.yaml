@@ -4,4 +4,5 @@ resources:
   - harbor-registry-pvc.yaml
   - harbor-ingress.yaml
   - harbor-secrets.yaml
+  - harbor-token.yaml
 kind: Kustomization

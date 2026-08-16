@@ -21,6 +21,8 @@ forgejo_admin_password_entry := "private/login/git.compaan-admin"
 forgejo_smtp_password_entry := "FORGEJO_SMTP_PASSWORD"
 forgejo_action_runner_token_entry := "FORGEJO_ACTION_RUNNER_TOKEN"
 harbor_admin_password_entry := "private/login/harbor.compaan-admin"
+harbor_token_secret_name := "harbor-token"
+harbor_token_secret_path := "argocd/homelab/harbor/harbor-token.yaml"
 openziti_controller_url := "https://ctrl.compaan.cloud/edge/management/v1"
 openziti_login_controller := "ctrl.compaan.cloud:443"
 openziti_username := "admin"
@@ -178,6 +180,39 @@ seal-harbor-secrets:
     -o yaml \
   | kubeseal --format=yaml \
   > argocd/homelab/harbor/harbor-secrets.yaml
+
+seal-harbor-token:
+  @tmpdir="$(mktemp -d)"; \
+  tmpfile="$(mktemp "$(dirname {{quote(harbor_token_secret_path)}})/.harbor-token.yaml.XXXXXX")"; \
+  trap 'rm -rf "$tmpdir"; rm -f "$tmpfile"' EXIT; \
+  umask 077; \
+  openssl genrsa -traditional -out "$tmpdir/tls.key" 4096 >/dev/null 2>&1; \
+  [[ "$(head -n1 "$tmpdir/tls.key")" == "-----BEGIN RSA PRIVATE KEY-----" ]] \
+    || { echo "Harbor requires a PKCS#1 RSA private key" >&2; exit 1; }; \
+  openssl req -x509 -new -key "$tmpdir/tls.key" -sha256 -days 3650 \
+    -subj "/CN=harbor-token-ca" \
+    -addext "basicConstraints=critical,CA:TRUE" \
+    -addext "keyUsage=critical,digitalSignature,keyCertSign,cRLSign" \
+    -out "$tmpdir/tls.crt" \
+    >/dev/null 2>&1; \
+  openssl pkey -in "$tmpdir/tls.key" -pubout -out "$tmpdir/key.pub"; \
+  openssl x509 -in "$tmpdir/tls.crt" -pubkey -noout > "$tmpdir/cert.pub"; \
+  cmp -s "$tmpdir/key.pub" "$tmpdir/cert.pub"; \
+  openssl verify -CAfile "$tmpdir/tls.crt" "$tmpdir/tls.crt" >/dev/null; \
+  openssl x509 -in "$tmpdir/tls.crt" -noout -subject -issuer -dates -fingerprint -sha256; \
+  kubectl create secret generic {{harbor_token_secret_name}} \
+    --namespace harbor \
+    --from-file=tls.key="$tmpdir/tls.key" \
+    --from-file=tls.crt="$tmpdir/tls.crt" \
+    --dry-run=client \
+    -o yaml \
+    | kubeseal \
+      --kubeconfig "${KUBECONFIG:-./.kubeconfig}" \
+      --controller-name {{sealed_secrets_controller_name}} \
+      --controller-namespace {{sealed_secrets_controller_namespace}} \
+      --format=yaml \
+    > "$tmpfile"; \
+  mv "$tmpfile" {{harbor_token_secret_path}}
 
 harbor-login:
   pass show {{harbor_admin_password_entry}} | head -n1 | tr -d '[:space:]' | docker login harbor.compaan -u admin --password-stdin
