@@ -179,6 +179,9 @@ seal-harbor-secrets:
   | kubeseal --format=yaml \
   > argocd/homelab/harbor/harbor-secrets.yaml
 
+harbor-login:
+  pass show {{harbor_admin_password_entry}} | head -n1 | tr -d '[:space:]' | docker login harbor.compaan -u admin --password-stdin
+
 mail-secrets: seal-webmutt-secret seal-openclaw-mail-secret
 
 seal-authentik-config-secret:
