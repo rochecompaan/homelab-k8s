@@ -25,20 +25,20 @@ spec:
         core:
           replicas: 1
           podAnnotations:
-            homelab.compaan.cloud/secrets-revision: '1'
+            homelab.compaan.cloud/secrets-revision: '2'
           existingSecret: harbor-secrets
           existingXsrfSecret: harbor-secrets
           existingXsrfSecretKey: CSRF_KEY
         jobservice:
           replicas: 1
           podAnnotations:
-            homelab.compaan.cloud/secrets-revision: '1'
+            homelab.compaan.cloud/secrets-revision: '2'
           existingSecret: harbor-secrets
           existingSecretKey: JOBSERVICE_SECRET
         registry:
           replicas: 1
           podAnnotations:
-            homelab.compaan.cloud/secrets-revision: '1'
+            homelab.compaan.cloud/secrets-revision: '2'
           existingSecret: harbor-secrets
           existingSecretKey: REGISTRY_HTTP_SECRET
           credentials:
