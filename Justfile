@@ -163,7 +163,7 @@ garage-bucket-create-public bucket key:
 
 seal-harbor-secrets:
   @reg_pass="$(openssl rand -hex 16)"; \
-  reg_htpasswd="harbor_registry_user:$(openssl passwd -apr1 "$reg_pass")"; \
+  reg_htpasswd="harbor_registry_user:$(mkpasswd -m bcrypt "$reg_pass")"; \
   kubectl create secret generic harbor-secrets \
     --namespace harbor \
     --from-literal=HARBOR_ADMIN_PASSWORD="$(pass show {{harbor_admin_password_entry}} | head -n1 | tr -d '[:space:]')" \
