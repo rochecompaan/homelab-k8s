@@ -14,6 +14,7 @@ spec:
     helm:
       releaseName: harbor
       valuesObject:
+        caBundleSecretName: harbor-ca-bundle
         externalURL: https://harbor.compaan
         expose:
           type: clusterIP
@@ -24,8 +25,14 @@ spec:
           replicas: 1
         core:
           replicas: 1
+          extraEnvVars:
+            - name: CONFIG_OVERWRITE_JSON
+              valueFrom:
+                secretKeyRef:
+                  name: harbor-oidc
+                  key: CONFIG_OVERWRITE_JSON
           podAnnotations:
-            homelab.compaan.cloud/secrets-revision: '5'
+            homelab.compaan.cloud/secrets-revision: '6'
           secretName: harbor-token
           existingSecret: harbor-secrets
           existingXsrfSecret: harbor-secrets

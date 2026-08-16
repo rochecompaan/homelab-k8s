@@ -5,6 +5,8 @@ resources:
   - matrix-postgresql-secret.yaml
   - matrix-secret.yaml
   - argocd-authentik-oidc-secret.yaml
+  - authentik-harbor-blueprint.yaml
+  - authentik-harbor-oidc-secret.yaml
   - cert-manager-issuer.yaml
   - coredns-configmap.yaml
   - home-assistant-namespace.yaml

@@ -2,7 +2,7 @@
 
 ## Scope
 
-Authentik is the private homelab identity provider at `https://auth.compaan`. Phase 1 integrates ArgoCD only. Authentik is reachable over the Ziti overlay and is not intended for public internet exposure.
+Authentik is the private homelab identity provider at `https://auth.compaan`. It provides SSO for ArgoCD and Harbor. Authentik is reachable over the Ziti overlay and is not intended for public internet exposure.
 
 ## Initial Access
 
@@ -54,6 +54,68 @@ ArgoCD maps Authentik group `homelab-admins` to `role:admin` using `configs.rbac
 
 Users not in `homelab-admins` should either have no ArgoCD access or only the default permissions explicitly configured in ArgoCD. Phase 1 uses an empty default policy.
 
+## Harbor OIDC Provider
+
+The `authentik-harbor-blueprint` ConfigMap declares the Harbor application and provider. The Authentik worker mounts this ConfigMap and applies its `harbor.yaml` blueprint.
+
+The provider uses these values:
+
+- Application and provider name: `Harbor`
+- Application slug: `harbor`
+- Client ID: `harbor`
+- Redirect URI: `https://harbor.compaan/c/oidc/callback`
+- Issuer: `https://auth.compaan/application/o/harbor/`
+- Grants: authorization code and refresh token
+- Scopes: `openid`, `profile`, `email`, `offline_access`
+- Group claim: `groups`
+- Harbor administrator group: `homelab-admins`
+
+Harbor reads its OIDC configuration from `CONFIG_OVERWRITE_JSON`. The `harbor-oidc` SealedSecret supplies this environment variable to Harbor core.
+
+Harbor trusts `auth.compaan` through the `harbor-ca-bundle` Secret. Kustomize generates this Secret from `argocd/homelab/harbor/compaan-ca.crt`.
+
+The environment configuration makes Harbor authentication settings read-only. Change these settings in Git, not in the Harbor interface.
+
+## Harbor OIDC Secret Rotation
+
+1. Replace the password-store value:
+
+   ```bash
+   pass generate -i private/login/harbor.compaan-authentik-oidc 64
+   ```
+
+2. Generate both SealedSecrets:
+
+   ```bash
+   just seal-harbor-oidc
+   ```
+
+3. Increase `homelab.compaan.cloud/harbor-oidc-revision` in `argocd/base/authentik/app.yaml`.
+4. Increase the core `homelab.compaan.cloud/secrets-revision` in `argocd/base/harbor/app.yaml`.
+5. Commit and push all four changes together.
+
+The two SealedSecrets must use the same client secret. A partial rotation prevents Harbor from authenticating with Authentik.
+
+## Harbor Login and CLI Access
+
+Open `https://harbor.compaan` to start an Authentik login. Authentik users join Harbor automatically after the first successful login.
+
+Members of `homelab-admins` receive Harbor system administrator privileges. Other users receive only their assigned Harbor project roles.
+
+Use `https://harbor.compaan/account/sign-in` for the local Harbor `admin` account. Keep this recovery path available.
+
+Docker and Helm cannot use the browser redirect. An OIDC user must first sign in through the Harbor interface.
+
+1. Open **User Profile** in Harbor.
+2. Copy the Harbor CLI secret.
+3. Use the Authentik username and Harbor CLI secret:
+
+   ```bash
+   docker login harbor.compaan -u USERNAME
+   ```
+
+Do not use the Authentik password as the Docker password.
+
 ## PostgreSQL Credentials
 
 CloudNativePG generates the Authentik application database credentials because `argocd/homelab/authentik-db/postgres-cluster.yaml` does not set `bootstrap.initdb.secret`.
@@ -67,14 +129,19 @@ The Authentik sealed secret `authentik-config` contains only Authentik configura
 
 ## Verification Checklist
 
-Run these checks after ArgoCD syncs the Authentik and ArgoCD changes:
+Run these checks after ArgoCD syncs the Authentik, ArgoCD, and Harbor changes:
 
 ```bash
 kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n authentik get pods
 kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n authentik get ingress authentik-server
 kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n authentik get cluster authentik-postgres
 kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n authentik get secret authentik-postgres-app
+kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n authentik get configmap authentik-harbor-blueprint
+kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n authentik get secret authentik-harbor-oidc
+kubectl --kubeconfig "${KUBECONFIG:-./.kubeconfig}" -n harbor get secret harbor-oidc harbor-ca-bundle
 curl -kI https://auth.compaan
+curl -fsS https://auth.compaan/application/o/harbor/.well-known/openid-configuration | jq -er '.issuer'
+curl -fsS https://harbor.compaan/api/v2.0/health | jq -er '.status'
 ```
 
 Expected outcomes:
@@ -87,6 +154,11 @@ Expected outcomes:
 - ArgoCD local admin login still works.
 - ArgoCD SSO login works for a user in `homelab-admins`.
 - A user outside `homelab-admins` does not receive admin privileges.
+- The Harbor OIDC discovery document reports `https://auth.compaan/application/o/harbor/` as its issuer.
+- The Harbor login page starts the Authentik login flow.
+- A member of `homelab-admins` receives Harbor system administrator privileges.
+- The local Harbor `admin` account can still use `/account/sign-in`.
+- An OIDC user can use a Harbor CLI secret for `docker login`.
 
 ## Rollout Notes
 
@@ -108,7 +180,23 @@ If ArgoCD SSO is broken but local admin works:
 
 1. Sign in to ArgoCD with the local admin account.
 2. Check `argocd/base/argocd/app.yaml` for `configs.cm.oidc.config` and `configs.rbac` changes.
-3. Revert the Git commit that introduced the broken OIDC config.
+3. Revert the Git commit that introduced the broken OIDC configuration.
 4. Let ArgoCD reconcile from Git.
 
-If Authentik database recovery is needed, restore the CloudNativePG data for `authentik-postgres` before adding more OIDC clients beyond ArgoCD.
+If Harbor SSO is broken, open `https://harbor.compaan/account/sign-in`.
+
+1. Sign in with the local Harbor `admin` account.
+2. Inspect the Authentik blueprint status and the Harbor core logs.
+3. Correct the OIDC configuration in Git.
+4. If the client secret changes, run `just seal-harbor-oidc`.
+5. If the client secret changes, increase both OIDC revision annotations.
+6. Commit and push the correction.
+7. Let ArgoCD reconcile Authentik and Harbor from Git.
+8. Open `https://harbor.compaan` and complete an Authentik login.
+9. Open `https://harbor.compaan/account/sign-in` and complete a local administrator login.
+
+CAUTION: A Git revert does not restore `db_auth`. Harbor stores the environment configuration in its database.
+
+Restoring `db_auth` requires a supported Harbor authentication migration or a verified database restore. Treat this restoration as a separate recovery operation.
+
+If Authentik database recovery is necessary, restore the CloudNativePG data for `authentik-postgres` before you add more OIDC clients.

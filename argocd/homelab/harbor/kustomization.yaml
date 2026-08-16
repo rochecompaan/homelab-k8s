@@ -4,5 +4,12 @@ resources:
   - harbor-registry-pvc.yaml
   - harbor-ingress.yaml
   - harbor-secrets.yaml
+  - harbor-oidc.yaml
   - harbor-token.yaml
 kind: Kustomization
+secretGenerator:
+  - name: harbor-ca-bundle
+    files:
+      - ca.crt=compaan-ca.crt
+generatorOptions:
+  disableNameSuffixHash: true

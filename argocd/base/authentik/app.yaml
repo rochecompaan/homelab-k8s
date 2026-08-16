@@ -35,6 +35,9 @@ spec:
         authentik:
           existingSecret:
             secretName: authentik-config
+        blueprints:
+          configMaps:
+            - authentik-harbor-blueprint
         postgresql:
           enabled: false
         server:
@@ -49,6 +52,15 @@ spec:
               - secretName: authentik-compaan-tls
                 hosts:
                   - auth.compaan
+        worker:
+          podAnnotations:
+            homelab.compaan.cloud/harbor-oidc-revision: "1"
+          env:
+            - name: AUTHENTIK_HARBOR_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-harbor-oidc
+                  key: AUTHENTIK_HARBOR_CLIENT_SECRET
   destination:
     server: https://kubernetes.default.svc
     namespace: authentik

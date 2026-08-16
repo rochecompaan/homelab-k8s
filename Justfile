@@ -21,6 +21,10 @@ forgejo_admin_password_entry := "private/login/git.compaan-admin"
 forgejo_smtp_password_entry := "FORGEJO_SMTP_PASSWORD"
 forgejo_action_runner_token_entry := "FORGEJO_ACTION_RUNNER_TOKEN"
 harbor_admin_password_entry := "private/login/harbor.compaan-admin"
+harbor_oidc_client_id := "harbor"
+harbor_oidc_client_secret_entry := "private/login/harbor.compaan-authentik-oidc"
+harbor_oidc_secret_path := "argocd/homelab/harbor/harbor-oidc.yaml"
+authentik_harbor_oidc_secret_path := "argocd/homelab/infra/authentik-harbor-oidc-secret.yaml"
 harbor_token_secret_name := "harbor-token"
 harbor_token_secret_path := "argocd/homelab/harbor/harbor-token.yaml"
 openziti_controller_url := "https://ctrl.compaan.cloud/edge/management/v1"
@@ -213,6 +217,46 @@ seal-harbor-token:
       --format=yaml \
     > "$tmpfile"; \
   mv "$tmpfile" {{harbor_token_secret_path}}
+
+seal-harbor-oidc:
+  @tmpdir="$(mktemp -d)"; \
+  authentik_tmp="$(mktemp "$(dirname {{quote(authentik_harbor_oidc_secret_path)}})/.authentik-harbor-oidc-secret.yaml.XXXXXX")"; \
+  harbor_tmp="$(mktemp "$(dirname {{quote(harbor_oidc_secret_path)}})/.harbor-oidc.yaml.XXXXXX")"; \
+  trap 'rm -rf "$tmpdir"; rm -f "$authentik_tmp" "$harbor_tmp"' EXIT; \
+  umask 077; \
+  client_secret="$(pass show {{harbor_oidc_client_secret_entry}} | head -n1 | tr -d '\r\n')"; \
+  [[ -n "$client_secret" ]] || { echo "Refusing to seal an empty Harbor OIDC client secret" >&2; exit 1; }; \
+  printf '%s' "$client_secret" > "$tmpdir/client-secret"; \
+  jq -nc \
+    --arg client_id {{quote(harbor_oidc_client_id)}} \
+    --rawfile client_secret "$tmpdir/client-secret" \
+    '{auth_mode: "oidc_auth", primary_auth_mode: true, oidc_name: "authentik", oidc_endpoint: "https://auth.compaan/application/o/harbor/", oidc_client_id: $client_id, oidc_client_secret: $client_secret, oidc_groups_claim: "groups", oidc_admin_group: "homelab-admins", oidc_scope: "openid,profile,email,offline_access", oidc_user_claim: "preferred_username", oidc_verify_cert: true, oidc_auto_onboard: true}' \
+    > "$tmpdir/harbor-config.json"; \
+  unset client_secret; \
+  kubectl create secret generic authentik-harbor-oidc \
+    --namespace authentik \
+    --from-file=AUTHENTIK_HARBOR_CLIENT_SECRET="$tmpdir/client-secret" \
+    --dry-run=client \
+    -o yaml \
+    | kubeseal \
+      --kubeconfig "${KUBECONFIG:-./.kubeconfig}" \
+      --controller-name {{sealed_secrets_controller_name}} \
+      --controller-namespace {{sealed_secrets_controller_namespace}} \
+      --format=yaml \
+    > "$authentik_tmp"; \
+  kubectl create secret generic harbor-oidc \
+    --namespace harbor \
+    --from-file=CONFIG_OVERWRITE_JSON="$tmpdir/harbor-config.json" \
+    --dry-run=client \
+    -o yaml \
+    | kubeseal \
+      --kubeconfig "${KUBECONFIG:-./.kubeconfig}" \
+      --controller-name {{sealed_secrets_controller_name}} \
+      --controller-namespace {{sealed_secrets_controller_namespace}} \
+      --format=yaml \
+    > "$harbor_tmp"; \
+  mv "$authentik_tmp" {{authentik_harbor_oidc_secret_path}}; \
+  mv "$harbor_tmp" {{harbor_oidc_secret_path}}
 
 harbor-login:
   pass show {{harbor_admin_password_entry}} | head -n1 | tr -d '[:space:]' | docker login harbor.compaan -u admin --password-stdin
