@@ -162,18 +162,18 @@ garage-bucket-create-public bucket key:
   just garage-exec bucket website --allow "$bucket"
 
 seal-harbor-secrets:
-  @reg_pass="$$(openssl rand -hex 16)"; \
-  reg_htpasswd="harbor_registry_user:$$(openssl passwd -apr1 "$$reg_pass")"; \
+  @reg_pass="$(openssl rand -hex 16)"; \
+  reg_htpasswd="harbor_registry_user:$(openssl passwd -apr1 "$reg_pass")"; \
   kubectl create secret generic harbor-secrets \
     --namespace harbor \
-    --from-literal=HARBOR_ADMIN_PASSWORD="$$(pass show {{harbor_admin_password_entry}} | head -n1 | tr -d '[:space:]')" \
-    --from-literal=secretKey="$$(openssl rand -hex 8)" \
-    --from-literal=secret="$$(openssl rand -hex 16)" \
-    --from-literal=CSRF_KEY="$$(openssl rand -hex 16)" \
-    --from-literal=JOBSERVICE_SECRET="$$(openssl rand -hex 16)" \
-    --from-literal=REGISTRY_HTTP_SECRET="$$(openssl rand -hex 16)" \
-    --from-literal=REGISTRY_PASSWD="$$reg_pass" \
-    --from-literal=REGISTRY_HTPASSWD="$$reg_htpasswd" \
+    --from-literal=HARBOR_ADMIN_PASSWORD="$(pass show {{harbor_admin_password_entry}} | head -n1 | tr -d '[:space:]')" \
+    --from-literal=secretKey="$(openssl rand -hex 8)" \
+    --from-literal=secret="$(openssl rand -hex 16)" \
+    --from-literal=CSRF_KEY="$(openssl rand -hex 16)" \
+    --from-literal=JOBSERVICE_SECRET="$(openssl rand -hex 16)" \
+    --from-literal=REGISTRY_HTTP_SECRET="$(openssl rand -hex 16)" \
+    --from-literal=REGISTRY_PASSWD="$reg_pass" \
+    --from-literal=REGISTRY_HTPASSWD="$reg_htpasswd" \
     --dry-run=client \
     -o yaml \
   | kubeseal --format=yaml \
