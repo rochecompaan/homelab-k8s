@@ -1,0 +1,96 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postiz
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '6'
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:rochecompaan/homelab-k8s.git
+    targetRevision: main
+    path: argocd/homelab/postiz/chart
+    helm:
+      releaseName: postiz
+      valuesObject:
+        replicaCount: 1
+        image:
+          tag: v2.23.0
+        existingSecret: postiz-secrets
+        podAnnotations:
+          homelab.compaan.cloud/postiz-secrets-revision: '1'
+        strategy:
+          type: Recreate
+        startupProbe:
+          httpGet:
+            path: /
+            port: http
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 18
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 6
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        ingress:
+          enabled: true
+          className: traefik-private
+          annotations:
+            cert-manager.io/cluster-issuer: compaan-ca
+          hosts:
+            - host: postiz.compaan
+              paths:
+                - path: /
+                  pathType: Prefix
+                  port: 80
+          tls:
+            - secretName: postiz-compaan-tls
+              hosts:
+                - postiz.compaan
+        extraVolumes:
+          - name: uploads-volume
+            persistentVolumeClaim:
+              claimName: postiz-uploads
+        extraVolumeMounts:
+          - name: uploads-volume
+            mountPath: /uploads
+        env:
+          MAIN_URL: https://postiz.compaan
+          FRONTEND_URL: https://postiz.compaan
+          NEXT_PUBLIC_BACKEND_URL: https://postiz.compaan/api
+          BACKEND_INTERNAL_URL: http://localhost:3000
+          TEMPORAL_ADDRESS: postiz-temporal-frontend.postiz.svc.cluster.local:7233
+          IS_GENERAL: 'true'
+          DISABLE_REGISTRATION: 'false'
+          RUN_CRON: 'true'
+          STORAGE_PROVIDER: local
+          UPLOAD_DIRECTORY: /uploads
+          NEXT_PUBLIC_UPLOAD_STATIC_DIRECTORY: /uploads
+          NX_ADD_PLUGINS: 'false'
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: postiz
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true

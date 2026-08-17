@@ -1,0 +1,13 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: postiz-redis
+  namespace: postiz
+spec:
+  encryptedData:
+    users.acl: AgBBXDrSyqC5rG+l/FIHADsxbvarSf3jy6uE1MHmgaKZmWShA7Cqt3rdV8cCVSVAwxFG1XNKw/pfOJ8+D3g3clVkeAN8kuPYmIg/pgS0hhDM0Dphh8+LMwGsSzztNhzFBsFmJyD2KXh1ld0n0eqVTk6mzdfsTpzs8kFqqduN4xFg50KRFxOAN3ROnAJoB65m8M1BvD6VTGQQsUvPTMUXAKark5MhwEq/3Y52VG/mbwlTQ5r5nd45x/bziomcrsRCYMyNyh8kMuONNXH0q4qD0YDGl4eSDhEO03JU1q/mpJlQB4e7/V+xRQxjP99/VADF1jLx6Ui0hSWvdzvGT3NCP4t6tx+Icpk/bAn/fdUUAIhjtcU6EiGbTRAuoLzaK86ryIApStD3nEhLlzCMt3gxSjBjXDxVkrvlmPDLCqOr5PNRhR/QLqJp1YVFGYbBI4N+PkgDtagS/JRxNKO66ZHWDjRd3+rUU7vC81Wx7wJnSetYosJcp4nj7dx2lhRjIdHf+nnGE92hZvJoW/CcyL0akvGDoTU5+w4P2Qq6XMJzszTVPZAbNCGXxZrWZc8Jpkk/SYDGGpFuR+HwqYdU4aj0eohRAzJyP9ihDMpO2PHgfoVm2InS8IyKtj2Vuv57G+eSy0DaAzgssYv19w1+59p63qiElH82oJKvQREZL+Fmr4W08k4BDmjjhpxpXaAPS41+Ks1G+GU5OZ5EmLboaUqHagbNZRAugdOnVyylbyb6Djy8EGE/b78nshkQK2yR1jTRU+MOrvKbaqPLCb7Y6jOjMNt7Mk44cT8JM9wuy8+kpzBqK2m1yY2pn1tZzTf0OF4=
+  template:
+    metadata:
+      name: postiz-redis
+      namespace: postiz

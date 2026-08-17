@@ -1,0 +1,15 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postiz-db
+spec:
+  instances: 1
+  storage:
+    size: 10Gi
+    storageClass: longhorn
+  bootstrap:
+    initdb:
+      database: postiz
+      owner: postiz
+      secret:
+        name: postiz-db-app

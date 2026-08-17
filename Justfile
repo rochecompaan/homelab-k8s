@@ -59,6 +59,10 @@ garage_namespace := "garage"
 garage_pod := "garage-0"
 garage_container := "garage"
 garage_binary := "/garage"
+postiz_namespace := "postiz"
+postiz_app_secret_path := "argocd/homelab/postiz/data/postiz-secrets.yaml"
+postiz_db_secret_path := "argocd/homelab/postiz/data/postiz-db-app.yaml"
+postiz_redis_secret_path := "argocd/homelab/postiz/data/postiz-redis.yaml"
 
 default:
   @just --list
@@ -166,6 +170,98 @@ garage-bucket-create-public bucket key:
   just garage-exec bucket create "$bucket"; \
   just garage-bucket-create-key "$bucket" {{ quote(key) }}; \
   just garage-exec bucket website --allow "$bucket"
+
+# Create the initial Postiz credentials. Do not use this recipe for password rotation.
+seal-postiz-secrets:
+  @mkdir -p "$(dirname {{quote(postiz_app_secret_path)}})"; \
+  umask 077; \
+  lockdir="$(dirname {{quote(postiz_app_secret_path)}})/.postiz-secrets.lock"; \
+  if ! mkdir "$lockdir"; then \
+    echo "Postiz credential generation is already running." >&2; \
+    exit 1; \
+  fi; \
+  tmpdir=""; \
+  published_paths=(); \
+  cleanup() { \
+    status=$?; \
+    for path in "${published_paths[@]}"; do \
+      source="$tmpdir/$(basename "$path")"; \
+      if [[ -n "$tmpdir" && -e "$source" && -e "$path" && "$path" -ef "$source" ]]; then rm -f "$path"; fi; \
+    done; \
+    [[ -z "$tmpdir" ]] || rm -rf "$tmpdir"; \
+    rmdir "$lockdir" || true; \
+    return "$status"; \
+  }; \
+  trap cleanup EXIT; \
+  for path in \
+    {{quote(postiz_app_secret_path)}} \
+    {{quote(postiz_db_secret_path)}} \
+    {{quote(postiz_redis_secret_path)}}; do \
+    [[ ! -e "$path" ]] \
+      || { echo "Refusing to replace $path. Rotate credentials with a migration." >&2; exit 1; }; \
+  done; \
+  tmpdir="$(mktemp -d "$(dirname {{quote(postiz_app_secret_path)}})/.postiz-secrets.XXXXXX")"; \
+  postgresql_password="$(openssl rand -hex 32)"; \
+  redis_password="$(openssl rand -hex 32)"; \
+  jwt_secret="$(openssl rand -hex 64)"; \
+  database_url="postgresql://postiz:${postgresql_password}@postiz-db-rw.postiz.svc.cluster.local:5432/postiz"; \
+  redis_url="redis://:${redis_password}@postiz-redis.postiz.svc.cluster.local:6379"; \
+  redis_acl="user default on >${redis_password} ~* &* +@all"; \
+  printf '%s' "$jwt_secret" > "$tmpdir/JWT_SECRET"; \
+  printf '%s' "$database_url" > "$tmpdir/DATABASE_URL"; \
+  printf '%s' "$redis_url" > "$tmpdir/REDIS_URL"; \
+  printf '%s' postiz > "$tmpdir/username"; \
+  printf '%s' "$postgresql_password" > "$tmpdir/password"; \
+  printf '%s' "$redis_acl" > "$tmpdir/users.acl"; \
+  unset postgresql_password redis_password jwt_secret database_url redis_url redis_acl; \
+  kubectl create secret generic postiz-secrets \
+    --namespace {{postiz_namespace}} \
+    --from-file=JWT_SECRET="$tmpdir/JWT_SECRET" \
+    --from-file=DATABASE_URL="$tmpdir/DATABASE_URL" \
+    --from-file=REDIS_URL="$tmpdir/REDIS_URL" \
+    --dry-run=client \
+    -o yaml \
+  | kubeseal \
+      --kubeconfig "${KUBECONFIG:-./.kubeconfig}" \
+      --controller-name {{sealed_secrets_controller_name}} \
+      --controller-namespace {{sealed_secrets_controller_namespace}} \
+      --format=yaml \
+    > "$tmpdir/postiz-secrets.yaml"; \
+  kubectl create secret generic postiz-db-app \
+    --namespace {{postiz_namespace}} \
+    --type=kubernetes.io/basic-auth \
+    --from-file=username="$tmpdir/username" \
+    --from-file=password="$tmpdir/password" \
+    --dry-run=client \
+    -o yaml \
+  | kubeseal \
+      --kubeconfig "${KUBECONFIG:-./.kubeconfig}" \
+      --controller-name {{sealed_secrets_controller_name}} \
+      --controller-namespace {{sealed_secrets_controller_namespace}} \
+      --format=yaml \
+    > "$tmpdir/postiz-db-app.yaml"; \
+  kubectl create secret generic postiz-redis \
+    --namespace {{postiz_namespace}} \
+    --from-file=users.acl="$tmpdir/users.acl" \
+    --dry-run=client \
+    -o yaml \
+  | kubeseal \
+      --kubeconfig "${KUBECONFIG:-./.kubeconfig}" \
+      --controller-name {{sealed_secrets_controller_name}} \
+      --controller-namespace {{sealed_secrets_controller_namespace}} \
+      --format=yaml \
+    > "$tmpdir/postiz-redis.yaml"; \
+  publish() { \
+    if ! ln -T -- "$1" "$2"; then \
+      echo "Refusing to replace $2. Rotate credentials with a migration." >&2; \
+      return 1; \
+    fi; \
+    published_paths+=("$2"); \
+  }; \
+  publish "$tmpdir/postiz-secrets.yaml" {{quote(postiz_app_secret_path)}}; \
+  publish "$tmpdir/postiz-db-app.yaml" {{quote(postiz_db_secret_path)}}; \
+  publish "$tmpdir/postiz-redis.yaml" {{quote(postiz_redis_secret_path)}}; \
+  published_paths=()
 
 seal-harbor-secrets:
   @reg_pass="$(openssl rand -hex 16)"; \

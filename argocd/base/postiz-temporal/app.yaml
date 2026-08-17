@@ -1,0 +1,74 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postiz-temporal
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '5'
+spec:
+  project: default
+  source:
+    chart: temporal
+    repoURL: https://go.temporal.io/helm-charts/
+    targetRevision: 1.6.0
+    helm:
+      releaseName: postiz-temporal
+      valuesObject:
+        server:
+          replicaCount: 1
+          config:
+            namespaces:
+              create: true
+              namespace:
+                - name: default
+                  retention: 3d
+            persistence:
+              defaultStore: default
+              visibilityStore: visibility
+              numHistoryShards: 512
+              datastores:
+                default:
+                  sql:
+                    createDatabase: false
+                    manageSchema: true
+                    pluginName: postgres12_pgx
+                    driverName: postgres12_pgx
+                    databaseName: temporal
+                    connectAddr: postiz-temporal-rw.postiz.svc.cluster.local:5432
+                    connectProtocol: tcp
+                    user: temporal
+                    existingSecret: postiz-temporal-app
+                    secretKey: password
+                visibility:
+                  sql:
+                    createDatabase: false
+                    manageSchema: true
+                    pluginName: postgres12_pgx
+                    driverName: postgres12_pgx
+                    databaseName: temporal_visibility
+                    connectAddr: postiz-temporal-rw.postiz.svc.cluster.local:5432
+                    connectProtocol: tcp
+                    user: temporal
+                    existingSecret: postiz-temporal-app
+                    secretKey: password
+        schema:
+          useHelmHooks: true
+        web:
+          enabled: false
+        admintools:
+          enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: postiz
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+    syncOptions:
+      - CreateNamespace=true

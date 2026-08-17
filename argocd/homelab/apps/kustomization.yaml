@@ -4,6 +4,10 @@ resources:
   - ../../base/argocd
   - ../../base/cert-manager
   - ../../base/cloudnative-pg
+  - ../../base/postiz-temporal-db
+  - ../../base/postiz-data
+  - ../../base/postiz-temporal
+  - ../../base/postiz
   - ../../base/authentik-db
   - ../../base/authentik
   - ../../base/csi-snapshot-crds

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postiz-redis
+data:
+  redis.conf: |
+    appendonly yes
+    appendfsync everysec
+    dir /data
+    aclfile /run/secrets/users.acl
