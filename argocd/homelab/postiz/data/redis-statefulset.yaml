@@ -13,6 +13,7 @@ spec:
       labels:
         app.kubernetes.io/name: postiz-redis
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: redis
           image: redis:7.2.15-alpine@sha256:05a97a479bc73de66f087dc05b569010772880f778cc8671fa6b8aadee32e5c6
