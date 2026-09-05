@@ -70,3 +70,22 @@ That service:
 - intercepts `harbor.compaan:443/tcp`
 - forwards to `traefik-private.kube-system.svc.cluster.local:443`
 - allows dial access for identities with the `admin` role attribute
+
+## Remote Pi relay service
+
+The Remote Pi relay uses these declarative OpenZiti resources:
+
+- `argocd/homelab/miniziti-operator/remote-pi/service.yaml`
+- `argocd/homelab/miniziti-operator/remote-pi/access-policy.yaml`
+
+This service:
+
+- intercepts `remote-pi.compaan:80/tcp`
+- forwards to `remote-pi-relay.remote-pi.svc.cluster.local:3000`
+- allows Dial access for identities with the `remote-pi` role attribute
+
+Configure Pi once with:
+
+```text
+/remote-pi set-relay http://remote-pi.compaan
+```

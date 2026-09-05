@@ -18,6 +18,7 @@ resources:
   - ../../base/matrix
   - ../../base/matrix-whatsapp
   - ../../base/miniziti-operator
+  - ../../base/remote-pi-relay
   - ../../base/garage
   - ../../base/forgejo
   - ../../base/forgejo-runner

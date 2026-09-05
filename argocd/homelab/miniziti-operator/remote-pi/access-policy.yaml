@@ -1,0 +1,14 @@
+---
+apiVersion: ziti.sixfeetup.com/v1alpha1
+kind: ZitiAccessPolicy
+metadata:
+  name: remote-pi-dial
+  namespace: ziti
+spec:
+  type: Dial
+  identitySelector:
+    matchRoleAttributes:
+      - remote-pi
+  serviceSelector:
+    matchNames:
+      - remote-pi

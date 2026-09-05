@@ -1,0 +1,25 @@
+---
+apiVersion: ziti.sixfeetup.com/v1alpha1
+kind: ZitiService
+metadata:
+  name: remote-pi
+  namespace: ziti
+spec:
+  name: remote-pi
+  roleAttributes:
+    - remote-pi
+  router:
+    name: ziti-router
+  configs:
+    intercept:
+      protocols:
+        - tcp
+      addresses:
+        - remote-pi.compaan
+      portRanges:
+        - low: 80
+          high: 80
+    host:
+      protocol: tcp
+      address: remote-pi-relay.remote-pi.svc.cluster.local
+      port: 3000
