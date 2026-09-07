@@ -30,6 +30,7 @@ resources:
   - ../../base/grafana-dashboards
   - ../../base/harbor
   - ../../base/local-path-provisioner
+  - ../../base/mail
   - ../../base/mosquitto
   - ../../base/kyverno
   - ../../base/longhorn

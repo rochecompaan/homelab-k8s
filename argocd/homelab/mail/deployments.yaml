@@ -1,0 +1,194 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mail-exim
+  labels:
+    app.kubernetes.io/name: mail-exim
+    app.kubernetes.io/part-of: mail
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mail-exim
+      app.kubernetes.io/part-of: mail
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mail-exim
+        app.kubernetes.io/part-of: mail
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 5000
+      initContainers:
+        - name: init-exim-spool
+          image: exim
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              uid="$(id -u Debian-exim)"
+              gid="$(id -g Debian-exim)"
+              chown -R "${uid}:${gid}" /var/spool/exim4
+          volumeMounts:
+            - name: mail-exim-spool
+              mountPath: /var/spool/exim4
+      containers:
+        - name: exim
+          image: exim
+          imagePullPolicy: IfNotPresent
+          args: ["-bd", "-q30m", "-C", "/etc/exim4/exim.conf"]
+          ports:
+            - name: smtp
+              containerPort: 25
+              protocol: TCP
+            - name: submission
+              containerPort: 587
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: smtp
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            tcpSocket:
+              port: smtp
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: mail-config
+              mountPath: /etc/exim4/exim.conf
+              subPath: exim.conf
+              readOnly: true
+            - name: mail-config
+              mountPath: /etc/exim4/aliases
+              subPath: aliases
+              readOnly: true
+            - name: mail-auth
+              mountPath: /etc/exim4/auth
+              readOnly: true
+            - name: mail-dkim
+              mountPath: /etc/exim4/dkim
+              readOnly: true
+            - name: mail-tls
+              mountPath: /etc/exim4/tls
+              readOnly: true
+            - name: mail-storage
+              mountPath: /var/mail/vmail
+            - name: mail-exim-spool
+              mountPath: /var/spool/exim4
+      volumes:
+        - name: mail-config
+          configMap:
+            name: mail-config
+        - name: mail-auth
+          secret:
+            secretName: mail-auth
+        - name: mail-dkim
+          secret:
+            secretName: mail-dkim
+        - name: mail-tls
+          secret:
+            secretName: mail-tls
+        - name: mail-storage
+          persistentVolumeClaim:
+            claimName: mail-storage
+        - name: mail-exim-spool
+          persistentVolumeClaim:
+            claimName: mail-exim-spool
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mail-dovecot
+  labels:
+    app.kubernetes.io/name: mail-dovecot
+    app.kubernetes.io/part-of: mail
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mail-dovecot
+      app.kubernetes.io/part-of: mail
+  template:
+    metadata:
+      annotations:
+        homelab.compaan.cloud/mail-dovecot-restart: "0"
+      labels:
+        app.kubernetes.io/name: mail-dovecot
+        app.kubernetes.io/part-of: mail
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 5000
+      containers:
+        - name: dovecot
+          image: dovecot
+          imagePullPolicy: IfNotPresent
+          args: ["/usr/sbin/dovecot", "-F", "-c", "/etc/dovecot/dovecot.conf"]
+          ports:
+            - name: imaps
+              containerPort: 993
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: imaps
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            tcpSocket:
+              port: imaps
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: mail-config
+              mountPath: /etc/dovecot/dovecot.conf
+              subPath: dovecot.conf
+              readOnly: true
+            - name: mail-auth
+              mountPath: /etc/dovecot/auth
+              readOnly: true
+            - name: mail-tls
+              mountPath: /etc/dovecot/tls
+              readOnly: true
+            - name: mail-storage
+              mountPath: /var/mail/vmail
+      volumes:
+        - name: mail-config
+          configMap:
+            name: mail-config
+        - name: mail-auth
+          secret:
+            secretName: mail-auth
+        - name: mail-tls
+          secret:
+            secretName: mail-tls
+        - name: mail-storage
+          persistentVolumeClaim:
+            claimName: mail-storage

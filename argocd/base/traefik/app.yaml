@@ -42,6 +42,7 @@ spec:
             namespaces:
               - forgejo
               - garage
+              - mail
             ingressEndpoint:
               hostname: traefik-public.compaan.cloud
             publishedService:

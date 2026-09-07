@@ -9,6 +9,10 @@ argocd_password_entry := "private/login/argocd.compaan-login-admin"
 argocd_chart_version := "9.1.6"
 sealed_secrets_controller_name := "sealed-secrets-controller"
 sealed_secrets_controller_namespace := "kube-system"
+mail_roche_password_entry := "compaan.cloud/mail/roche"
+mail_juan_password_entry := "compaan.cloud/mail/juan"
+mail_auth_secret_path := "argocd/homelab/mail/mail-auth-sealed-secret.yaml"
+mail_dkim_secret_path := "argocd/homelab/mail/mail-dkim-sealed-secret.yaml"
 argocd_root_app_name := "root"
 argocd_root_app_path := "argocd/homelab/apps"
 argocd_repo_secret_name := "github-repo-secret"
@@ -262,6 +266,62 @@ harbor-login:
   pass show {{harbor_admin_password_entry}} | head -n1 | tr -d '[:space:]' | docker login harbor.compaan -u admin --password-stdin
 
 mail-secrets: seal-webmutt-secret seal-openclaw-mail-secret
+
+# Seal the shared mail credentials (exim + dovecot formats) for namespace mail.
+seal-mail-auth:
+  @mkdir -p "$(dirname {{quote(mail_auth_secret_path)}})"; \
+  tmpdir="$(mktemp -d)"; \
+  tmpfile="$(mktemp "$(dirname {{quote(mail_auth_secret_path)}})/.mail-auth.yaml.XXXXXX")"; \
+  trap 'rm -rf "$tmpdir"; rm -f "$tmpfile"' EXIT; \
+  umask 077; \
+  : > "$tmpdir/passwd"; \
+  : > "$tmpdir/passwd-dovecot"; \
+  for entry in {{mail_roche_password_entry}} {{mail_juan_password_entry}}; do \
+    user="${entry##*/}"; \
+    password="$(pass show "$entry" | head -n1 | tr -d '\r\n')"; \
+    [[ -n "$password" ]] || { echo "Refusing to seal empty password for $user" >&2; exit 1; }; \
+    hash="$(printf '%s' "$password" | openssl passwd -6 -stdin)"; \
+    printf '%s@compaan.cloud:%s\n' "$user" "$hash" >> "$tmpdir/passwd"; \
+    printf '%s@compaan.cloud:{SHA512-CRYPT}%s::::::\n' "$user" "$hash" >> "$tmpdir/passwd-dovecot"; \
+  done; \
+  kubectl create secret generic mail-auth \
+    --namespace mail \
+    --from-file=passwd="$tmpdir/passwd" \
+    --from-file=passwd-dovecot="$tmpdir/passwd-dovecot" \
+    --dry-run=client \
+    -o yaml \
+  | kubeseal \
+      --kubeconfig "${KUBECONFIG:-./.kubeconfig}" \
+      --controller-name {{sealed_secrets_controller_name}} \
+      --controller-namespace {{sealed_secrets_controller_namespace}} \
+      --format=yaml \
+  > "$tmpfile"; \
+  mv "$tmpfile" {{quote(mail_auth_secret_path)}}
+
+# Seal a fresh DKIM private key and print the DNS TXT value to publish.
+seal-mail-dkim:
+  @mkdir -p "$(dirname {{quote(mail_dkim_secret_path)}})"; \
+  tmpdir="$(mktemp -d)"; \
+  tmpfile="$(mktemp "$(dirname {{quote(mail_dkim_secret_path)}})/.mail-dkim.yaml.XXXXXX")"; \
+  trap 'rm -rf "$tmpdir"; rm -f "$tmpfile"' EXIT; \
+  umask 077; \
+  openssl genrsa -out "$tmpdir/dkim.private" 2048 2>/dev/null; \
+  kubectl create secret generic mail-dkim \
+    --namespace mail \
+    --from-file=dkim.private="$tmpdir/dkim.private" \
+    --dry-run=client \
+    -o yaml \
+  | kubeseal \
+      --kubeconfig "${KUBECONFIG:-./.kubeconfig}" \
+      --controller-name {{sealed_secrets_controller_name}} \
+      --controller-namespace {{sealed_secrets_controller_namespace}} \
+      --format=yaml \
+  > "$tmpfile"; \
+  mv "$tmpfile" {{quote(mail_dkim_secret_path)}}; \
+  printf '\nPublish this TXT record (see README for chunking):\n'; \
+  printf '  name:  mail._domainkey.compaan.cloud\n'; \
+  printf '  value: v=DKIM1; k=rsa; p=%s\n' \
+    "$(openssl rsa -in "$tmpdir/dkim.private" -pubout -outform der 2>/dev/null | openssl base64 -A)"
 
 seal-authentik-config-secret:
   scripts/seal-authentik-secrets.sh authentik-config

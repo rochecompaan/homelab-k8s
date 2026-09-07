@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: mail
+resources:
+  - namespace.yaml
+  - pvc.yaml
+  - certificate.yaml
+  - services.yaml
+  - deployments.yaml
+  - mail-auth-sealed-secret.yaml
+  - mail-dkim-sealed-secret.yaml
+configMapGenerator:
+  - name: mail-config
+    files:
+      - exim.conf
+      - dovecot.conf
+      - aliases
+images:
+  - name: exim
+    newName: harbor.compaan/mail/exim
+    newTag: "2026-08-15"
+  - name: dovecot
+    newName: harbor.compaan/mail/dovecot
+    newTag: "2026-08-15"
