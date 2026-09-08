@@ -164,13 +164,15 @@ Derived from mycity's `exim.conf`, stripped of every logger router:
   1. `aliases` — redirect from `/etc/exim4/aliases` (ConfigMap):
      `postmaster`, `abuse`, `dmarc` → `roche@compaan.cloud`.
   2. `local_users` — accept for `+local_domains` where the local part exists in
-     the auth passwd file; deliver via `local_maildir`.
+     the auth passwd file; return the validated address with `lsearch,ret=key`
+     in `address_data`, then deliver via `local_maildir`.
   3. `unknown_local` — `:fail: No such user` for the rest of the local domains.
   4. `dnslookup` — everything else via `remote_smtp_dkim`, `no_more`.
 - Transports:
-  - `local_maildir`: appendfile, `maildir_format`, directory
-    `/var/mail/vmail/$domain/$local_part/Maildir`, `create_directory`,
-    user `vmail` (uid/gid 5000).
+  - `local_maildir`: appendfile, `maildir_format`, directory built from the
+    validated address as
+    `/var/mail/vmail/${domain:$address_data}/${local_part:$address_data}/Maildir`,
+    `create_directory`, user `vmail` (uid/gid 5000).
   - `remote_smtp_dkim`: smtp driver with `dkim_domain = compaan.cloud`,
     `dkim_selector = mail`,
     `dkim_private_key = /etc/exim4/dkim/dkim.private`,
@@ -235,8 +237,9 @@ The SPF record keeps `129.232.177.170` authorized: Forgejo sends
    `docs/specs/2026-08-15-harbor-registry-design.md` (`harbor.compaan`
    serving, `mail` project created with public pull, node pull path working).
 2. Publish the `homelab.compaan.cloud` A record.
-3. Build both images; validate `exim -bV -C /etc/exim4/exim.conf` inside the
-   exim image locally with the real `exim.conf` mounted; push to Harbor.
+3. Build and push the updated Exim image while retaining the existing Dovecot
+   image. Mount the real `exim.conf` at the trusted default path
+   `/etc/exim4/exim4.conf`, then validate `exim -bV` inside the Exim image.
 4. Run `seal-mail-auth` and `seal-mail-dkim`; publish the DKIM TXT record.
 5. Merge the repo changes (one squash commit): new `argocd/base/mail` and
    `argocd/homelab/mail`, apps-kustomization registration, traefik-public
@@ -288,14 +291,16 @@ follow-up once the base service proves itself.
 
 ## Verification
 
-Static manifests and config files — per the Testing Value Gate no new
-automated tests are written. Verification is direct:
+Most manifest verification is direct. The existing Exim container integration
+test covers SMTP authentication and local Maildir delivery because those are
+behavioral regressions rather than static YAML values:
 
 1. `kustomize build argocd/homelab/mail` renders without error. The render
    contains both PVCs, the Exim-only spool mount, and the image rewrites to
    `harbor.compaan/mail/...`.
-2. `exim -bV -C` validation of the exact committed `exim.conf` inside the
-   built image before push (step 3 of Rollout).
+2. Build `mail-exim:dev`, then run `docker/mail/exim/test-smtp-auth.sh`. The
+   test starts the image's default command with the committed `exim.conf` at
+   `/etc/exim4/exim4.conf`; SMTP AUTH and local Maildir delivery must pass.
 3. After sync: `mail-tls` Certificate is Ready; both Deployments healthy.
 4. DNS: `dig A homelab.compaan.cloud`, `dig -x 102.218.60.202` (once ISP
    confirms), `dig MX compaan.cloud`, `dig TXT mail._domainkey.compaan.cloud`.

@@ -43,7 +43,7 @@ spec:
         - name: exim
           image: exim
           imagePullPolicy: IfNotPresent
-          args: ["-bd", "-q30m", "-C", "/etc/exim4/exim.conf"]
+          args: ["-bd", "-q30m"]
           ports:
             - name: smtp
               containerPort: 25
@@ -72,7 +72,7 @@ spec:
               memory: 512Mi
           volumeMounts:
             - name: mail-config
-              mountPath: /etc/exim4/exim.conf
+              mountPath: /etc/exim4/exim4.conf
               subPath: exim.conf
               readOnly: true
             - name: mail-config

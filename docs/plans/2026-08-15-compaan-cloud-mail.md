@@ -16,8 +16,8 @@
 - **GitOps-only:** no direct cluster mutations (`kubectl apply/patch/delete`, `helm upgrade`). All `kubectl` in recipes is `--dry-run=client` (local manifest generation); `kubeseal` only fetches the controller's public cert (read-only).
 - **Secrets:** commit SealedSecret ciphertext only. Plaintext lives in `pass` and mode-0600/0700 temp files removed on exit. Never in shell history, command lines, chat, or git.
 - **Commits:** Conventional Commits, signed, hooks never bypassed (escalate sandbox instead).
-- **Testing Value Gate:** this is static configuration — no new automated tests. Every task has a direct verification step instead.
-- **Image tags:** pinned, no `latest`. Both mail images use tag `2026-08-15` initially; bump the tag in `kustomization.yaml` whenever the Dockerfiles change.
+- **Testing Value Gate:** verify static manifest values directly. Use the existing Exim container integration test for SMTP authentication and local Maildir delivery behavior.
+- **Image tags:** pinned, no `latest`. The current tags are Exim `2026-09-08` and Dovecot `2026-08-15`; bump the applicable tag in `kustomization.yaml` whenever a Dockerfile changes.
 - **Naming:** namespace `mail`; hostname `homelab.compaan.cloud`; DKIM selector `mail`; `mail-storage` PVC (RWX, `longhorn-sata`, 50Gi); `mail-exim-spool` PVC (RWO, `longhorn-sata`, 5Gi); NodePorts 30025 (smtp), 30587 (submission), 30993 (imaps).
 - **One-way door:** do not merge to `main` until images are pushed to Harbor (Task 8); otherwise pods ImagePullBackOff on sync.
 - Spec deviation (accepted): two SealedSecret files (`mail-auth-sealed-secret.yaml`, `mail-dkim-sealed-secret.yaml`) instead of one `sealed-secrets.yaml` — matches the Forgejo one-file-per-recipe pattern.
@@ -32,8 +32,8 @@
 - Create: `docker/mail/dovecot/Dockerfile`
 
 **Interfaces:**
-- Produces: local images built as `mail-exim:dev` / `mail-dovecot:dev` for Task 2–3 verification; Deployment image names `exim` and `dovecot` (Task 5) rewritten by kustomize to `harbor.compaan/mail/exim:2026-08-15` / `harbor.compaan/mail/dovecot:2026-08-15` (Task 8 pushes exactly those tags).
-- Produces: exim container expects config at `/etc/exim4/exim.conf`, auth at `/etc/exim4/auth/passwd`, DKIM key at `/etc/exim4/dkim/dkim.private`, TLS at `/etc/exim4/tls/{tls.crt,tls.key}`, mailstore at `/var/mail/vmail`.
+- Produces: local images built as `mail-exim:dev` / `mail-dovecot:dev` for Task 2–3 verification; Deployment image names `exim` and `dovecot` (Task 5) rewritten by kustomize to `harbor.compaan/mail/exim:2026-09-08` / `harbor.compaan/mail/dovecot:2026-08-15` (Task 8 pushes the required tags).
+- Produces: exim container expects config at `/etc/exim4/exim4.conf`, auth at `/etc/exim4/auth/passwd`, DKIM key at `/etc/exim4/dkim/dkim.private`, TLS at `/etc/exim4/tls/{tls.crt,tls.key}`, mailstore at `/var/mail/vmail`.
 - Produces: dovecot container expects config at `/etc/dovecot/dovecot.conf`, auth at `/etc/dovecot/auth/passwd-dovecot`, TLS at `/etc/dovecot/tls/{tls.crt,tls.key}`, mailstore at `/var/mail/vmail`.
 
 - [ ] **Step 1: Write `docker/mail/exim/Dockerfile`**
@@ -58,7 +58,7 @@ RUN apt-get update \
 
 EXPOSE 25 587
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/exim-entrypoint"]
-CMD ["-bd", "-q30m", "-C", "/etc/exim4/exim.conf"]
+CMD ["-bd", "-q30m"]
 ```
 
 - [ ] **Step 2: Write `docker/mail/exim/exim-entrypoint.sh`**
@@ -169,7 +169,7 @@ aliases:
 local_users:
   driver = accept
   domains = +local_domains
-  address_data = ${lookup{$local_part@$domain}lsearch{/etc/exim4/auth/passwd}{$value}{}}
+  address_data = ${lookup{$local_part@$domain}lsearch,ret=key{/etc/exim4/auth/passwd}{$value}{}}
   condition = ${lookup{$local_part@$domain}lsearch{/etc/exim4/auth/passwd}{yes}{}}
   transport = local_maildir
 
@@ -189,7 +189,7 @@ begin transports
 
 local_maildir:
   driver = appendfile
-  directory = /var/mail/vmail/$domain/$local_part/Maildir
+  directory = /var/mail/vmail/${domain:$address_data}/${local_part:$address_data}/Maildir
   create_directory
   maildir_format
   user = vmail
@@ -509,7 +509,7 @@ git commit -m "feat(mail): seal mail credentials and DKIM key"
 - Create: `argocd/homelab/mail/kustomization.yaml`
 
 **Interfaces:**
-- Consumes: `exim.conf`, `dovecot.conf`, `aliases` (Task 2–3) via configMapGenerator; SealedSecrets `mail-auth`, `mail-dkim` (Task 4); image names `exim`/`dovecot` and tag `2026-08-15` (Task 1, pushed in Task 8).
+- Consumes: `exim.conf`, `dovecot.conf`, `aliases` (Task 2–3) via configMapGenerator; SealedSecrets `mail-auth`, `mail-dkim` (Task 4); image names `exim`/`dovecot` with tags `2026-09-08` / `2026-08-15` respectively (Task 1, pushed in Task 8).
 - Produces: kustomize package at `argocd/homelab/mail` consumed by the ArgoCD Application (Task 6). NodePorts 30025/30587/30993 consumed by the operator's router forwards (Task 8). Certificate `mail-tls` consumed by both pods as secret `mail-tls`.
 
 - [ ] **Step 1: `namespace.yaml`**
@@ -677,7 +677,7 @@ spec:
         - name: exim
           image: exim
           imagePullPolicy: IfNotPresent
-          args: ["-bd", "-q30m", "-C", "/etc/exim4/exim.conf"]
+          args: ["-bd", "-q30m"]
           ports:
             - name: smtp
               containerPort: 25
@@ -706,7 +706,7 @@ spec:
               memory: 512Mi
           volumeMounts:
             - name: mail-config
-              mountPath: /etc/exim4/exim.conf
+              mountPath: /etc/exim4/exim4.conf
               subPath: exim.conf
               readOnly: true
             - name: mail-config
@@ -849,7 +849,7 @@ configMapGenerator:
 images:
   - name: exim
     newName: harbor.compaan/mail/exim
-    newTag: "2026-08-15"
+    newTag: "2026-09-08"
   - name: dovecot
     newName: harbor.compaan/mail/dovecot
     newTag: "2026-08-15"
@@ -864,7 +864,7 @@ Run:
 ```bash
 kustomize build argocd/homelab/mail > /dev/null && echo RENDER-OK
 kustomize build argocd/homelab/mail | grep -c 'harbor.compaan/mail/' # expect 3 references
-kustomize build argocd/homelab/mail | grep -o 'harbor.compaan/mail/[a-z]*:2026-08-15' | sort -u | wc -l # expect 2 unique images
+kustomize build argocd/homelab/mail | grep -Eo 'harbor.compaan/mail/(exim:2026-09-08|dovecot:2026-08-15)' | sort -u | wc -l # expect 2 unique images
 kustomize build argocd/homelab/mail | grep 'nodePort'                  # 30025, 30587, 30993
 kustomize build argocd/homelab/mail | grep -E '^  name: mail-config-[a-z0-9]{10}$'
 ```
@@ -1106,11 +1106,10 @@ git commit -m "docs(mail): add runbook readme"
 
 ```bash
 just harbor-login
-docker build -t harbor.compaan/mail/exim:2026-08-15 docker/mail/exim
-docker build -t harbor.compaan/mail/dovecot:2026-08-15 docker/mail/dovecot
-docker push harbor.compaan/mail/exim:2026-08-15
-docker push harbor.compaan/mail/dovecot:2026-08-15
-docker manifest inspect harbor.compaan/mail/exim:2026-08-15 > /dev/null && echo PUSH-OK
+docker build -t harbor.compaan/mail/exim:2026-09-08 docker/mail/exim
+docker push harbor.compaan/mail/exim:2026-09-08
+docker manifest inspect harbor.compaan/mail/exim:2026-09-08 > /dev/null && echo PUSH-OK
+# Dovecot remains on the existing harbor.compaan/mail/dovecot:2026-08-15 image.
 ```
 
 - [ ] **Step 2: Merge to main and sync**

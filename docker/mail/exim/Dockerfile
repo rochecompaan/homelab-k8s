@@ -17,4 +17,4 @@ RUN apt-get update \
 
 EXPOSE 25 587
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/exim-entrypoint"]
-CMD ["-bd", "-q30m", "-C", "/etc/exim4/exim.conf"]
+CMD ["-bd", "-q30m"]

@@ -18,7 +18,7 @@ configMapGenerator:
 images:
   - name: exim
     newName: harbor.compaan/mail/exim
-    newTag: "2026-08-15"
+    newTag: "2026-09-08"
   - name: dovecot
     newName: harbor.compaan/mail/dovecot
     newTag: "2026-08-15"

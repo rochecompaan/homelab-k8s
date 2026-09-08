@@ -14,30 +14,33 @@ cleanup() {
 }
 trap cleanup EXIT
 
+mkdir -p "$tmp/exim4/auth" "$tmp/exim4/dkim" "$tmp/exim4/tls"
 printf 'roche@compaan.cloud:%s\n' \
-  "$(openssl passwd -6 -salt smtpfixture "$password")" > "$tmp/passwd"
-cp "$root/argocd/homelab/mail/aliases" "$tmp/aliases"
+  "$(openssl passwd -6 -salt smtpfixture "$password")" \
+  > "$tmp/exim4/auth/passwd"
+cp "$root/argocd/homelab/mail/exim.conf" "$tmp/exim4/exim4.conf"
+cp "$root/argocd/homelab/mail/aliases" "$tmp/exim4/aliases"
 openssl req -x509 -newkey rsa:2048 -nodes \
-  -keyout "$tmp/tls.key" \
-  -out "$tmp/tls.crt" \
+  -keyout "$tmp/exim4/tls/tls.key" \
+  -out "$tmp/exim4/tls/tls.crt" \
   -days 1 \
   -subj '/CN=homelab.compaan.cloud' >/dev/null 2>&1
+chmod 0755 \
+  "$tmp/exim4" \
+  "$tmp/exim4/auth" \
+  "$tmp/exim4/dkim" \
+  "$tmp/exim4/tls"
+chmod 0644 \
+  "$tmp/exim4/exim4.conf" \
+  "$tmp/exim4/aliases" \
+  "$tmp/exim4/auth/passwd" \
+  "$tmp/exim4/tls/tls.crt" \
+  "$tmp/exim4/tls/tls.key"
 
-docker run -d --rm --name "$container" --entrypoint /bin/sh \
-  -p 127.0.0.1::587 "$image" -c 'exec sleep infinity' >/dev/null
-docker exec "$container" mkdir -p /etc/exim4/auth /etc/exim4/dkim /etc/exim4/tls
-docker cp "$root/argocd/homelab/mail/exim.conf" "$container:/etc/exim4/exim.conf"
-docker cp "$tmp/aliases" "$container:/etc/exim4/aliases"
-docker cp "$tmp/passwd" "$container:/etc/exim4/auth/passwd"
-docker cp "$tmp/tls.crt" "$container:/etc/exim4/tls/tls.crt"
-docker cp "$tmp/tls.key" "$container:/etc/exim4/tls/tls.key"
-docker exec "$container" /bin/sh -ec '
-  chown root:root /etc/exim4/exim.conf /etc/exim4/aliases /etc/exim4/auth/passwd
-  chmod 0644 /etc/exim4/exim.conf /etc/exim4/aliases /etc/exim4/auth/passwd
-  chmod 0644 /etc/exim4/tls/tls.crt /etc/exim4/tls/tls.key
-  /usr/sbin/exim4 -bV -C /etc/exim4/exim.conf >/dev/null
-  nohup /usr/sbin/exim4 -bd -C /etc/exim4/exim.conf >/tmp/exim.log 2>&1 &
-'
+docker create --name "$container" -p 127.0.0.1::587 "$image" >/dev/null
+tar --owner=0 --group=5000 -C "$tmp/exim4" -cf - . \
+  | docker cp - "$container:/etc/exim4"
+docker start "$container" >/dev/null
 port="$(docker port "$container" 587/tcp | sed -n 's/.*:\([0-9][0-9]*\)$/\1/p')"
 
 starttls() {
@@ -45,12 +48,20 @@ starttls() {
     -connect "127.0.0.1:$port" 2>/dev/null
 }
 
+ready=false
 for _ in $(seq 1 20); do
   if printf 'QUIT\r\n' | starttls >/dev/null 2>&1; then
+    ready=true
     break
   fi
   sleep 1
 done
+
+if [[ "$ready" != true ]]; then
+  printf 'Exim did not become ready\n' >&2
+  docker logs "$container" >&2 2>&1 || true
+  exit 1
+fi
 
 assert_contains() {
   local output="$1"
@@ -78,4 +89,51 @@ bad_token="$(printf '\0roche@compaan.cloud\0bad-password' | base64 -w0)"
 bad_output="$(printf 'EHLO client.example\r\nAUTH PLAIN %s\r\nQUIT\r\n' "$bad_token" | starttls)"
 assert_contains "$bad_output" '535'
 
-printf 'EXIM-SMTP-AUTH-OK\n'
+if ! MAIL_TEST_PORT="$port" python3 >"$tmp/local-delivery.log" 2>&1 <<'PY'
+import os
+import smtplib
+import ssl
+
+message = "\r\n".join(
+    [
+        "From: postmaster@example.net",
+        "To: roche@compaan.cloud",
+        "Subject: EXIM local delivery regression",
+        "",
+        "Local Maildir delivery test.",
+    ]
+)
+
+with smtplib.SMTP("127.0.0.1", int(os.environ["MAIL_TEST_PORT"]), timeout=30) as smtp:
+    smtp.ehlo()
+    smtp.starttls(context=ssl._create_unverified_context())
+    smtp.ehlo()
+    refused = smtp.sendmail("", ["roche@compaan.cloud"], message)
+    if refused:
+        raise RuntimeError("local recipient was refused")
+PY
+then
+  printf 'Local SMTP delivery transaction failed\n' >&2
+  cat "$tmp/local-delivery.log" >&2
+  docker logs "$container" 2>&1 \
+    | grep -E 'lost privilege|unable to set (gid|uid)|local delivery|Tainted' >&2 \
+    || true
+  exit 1
+fi
+
+for _ in $(seq 1 20); do
+  if docker exec "$container" /bin/sh -ec \
+    'find /var/mail/vmail/compaan.cloud/roche/Maildir/new -type f -exec grep -lF "Subject: EXIM local delivery regression" {} \; 2>/dev/null | grep -q .'; then
+    printf 'EXIM-LOCAL-DELIVERY-OK\n'
+    printf 'EXIM-SMTP-AUTH-OK\n'
+    exit 0
+  fi
+  sleep 1
+done
+
+printf 'Expected local message was not delivered to the Maildir\n' >&2
+cat "$tmp/local-delivery.log" >&2
+docker logs "$container" 2>&1 \
+  | grep -E 'lost privilege|unable to set (gid|uid)|local delivery|Tainted' >&2 \
+  || true
+exit 1
