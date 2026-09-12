@@ -106,8 +106,11 @@ The isolated rehearsal clone ran in namespace `forgejo-rehearsal` on image
 `code.forgejo.org/forgejo/forgejo:16.0.4-rootless`.
 
 The clone used a separate configuration file (`rehearsal.ini`). It did not
-modify the original `app.ini` from the restored PVC. The original `app.ini`
-was the same size, ownership, and mode before and after the rehearsal.
+modify the original `app.ini` from the restored PVC. The snapshot manifest
+records SHA-256 `287eb43e0f50105400092b1d15361f4b9a898e1307ef54fd1cfc751f1fa9b20a`
+for `/data/gitea/conf/app.ini`. The live clone was verified to have the same
+hash. No separate pre-start hash command was captured. The manifest-to-live
+comparison proves unchanged content.
 
 The clone disabled mail, SSH serving, LFS serving, cron tasks, federation,
 registration, webhooks, and external lookups. It had no public ingress and
@@ -116,15 +119,21 @@ primary isolation control.
 
 ### Ephemeral secrets limitation
 
-The rehearsal clone generates ephemeral `SECRET_KEY` and `INTERNAL_TOKEN`
-values at startup. These differ from the production values in the cloned
-database. Production-encrypted database fields (user passwords, two-factor
-secrets, OAuth2 tokens) are encrypted with the production key. Those fields
-are not readable in the clone. This is expected and does not indicate data
-corruption.
+The rehearsal clone generates an ephemeral `SECRET_KEY` at startup. Fields
+that Forgejo encrypts with `SECRET_KEY` are not readable in the clone. Those
+fields include 2FA/TOTP secrets, Actions secrets, mirror and migration
+credentials, and login-source secrets.
 
-Do not use the clone as a fidelity test for authentication or OAuth2 flows.
-Use it only to test migration, read-only data access, and API endpoint shape.
+User passwords are salted hashes. OAuth2 access tokens are hashed. Neither
+is encrypted with `SECRET_KEY`. The ephemeral key does not affect them.
+
+The clone also generates an ephemeral `INTERNAL_TOKEN`. This token signs
+inter-service requests inside the Forgejo process. It is not a
+database-field encryption key.
+
+Do not use the clone as a fidelity test for 2FA, Actions secret injection,
+or mirror credential access. Use it only to test migration, read-only data
+access, and API endpoint shape.
 
 ### ConfigMap revision annotation
 

@@ -153,9 +153,9 @@ sha256sum "$backup/forgejo-data.tar.gz.age" > "$backup/forgejo-data.tar.gz.age.s
 ## Residual risks and limits
 
 - Runner protocol test used the host executor inside a restricted container. It proves runner 12.7.3 is compatible with the Forgejo 16 protocol. It does not prove the production Docker/DinD execution model works.
-- The rehearsal clone generates ephemeral `SECRET_KEY` and `INTERNAL_TOKEN` values. Production-encrypted database fields are not readable in the clone. Authentication and OAuth2 flows are not fidelity-tested.
+- The rehearsal clone generates an ephemeral `SECRET_KEY`. Fields encrypted with `SECRET_KEY` (2FA/TOTP secrets, Actions secrets, mirror credentials, login-source secrets) are not readable in the clone. User passwords and OAuth2 tokens are hashes and are unaffected by the ephemeral key. `INTERNAL_TOKEN` is not a database-field encryption key. 2FA and Actions secret injection flows are not fidelity-tested.
 - The external archive is one encrypted off-cluster copy on one workstation (`kipchoge`). It is not independently replicated off-site.
 - The rehearsal ConfigMap uses a manual revision annotation. Increment the annotation if the ConfigMap changes, or switch to a content-hashed generator.
-- The pre-start cryptographic hash of the original `app.ini` was not captured. Size, ownership, and mode were verified unchanged before and after.
+- The snapshot manifest records SHA-256 `287eb43e0f50105400092b1d15361f4b9a898e1307ef54fd1cfc751f1fa9b20a` for `/data/gitea/conf/app.ini`. The live clone was verified to have the same hash, which proves unchanged content. No separate pre-start hash command was captured.
 - No Kubeconform schemas exist for VolumeSnapshot, VolumeSnapshotContent, or SealedSecret. Those three resources were skipped in schema validation. All built-in resources passed strict validation.
 - Production v16 delivery is not authorized. Await explicit owner approval and a Docker/DinD runner test before scheduling an upgrade window.
