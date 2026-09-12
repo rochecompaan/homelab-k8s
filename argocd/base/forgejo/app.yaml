@@ -16,6 +16,8 @@ spec:
         valuesObject:
           global:
             storageClass: longhorn
+          image:
+            tag: 16.0.4-rootless
           persistence:
             size: 10Gi
           ingress:
