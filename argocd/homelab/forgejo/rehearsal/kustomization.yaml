@@ -6,4 +6,6 @@ resources:
   - probe.yaml
   - snapshot.yaml
   - pvc.yaml
+  - config.yaml
   - deployment.yaml
+  - service.yaml

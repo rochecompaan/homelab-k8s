@@ -16,16 +16,87 @@ spec:
         app.kubernetes.io/name: forgejo-rehearsal
     spec:
       automountServiceAccountToken: false
+      enableServiceLinks: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
         runAsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
+      initContainers:
+        - name: configure
+          image: code.forgejo.org/forgejo/forgejo:16.0.4-rootless
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              umask 077
+              mkdir -p /data/gitea/conf /tmp/forgejo
+              cp /config/rehearsal.ini /data/gitea/conf/rehearsal.ini
+              chmod 0600 /data/gitea/conf/rehearsal.ini
+              forgejo generate secret SECRET_KEY > /tmp/forgejo/secret-key
+              forgejo generate secret INTERNAL_TOKEN \
+                > /tmp/forgejo/internal-token
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ['ALL']
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
       containers:
         - name: forgejo
-          image: code.forgejo.org/forgejo/forgejo:15.0.5-rootless
-          command: ['/bin/sh', '-c', 'exec sleep infinity']
+          image: code.forgejo.org/forgejo/forgejo:16.0.4-rootless
+          args:
+            - forgejo
+            - web
+            - --config
+            - /data/gitea/conf/rehearsal.ini
+          env:
+            - name: GITEA_APP_INI
+              value: /data/gitea/conf/rehearsal.ini
+            - name: GITEA_CUSTOM
+              value: /tmp/forgejo/custom
+            - name: GITEA_TEMP
+              value: /tmp/forgejo/tmp
+            - name: GITEA_WORK_DIR
+              value: /data
+            - name: HOME
+              value: /tmp/forgejo/home
+            - name: TMPDIR
+              value: /tmp/forgejo/tmp
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /api/healthz
+              port: http
+            failureThreshold: 30
+            periodSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: /api/healthz
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/healthz
+              port: http
+            periodSeconds: 20
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -34,15 +105,20 @@ spec:
           resources:
             requests:
               cpu: 25m
-              memory: 32Mi
+              memory: 64Mi
             limits:
-              memory: 128Mi
+              memory: 256Mi
           volumeMounts:
             - name: data
               mountPath: /data
-              readOnly: true
+            - name: tmp
+              mountPath: /tmp
       volumes:
+        - name: config
+          configMap:
+            name: forgejo-rehearsal-config
         - name: data
           persistentVolumeClaim:
             claimName: forgejo-rehearsal-data
-            readOnly: true
+        - name: tmp
+          emptyDir: {}

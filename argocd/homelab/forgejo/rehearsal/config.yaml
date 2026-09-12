@@ -1,0 +1,176 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: forgejo-rehearsal-config
+  namespace: forgejo-rehearsal
+data:
+  rehearsal.ini: |
+    APP_NAME = Forgejo v16 Rehearsal
+    RUN_MODE = prod
+    RUN_USER = git
+    WORK_PATH = /data
+
+    [server]
+    PROTOCOL = http
+    DOMAIN = forgejo-rehearsal
+    ROOT_URL = http://forgejo-rehearsal:3000/
+    LOCAL_ROOT_URL = http://127.0.0.1:3000/
+    HTTP_ADDR = 0.0.0.0
+    HTTP_PORT = 3000
+    OFFLINE_MODE = true
+    DISABLE_SSH = true
+    START_SSH_SERVER = false
+    SSH_CREATE_AUTHORIZED_KEYS_FILE = false
+    SSH_CREATE_AUTHORIZED_PRINCIPALS_FILE = false
+    APP_DATA_PATH = /data
+    LFS_START_SERVER = false
+    LFS_JWT_SIGNING_PRIVATE_KEY_FILE = /tmp/forgejo/lfs-private.pem
+
+    [database]
+    DB_TYPE = sqlite3
+    PATH = /data/forgejo.db
+    SQLITE_TIMEOUT = 500
+    AUTO_MIGRATION = true
+
+    [security]
+    INSTALL_LOCK = true
+    SECRET_KEY_URI = file:/tmp/forgejo/secret-key
+    INTERNAL_TOKEN_URI = file:/tmp/forgejo/internal-token
+    DISABLE_GIT_HOOKS = true
+    DISABLE_WEBHOOKS = true
+    DISABLE_QUERY_AUTH_TOKEN = true
+
+    [oauth2]
+    ENABLED = true
+    JWT_SIGNING_ALGORITHM = RS256
+    JWT_SIGNING_PRIVATE_KEY_FILE = /tmp/forgejo/oauth2-private.pem
+
+    [repository]
+    ROOT = /data/gitea-repositories
+
+    [service]
+    DISABLE_REGISTRATION = true
+    ENABLE_NOTIFY_MAIL = false
+
+    [mailer]
+    ENABLED = false
+
+    [mirror]
+    ENABLED = false
+    DISABLE_NEW_PULL = true
+    DISABLE_NEW_PUSH = true
+
+    [federation]
+    ENABLED = false
+
+    [session]
+    PROVIDER = memory
+
+    [cache]
+    ADAPTER = memory
+
+    [queue]
+    TYPE = level
+    DATADIR = /tmp/forgejo/queues
+
+    [actions]
+    ENABLED = true
+    DEFAULT_ACTIONS_URL = http://forgejo-rehearsal:3000
+    ID_TOKEN_SIGNING_PRIVATE_KEY_FILE = /tmp/forgejo/actions-key.pem
+
+    [log]
+    MODE = console
+    LEVEL = info
+    ROOT_PATH = /tmp/forgejo/log
+
+    [cron]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.archive_cleanup]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.update_mirrors]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.repo_health_check]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.check_repo_stats]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.update_migration_poster_id]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.sync_external_users]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.cleanup_actions]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.deleted_branches_cleanup]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.cleanup_hook_task_table]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.cleanup_packages]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.delete_inactive_accounts]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.delete_repo_archives]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.git_gc_repos]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.resync_all_sshkeys]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.resync_all_hooks]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.reinit_missing_repos]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.delete_missing_repos]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.delete_generated_repository_avatars]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.delete_old_actions]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.update_checker]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.delete_old_system_notices]
+    ENABLED = false
+    RUN_AT_START = false
+
+    [cron.gc_lfs]
+    ENABLED = false
+    RUN_AT_START = false
