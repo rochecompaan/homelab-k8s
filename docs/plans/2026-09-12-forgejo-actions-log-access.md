@@ -127,6 +127,10 @@ sha256sum "$backup/forgejo-data.tar.gz.age" > "$backup/forgejo-data.tar.gz.age.s
 - [x] Use a localhost port-forward to inspect old runs and native log endpoints.
 - [x] Verify run jobs is an array, job logs are plaintext, and run logs are a readable ZIP.
 - [x] Verify missing/invalid tokens cannot read private logs. Verify cross-repository IDs are rejected.
+  Final review wave verified all three routes on the isolated clone: jobs-list, plaintext job log, and run ZIP.
+  Mismatched repository/job and repository/run IDs returned `404` with JSON error bodies and no log content, in both directions.
+  Matching-repository positive controls returned `200` with valid plaintext and ZIP data.
+  Sanitized results are recorded in `docs/runbooks/forgejo-actions-logs.md`.
 - [x] Verify clone egress cannot reach the production service or external integrations.
 - [x] Repeat SQLite integrity verification against a consistent clone database capture.
 - [x] If registration and workflow execution are needed, declare a dedicated `12.7.3` rehearsal runner through Git.
@@ -143,6 +147,8 @@ sha256sum "$backup/forgejo-data.tar.gz.age" > "$backup/forgejo-data.tar.gz.age.s
 **Interfaces:** Produces durable recovery and automation guidance. Does not deliver a production version change.
 
 - [x] Document both `tea api` and `curl`/`jq` usage with correct run/job/attempt IDs.
+  The runbook requires the global API run ID and shows how to resolve the repository-local run number through the runs API (`index_in_repo`).
+  Verified live on the clone: run number `1` in `roche/forgejo-v16-rehearsal-20260912` resolved to API run ID `207`.
 - [x] Mark API evidence as rehearsal-only until production verification exists.
 - [x] Record source snapshot identity, backup checksum, restore checks, outage duration, and clone verification.
 - [x] Record retention, cleanup approval, runner-test limits, and the full-data rollback requirement.

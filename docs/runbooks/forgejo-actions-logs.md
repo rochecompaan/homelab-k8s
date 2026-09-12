@@ -29,9 +29,44 @@ Replace each `{...}` placeholder with the actual value before you run the comman
 |---|---|
 | `{OWNER}` | Repository owner username |
 | `{REPO}` | Repository name |
-| `{RUN_ID}` | Workflow run ID (integer from the run URL or API) |
+| `{RUN_ID}` | Global API run ID of the run object (see Run number vs API run ID) |
 | `{JOB_ID}` | Job ID from the jobs array (see List jobs below) |
 | `{ATTEMPT}` | Attempt number, starting at `1` |
+
+## Run number vs API run ID
+
+The run URL in the web UI ends with a repository-local run number, for
+example `.../actions/runs/1`. The web UI resolves that number inside the
+repository. The API routes in this runbook resolve `{RUN_ID}` as the global
+`id` field of the run object. The two values can differ.
+
+Rehearsal proof: run number `1` in `roche/forgejo-v16-rehearsal-20260912`
+has API run ID `207`. If you use the run number as the API run ID, you get
+a `404` or the wrong run.
+
+### Resolve a run number to the API run ID
+
+The runs-list response holds one object per run. The field `index_in_repo`
+is the repository-local run number. The field `id` is the global API run ID.
+
+#### tea api
+
+```bash
+tea api --method GET /repos/{OWNER}/{REPO}/actions/runs \
+  | jq -r '.workflow_runs[] | select(.index_in_repo == {RUN_NUMBER}) | .id'
+```
+
+#### curl
+
+```bash
+curl --silent --show-error \
+  -K ~/.forgejo-curl-auth \
+  "${FORGEJO_URL}/api/v1/repos/{OWNER}/{REPO}/actions/runs" \
+  | jq -r '.workflow_runs[] | select(.index_in_repo == {RUN_NUMBER}) | .id'
+```
+
+Replace `{RUN_NUMBER}` with the run number from the web UI URL. Use the
+result as `{RUN_ID}` in all commands of this runbook.
 
 ## Forgejo 16 jobs-list response shape
 
@@ -67,10 +102,15 @@ as a command-line argument or store it in shell history.
 
 ```bash
 umask 077
-printf 'header = "Authorization: token %s"\n' "$(cat /path/to/token-file)" \
+builtin printf 'header = "Authorization: token %s"\n' "$(cat /path/to/token-file)" \
   > ~/.forgejo-curl-auth
 chmod 0600 ~/.forgejo-curl-auth
 ```
+
+This example requires Bash. The `builtin` prefix makes sure that the Bash
+builtin `printf` runs. An external `printf` process would receive the token
+as an argument and would show it in the process list. The builtin keeps the
+token out of the process list.
 
 Replace `/path/to/token-file` with the path to a file that holds your API
 token. The token file must not be world-readable.
@@ -191,8 +231,9 @@ Private repositories require a valid token.
 |---|---|
 | No token | 404 |
 | Invalid token | 401 |
-| Valid token, wrong repository | 404 |
-| Valid token, correct repository | 200 |
+| Valid token, run ID of a different repository | 404 |
+| Valid token, job ID of a different repository | 404 |
+| Valid token, correct repository and IDs | 200 |
 
 A missing token returns `404`, not `401`. Do not treat a `404` as proof that
 a run or job does not exist. If a request returns `404` unexpectedly, add a
@@ -222,6 +263,34 @@ They are not production evidence.
   latest-attempt response.
 - Run log endpoint: HTTP `200`, `Content-Type: application/zip`, `44978`
   bytes, five ZIP entries, `unzip -tqq` passed.
-- Missing token: job `404`, run `404`.
-- Invalid token: job `401`, run `401`.
-- Valid token, cross-repository run ID: `404`.
+- Missing token: job log `404`, run log `404`.
+- Invalid token: job log `401`, run log `401`.
+- Valid token, cross-repository run ID on the jobs-list route: `404`.
+
+### Run-number and cross-repository checks (final review wave)
+
+These checks ran against the same isolated clone through a localhost
+port-forward. No historical workflow ran again.
+
+- Runs list for `roche/forgejo-v16-rehearsal-20260912`: run number
+  (`index_in_repo`) `1` resolved to API run ID `207`.
+- Run number `1` used directly as the API run ID in that repository: `404`.
+- Positive control, rehearsal job log with matching repository: HTTP `200`,
+  `text/plain`, 362 bytes, marker `FORGEJO_REHEARSAL_PROTOCOL_OK` present.
+- Positive control, rehearsal run ZIP with matching repository: HTTP `200`,
+  `application/zip`, 421 bytes, one entry, `unzip -tqq` passed.
+- Positive control, `roche/croprun` run `204` ZIP with matching repository:
+  HTTP `200`, `application/zip`, 44978 bytes, five entries, `unzip -tqq` passed.
+- Mismatched repository/job ID: job ID `683` of `roche/croprun` on the
+  plaintext-log route of the rehearsal repository returned `404`. The body
+  was a JSON error object with no log content.
+- Reverse case: job ID `698` of the rehearsal repository on the
+  plaintext-log route of `roche/croprun` returned `404`. The body was a
+  JSON error object with no log content.
+- Mismatched repository/run ID: run ID `204` of `roche/croprun` on the ZIP
+  route of the rehearsal repository returned `404`. The body was a JSON
+  error object with no log content.
+- Reverse case: run ID `207` of the rehearsal repository on the ZIP route
+  of `roche/croprun` returned `404`. The body was a JSON error object with
+  no log content.
+- Recheck on both log routes: missing token `404`, invalid token `401`.

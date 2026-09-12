@@ -43,9 +43,13 @@ kubectl get volumesnapshotcontent \
 
 | Field | Value |
 |---|---|
-| Outage start | 2026-09-12T13:24:04Z |
-| Outage end | 2026-09-12T13:39:35Z |
-| Duration | 930.472 seconds (15 minutes, 30 seconds) |
+| Outage start | 2026-09-12T13:24:04.542791Z |
+| Outage end | 2026-09-12T13:39:35.014750Z |
+| Duration | 930.471959 seconds (15 minutes, 30.472 seconds) |
+
+The timestamps come from
+`/home/roche/backups/forgejo/2026-09-12/production-recovery.json`.
+They keep the fractional seconds of the recorded outage.
 
 Production health checks passed after restoration:
 
@@ -174,6 +178,10 @@ Retain these resources until the owner separately approves cleanup:
 - Recovery export `/home/roche/backups/forgejo-recovery/2026-09-12/`
 - Database captures in the rehearsal pod and in `/tmp/forgejo-actions-investigation/task4-evidence/`
 - Disposable repository `roche/forgejo-v16-rehearsal-20260912` in the clone
+- Dedicated rehearsal runner Deployment `forgejo-rehearsal/forgejo-rehearsal-runner`
+  and its clone-only registration material. The registration material is the
+  runner ConfigMap, the registered runner identity in the clone, and the
+  credentials on the pod `emptyDir` volumes.
 - All rehearsal Argo resources (`forgejo-rehearsal`, `forgejo-maintenance` apps)
 
 Do not remove any of these resources from the cluster or workstation without
