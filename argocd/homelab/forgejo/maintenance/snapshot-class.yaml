@@ -1,0 +1,10 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: longhorn-snapshot-retain
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+driver: driver.longhorn.io
+deletionPolicy: Retain
+parameters:
+  type: snap

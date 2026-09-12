@@ -21,6 +21,8 @@ resources:
   - ../../base/remote-pi-relay
   - ../../base/garage
   - ../../base/forgejo
+  - ../../base/forgejo-maintenance
+  - ../../base/forgejo-rehearsal
   - ../../base/forgejo-runner
   - ../../base/ftp
   - ../../base/infra

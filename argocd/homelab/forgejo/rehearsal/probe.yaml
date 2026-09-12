@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forgejo-rehearsal-probe
+  namespace: forgejo-rehearsal
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: forgejo-rehearsal-probe
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: forgejo-rehearsal-probe
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: probe
+          image: code.forgejo.org/forgejo/forgejo:15.0.5-rootless
+          command: ['/bin/sh', '-c', 'exec sleep infinity']
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ['ALL']
+          resources:
+            requests:
+              cpu: 5m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
