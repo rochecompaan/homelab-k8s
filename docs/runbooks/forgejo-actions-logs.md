@@ -52,8 +52,9 @@ is the repository-local run number. The field `id` is the global API run ID.
 #### tea api
 
 ```bash
-tea api --method GET /repos/{OWNER}/{REPO}/actions/runs \
-  | jq -r '.workflow_runs[] | select(.index_in_repo == {RUN_NUMBER}) | .id'
+tea api --method GET \
+  "/repos/{OWNER}/{REPO}/actions/runs?run_number={RUN_NUMBER}" \
+  | jq -er '.workflow_runs[0].id'
 ```
 
 #### curl
@@ -61,12 +62,17 @@ tea api --method GET /repos/{OWNER}/{REPO}/actions/runs \
 ```bash
 curl --silent --show-error \
   -K ~/.forgejo-curl-auth \
-  "${FORGEJO_URL}/api/v1/repos/{OWNER}/{REPO}/actions/runs" \
-  | jq -r '.workflow_runs[] | select(.index_in_repo == {RUN_NUMBER}) | .id'
+  "${FORGEJO_URL}/api/v1/repos/{OWNER}/{REPO}/actions/runs?run_number={RUN_NUMBER}" \
+  | jq -er '.workflow_runs[0].id'
 ```
 
 Replace `{RUN_NUMBER}` with the run number from the web UI URL. Use the
-result as `{RUN_ID}` in all commands of this runbook.
+result as `{RUN_ID}` in all commands of this runbook. Both commands exit
+nonzero and print no ID if the server returns no run for that number.
+The `?run_number=` parameter is a server-side filter supported since
+Forgejo v16. It returns only the matching run regardless of total run
+count, so it finds older runs that would not appear on the first
+unfiltered page.
 
 ## Forgejo 16 jobs-list response shape
 
@@ -294,3 +300,24 @@ port-forward. No historical workflow ran again.
   of `roche/croprun` returned `404`. The body was a JSON error object with
   no log content.
 - Recheck on both log routes: missing token `404`, invalid token `401`.
+
+### Run-number filter checks (approved extra round, 2026-09-12)
+
+These checks ran against the same isolated clone through a new localhost
+port-forward. No historical workflow ran again. All requests were read-only
+GETs.
+
+- `GET /repos/roche/croprun/actions/runs?page=1&limit=1`: HTTP `200`,
+  returned 1 run (run `206`), `total_count` `206`. Run number `1` was
+  outside this first unfiltered page.
+- `GET /repos/roche/croprun/actions/runs?run_number=1`: HTTP `200`,
+  `total_count` `1`, returned run `1` directly despite it being outside
+  the first unfiltered page. The server-side filter found it.
+- `GET /repos/roche/forgejo-v16-rehearsal-20260912/actions/runs?run_number=1`:
+  HTTP `200`, `total_count` `1`. Run object: `id` `207`, `index_in_repo`
+  `1`. The recipe `jq -er '.workflow_runs[0].id'` returned `207`, exit
+  `0`. This is the non-coincident case: the run number and the API run ID
+  differ.
+- `GET /repos/roche/forgejo-v16-rehearsal-20260912/actions/runs?run_number=9999`:
+  HTTP `200`, `total_count` `0`, empty `workflow_runs`. The recipe
+  `jq -er '.workflow_runs[0].id'` exited `1` and printed no ID.
