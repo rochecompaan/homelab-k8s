@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - snapshot-class.yaml
   - anchor.yaml
+  - snapshot-2026-09-12.yaml

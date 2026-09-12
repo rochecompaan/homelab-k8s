@@ -1,0 +1,12 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: forgejo-pre-v16-20260912
+  namespace: forgejo
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+    homelab.compaan.cloud/purpose: quiesced-forgejo-15.0.5-before-v16-rehearsal
+spec:
+  volumeSnapshotClassName: longhorn-snapshot-retain
+  source:
+    persistentVolumeClaimName: gitea-shared-storage
