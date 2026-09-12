@@ -4,3 +4,6 @@ resources:
   - namespace.yaml
   - network-policy.yaml
   - probe.yaml
+  - snapshot.yaml
+  - pvc.yaml
+  - deployment.yaml

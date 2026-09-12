@@ -1,0 +1,27 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotContent
+metadata:
+  name: forgejo-rehearsal-pre-v16-20260912
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  deletionPolicy: Retain
+  driver: driver.longhorn.io
+  volumeSnapshotClassName: longhorn-snapshot-retain
+  source:
+    snapshotHandle: snap://pvc-b7b5baeb-8b60-4823-81e2-2bc6b35ba79c/snapshot-7157c072-e4e2-48e6-904a-1f8a4fee19e4
+  volumeSnapshotRef:
+    name: forgejo-pre-v16-20260912
+    namespace: forgejo-rehearsal
+---
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: forgejo-pre-v16-20260912
+  namespace: forgejo-rehearsal
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  volumeSnapshotClassName: longhorn-snapshot-retain
+  source:
+    volumeSnapshotContentName: forgejo-rehearsal-pre-v16-20260912
