@@ -29,6 +29,8 @@ Its mount keeps the Longhorn engine attached during the brief Forgejo outage.
 
 Before the outage, verify that the anchor and Forgejo occupy the same node.
 After confirming no active jobs, declare zero Forgejo replicas through Git.
+The chart schema requires one replica, so this step also needs a temporary `helm.skipSchemaValidation` exception.
+Verify the rendered Deployment directly and remove the exception when production resumes.
 Wait for the Forgejo pod to exit before declaring the dated VolumeSnapshot through Git.
 Require `readyToUse: true` and record its source volume, handle, creation time, and size.
 Scale the anchor to zero through Git and wait for its pod to exit.

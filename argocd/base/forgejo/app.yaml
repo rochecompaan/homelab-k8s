@@ -12,8 +12,11 @@ spec:
       chart: forgejo
       targetRevision: 17.1.3
       helm:
+        # Chart schema requires one replica; this exception is only for capture.
+        skipSchemaValidation: true
         releaseName: forgejo
         valuesObject:
+          replicaCount: 0
           global:
             storageClass: longhorn
           persistence:

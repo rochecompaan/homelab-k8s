@@ -43,7 +43,10 @@
 ## Task 2: Capture the consistent snapshot and resume production
 
 **Files:**
-- Temporarily modify `argocd/base/forgejo/app.yaml` with `replicaCount: 0`.
+- Temporarily modify `argocd/base/forgejo/app.yaml` with `replicaCount: 0` and `helm.skipSchemaValidation: true`.
+  Chart 17.1.3 requires at least one replica in its values schema, although its Deployment template supports zero.
+  Verify the exact rendered zero-replica Deployment with `helm template --skip-schema-validation` before delivery.
+  This narrow maintenance exception does not skip commit signing, hooks, YAML lint, or rendered manifest checks.
 - Create `argocd/homelab/forgejo/maintenance/snapshot-2026-09-12.yaml`.
 - Modify the maintenance Kustomization to include that snapshot only after Forgejo exits.
 
@@ -63,7 +66,7 @@ kubectl -n forgejo get volumesnapshot forgejo-pre-v16-20260912 -o json
 ```
 
 - [ ] Scale the anchor to zero through Git and wait for its pod to exit, even if capture fails.
-- [ ] Immediately remove the temporary production replica override through Git.
+- [ ] Immediately remove both the temporary replica override and `skipSchemaValidation` through Git.
 - [ ] Wait for the unchanged production deployment to become available.
 - [ ] Record UTC recovery time and calculate actual downtime.
 - [ ] Verify health, UI access, HTTPS/SSH git reads, and runner connection without dispatching CI.
