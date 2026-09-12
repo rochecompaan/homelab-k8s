@@ -46,7 +46,7 @@ data:
     JWT_SIGNING_PRIVATE_KEY_FILE = /tmp/forgejo/oauth2-private.pem
 
     [repository]
-    ROOT = /data/gitea-repositories
+    ROOT = /data/git/gitea-repositories
 
     [service]
     DISABLE_REGISTRATION = true
